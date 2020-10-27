@@ -3,6 +3,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "acceleration.h"
 #include "board_io.h"
 #include "common_macros.h"
 #include "periodic_scheduler.h"
@@ -14,9 +15,22 @@ static void create_uart_task(void);
 static void blink_task(void *params);
 static void uart_task(void *params);
 
+void readAccMeter(void *p) {
+  acceleration__axis_data_s read_data;
+  orientation_e tilt;
+  while (1) {
+    read_data = acceleration__get_data();
+    tilt = GetOrientation();
+    fprintf(stderr, "X = %d, Y = %d, Z = %d, Orientation = %d\n", read_data.x, read_data.y, read_data.z, tilt);
+    vTaskDelay(100);
+  }
+}
+
 int main(void) {
-  create_blinky_tasks();
-  create_uart_task();
+  // create_blinky_tasks();
+  // create_uart_task();
+
+  xTaskCreate(readAccMeter, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
 
   // If you have the ESP32 wifi module soldered on the board, you can try uncommenting this code
   // See esp32/README.md for more details
