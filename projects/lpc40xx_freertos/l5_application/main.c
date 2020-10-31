@@ -14,6 +14,7 @@ static void create_blinky_tasks(void);
 static void create_uart_task(void);
 static void blink_task(void *params);
 static void uart_task(void *params);
+void screen_refresh();
 
 #include "acceleration.h"
 #include "ff.h"
@@ -23,8 +24,10 @@ static void producer(void *task_parameter);
 acceleration__axis_data_s sensor_data;
 bool sensor_state;
 char buffer[24], master[240] = "";
+uint8_t virtual_screen[32][32];
+int pointer_x = 0, pointer_y = 0;
 
-int main(void) {
+main(void) {
   create_blinky_tasks();
   create_uart_task();
 
@@ -38,6 +41,23 @@ int main(void) {
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
 
   return 0;
+}
+
+void screen_refresh() {
+
+  for (uint8_t i = 0; i < 32; i++) {
+    for (uint8_t j = 0; j < 32; j++) {
+      virtual_screen[i][j] = 1;
+    }
+  }
+
+  for (uint8_t i = 0; i < 32; i++) {
+    for (uint8_t j = 0; j < 32; j++) {
+      printf("%d ", virtual_screen[i][j]);
+    }
+    virtual_screen[pointer_x][pointer_y] = 0;
+    printf("\n");
+  }
 }
 
 static void producer(void *p) {
@@ -68,9 +88,13 @@ static void producer(void *p) {
     projection_y = sqrt(sensor_data.x * sensor_data.x + sensor_data.y * sensor_data.y + sensor_data.z * sensor_data.z);
     printf("Sensor %d %d %d \n", sensor_data.x, sensor_data.y, sensor_data.z);
     printf("Angle %5.5f %5.5f %5.5f\n", pitch, roll, yaw);
-    printf("Project %5.5f %5.5f \n", projection_x, projection_y);
+    pointer_x = 15 + ((sensor_data.x * 16) / 1024);
+    pointer_y = 15 + ((sensor_data.y * 16) / 1024);
+    printf("Pointer %d %d\n", pointer_x, pointer_y);
+    screen_refresh();
+    // printf("Project %5.5f %5.5f \n", projection_x, projection_y);
     // snprintf(buffer, 24, "%d %d %d\n", sensor_data.x, sensor_data.y, sensor_data.z);
-    vTaskDelay(2000);
+    vTaskDelay(200);
   }
 }
 
