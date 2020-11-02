@@ -8,15 +8,26 @@
 #include "periodic_scheduler.h"
 #include "sj2_cli.h"
 
+#include "graphics.h"
+#include "led_matrix.h"
+
+static const data_size ALL_LED = 0xFFFFFFFFFFFFFFFF;
+
 // 'static' to make these functions 'private' to this file
 static void create_blinky_tasks(void);
 static void create_uart_task(void);
 static void blink_task(void *params);
 static void uart_task(void *params);
 
+static void graphics_task(void *p);
+static void display_task(void *p);
+
 int main(void) {
-  create_blinky_tasks();
-  create_uart_task();
+  // create_blinky_tasks();
+  // create_uart_task();
+
+  xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
+  xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
 
   // If you have the ESP32 wifi module soldered on the board, you can try uncommenting this code
   // See esp32/README.md for more details
@@ -27,6 +38,37 @@ int main(void) {
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
 
   return 0;
+}
+
+void display_task(void *p) {
+  led_matrix_init();
+
+  while (1) {
+    led_matrix__update_display();
+    vTaskDelay(1);
+  }
+}
+
+void graphics_task(void *p) {
+  graphics__turn_off_all_leds();
+  int First_row_start = 0;
+  int First_row_end = 22;
+  int sec_row_start = 22;
+  int sec_row_end = 44;
+  int third_row_start = 44;
+  int third_row_end = 64;
+
+  while (1) {
+    // graphics__turn_on_all_leds(RED);
+    // vTaskDelay(500);
+    // graphics__turn_off_all_leds();
+    // vTaskDelay(200);
+    // led_matrix__set_row_data(row, GREEN, ALL_LED);
+    // led_matrix__fill_data_buffer_till_row(ALL_LED, First_row_start, First_row_end, GREEN);
+    graphics_print_test_row();
+    // led_matrix__fill_data_buffer_till_row(ALL_LED, third_row_start, third_row_end, LIME);
+    vTaskDelay(1000);
+  }
 }
 
 static void create_blinky_tasks(void) {
