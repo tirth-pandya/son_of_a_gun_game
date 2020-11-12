@@ -1,174 +1,84 @@
-#include <math.h>
-#include <stdio.h>
+#include "stdio.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "board_io.h"
-#include "common_macros.h"
-#include "periodic_scheduler.h"
-#include "sj2_cli.h"
-
-// 'static' to make these functions 'private' to this file
-static void create_blinky_tasks(void);
-static void create_uart_task(void);
-static void blink_task(void *params);
-static void uart_task(void *params);
-void screen_refresh();
-
-#include "acceleration.h"
+#include "cli_handlers.h"
+#include "clock.h"
+#include "delay.h"
+#include "event_groups.h"
 #include "ff.h"
-#include <string.h>
+#include "gpio.h"
+#include "led_display_driver.h"
+#include "lpc40xx.h"
+#include "sj2_cli.h"
+#include "string.h"
+#include "uart.h"
+#include <stdlib.h>
 
-static void producer(void *task_parameter);
-acceleration__axis_data_s sensor_data;
-bool sensor_state;
-char buffer[24], master[240] = "";
-uint8_t virtual_screen[32][32];
-int pointer_x = 0, pointer_y = 0;
+TaskHandle_t producer_handle;
+TaskHandle_t consumer_handle;
+TaskHandle_t game_logic_handle;
+TaskHandle_t game_over_handle;
+TaskHandle_t title_color_handle;
+TaskHandle_t game_player_logic_handle;
+TaskHandle_t game_timer_handle;
+TaskHandle_t game_menu_title;
+TaskHandle_t game_menu_handle;
 
-main(void) {
-  create_blinky_tasks();
-  create_uart_task();
+// piece_in_play current_piece;
 
-  sensor_state = acceleration__init();
-  if (!sensor_state) {
-    acceleration__init();
+static uint8_t saved_piece_id;
+static uint8_t save_piece_state = 0;
+bool save_was_pressed = false;
+bool enable_piece_swap = false;
+bool game_over_set = false;
+static int difficulty_speed = 0;
+static int last_score = 1337;
+
+void clear_board_animation(void *p) {
+  vTaskSuspend(NULL);
+  while (1) {
+    vTaskSuspend(game_logic_handle);
+    for (int i = 0; i < 24; i++) {
+      board_clear_game_board(i);
+      vTaskDelay(75);
+    }
+    game_board_score_draw(0);
+    vTaskResume(game_logic_handle);
+    game_over_set = true;
+    vTaskSuspend(title_color_handle);
+    vTaskSuspend(NULL);
   }
+}
 
-  xTaskCreate(producer, "producer", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+void display(void *p) {
+  while (1) {
 
+    led_display_draw_frame();
+    // game_draw_game_board(2);
+    // led_display_draw_single_pixel(20, 20, 255, 128, 64);
+    vTaskDelay(10);
+  }
+}
+
+int main(void) {
+  led_display_init();
+  game_draw_display();
+  uint32_t pclk = clock__get_peripheral_clock_hz;
+  uart__init(UART__3, pclk, 115200);
+  gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2); // TX
+
+  // game_draw_display();
+  // game_draw_game_board(0);
+  // game_board_timer(0);
+
+  xTaskCreate(display, "display", 1024U / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+
+  sj2_cli__init();
+
+  puts("Starting RTOS");
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
 
   return 0;
-}
-
-void screen_refresh() {
-
-  for (uint8_t i = 0; i < 32; i++) {
-    for (uint8_t j = 0; j < 32; j++) {
-      virtual_screen[i][j] = 1;
-    }
-  }
-
-  for (uint8_t i = 0; i < 32; i++) {
-    for (uint8_t j = 0; j < 32; j++) {
-      printf("%d ", virtual_screen[i][j]);
-    }
-    virtual_screen[pointer_x][pointer_y] = 0;
-    printf("\n");
-  }
-}
-
-static void producer(void *p) {
-
-  int32_t x = 0, y = 0, z = 0;
-  float pitch, roll, yaw, projection_x, projection_y, a = 0;
-  while (1) {
-    for (uint8_t i = 0; i < 100; i++) {
-      sensor_data = acceleration__get_data();
-      x += sensor_data.x;
-      y += sensor_data.y;
-      z += sensor_data.z;
-    }
-    sensor_data.x = x / 100;
-    sensor_data.y = y / 100;
-    sensor_data.z = z / 100;
-    x = 0;
-    y = 0;
-    z = 0;
-    pitch = atan(sensor_data.x / sqrt(sensor_data.y * sensor_data.y + sensor_data.z * sensor_data.z)) * 57.2958;
-    roll = atan(sensor_data.y / sqrt(sensor_data.x * sensor_data.x + sensor_data.z * sensor_data.z)) * 57.2958;
-    yaw = atan(sensor_data.z / sqrt(sensor_data.x * sensor_data.x + sensor_data.y * sensor_data.y)) * 57.2958;
-    /*
-        projection_x = a + (10 * (pitch / yaw));
-        projection_y = a + (10 * (roll / yaw));
-    */
-    projection_x = sensor_data.y;
-    projection_y = sqrt(sensor_data.x * sensor_data.x + sensor_data.y * sensor_data.y + sensor_data.z * sensor_data.z);
-    printf("Sensor %d %d %d \n", sensor_data.x, sensor_data.y, sensor_data.z);
-    printf("Angle %5.5f %5.5f %5.5f\n", pitch, roll, yaw);
-    pointer_x = 15 + ((sensor_data.x * 16) / 1024);
-    pointer_y = 15 + ((sensor_data.y * 16) / 1024);
-    printf("Pointer %d %d\n", pointer_x, pointer_y);
-    screen_refresh();
-    // printf("Project %5.5f %5.5f \n", projection_x, projection_y);
-    // snprintf(buffer, 24, "%d %d %d\n", sensor_data.x, sensor_data.y, sensor_data.z);
-    vTaskDelay(200);
-  }
-}
-
-static void create_blinky_tasks(void) {
-  /**
-   * Use '#if (1)' if you wish to observe how two tasks can blink LEDs
-   * Use '#if (0)' if you wish to use the 'periodic_scheduler.h' that will spawn 4 periodic tasks, one for each LED
-   */
-#if (1)
-  // These variables should not go out of scope because the 'blink_task' will reference this memory
-  static gpio_s led0, led1;
-
-  led0 = board_io__get_led0();
-  led1 = board_io__get_led1();
-
-  xTaskCreate(blink_task, "led0", configMINIMAL_STACK_SIZE, (void *)&led0, PRIORITY_LOW, NULL);
-  xTaskCreate(blink_task, "led1", configMINIMAL_STACK_SIZE, (void *)&led1, PRIORITY_LOW, NULL);
-#else
-  const bool run_1000hz = true;
-  const size_t stack_size_bytes = 2048 / sizeof(void *); // RTOS stack size is in terms of 32-bits for ARM M4 32-bit CPU
-  periodic_scheduler__initialize(stack_size_bytes, !run_1000hz); // Assuming we do not need the high rate 1000Hz task
-  UNUSED(blink_task);
-#endif
-}
-
-static void create_uart_task(void) {
-  // It is advised to either run the uart_task, or the SJ2 command-line (CLI), but not both
-  // Change '#if (0)' to '#if (1)' and vice versa to try it out
-#if (0)
-  // printf() takes more stack space, size this tasks' stack higher
-  xTaskCreate(uart_task, "uart", (512U * 8) / sizeof(void *), NULL, PRIORITY_LOW, NULL);
-#else
-  sj2_cli__init();
-  UNUSED(uart_task); // uart_task is un-used in if we are doing cli init()
-#endif
-}
-
-static void blink_task(void *params) {
-  const gpio_s led = *((gpio_s *)params); // Parameter was input while calling xTaskCreate()
-
-  // Warning: This task starts with very minimal stack, so do not use printf() API here to avoid stack overflow
-  while (true) {
-    gpio__toggle(led);
-    vTaskDelay(500);
-  }
-}
-
-// This sends periodic messages over printf() which uses system_calls.c to send them to UART0
-static void uart_task(void *params) {
-  TickType_t previous_tick = 0;
-  TickType_t ticks = 0;
-
-  while (true) {
-    // This loop will repeat at precise task delay, even if the logic below takes variable amount of ticks
-    vTaskDelayUntil(&previous_tick, 2000);
-
-    /* Calls to fprintf(stderr, ...) uses polled UART driver, so this entire output will be fully
-     * sent out before this function returns. See system_calls.c for actual implementation.
-     *
-     * Use this style print for:
-     *  - Interrupts because you cannot use printf() inside an ISR
-     *    This is because regular printf() leads down to xQueueSend() that might block
-     *    but you cannot block inside an ISR hence the system might crash
-     *  - During debugging in case system crashes before all output of printf() is sent
-     */
-    ticks = xTaskGetTickCount();
-    fprintf(stderr, "%u: This is a polled version of printf used for debugging ... finished in", (unsigned)ticks);
-    fprintf(stderr, " %lu ticks\n", (xTaskGetTickCount() - ticks));
-
-    /* This deposits data to an outgoing queue and doesn't block the CPU
-     * Data will be sent later, but this function would return earlier
-     */
-    ticks = xTaskGetTickCount();
-    printf("This is a more efficient printf ... finished in");
-    printf(" %lu ticks\n\n", (xTaskGetTickCount() - ticks));
-  }
 }
