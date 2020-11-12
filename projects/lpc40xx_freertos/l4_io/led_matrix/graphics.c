@@ -36,6 +36,4 @@ void led_matrix__drawBall(int row, int column, led_matrix__color_e ball_color) {
   led_matrix__set_pixel(row + 2, column + 1, ball_color);
 }
 
-void graphics_print_ashok_chakra() {
-  graphics_print_test_row(12, 0, BLUE);
-}
+void graphics_print_test_row() { led_matrix__set_pixel(0, 0, BLUE); }

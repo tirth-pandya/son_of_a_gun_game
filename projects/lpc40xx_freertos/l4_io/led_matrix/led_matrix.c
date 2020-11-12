@@ -22,42 +22,76 @@ static void clear_pixel(uint8_t row, uint8_t col) {
 }
 
 /*********************************************************************
- * *******************PUBLIC FUNCTIONS********************************
+ *********************PUBLIC FUNCTIONS********************************
  *********************************************************************/
 void led_matrix_init(void) {
-  r0 = gpio__construct_with_function(GPIO__PORT_0, 6, GPIO__FUNCITON_0_IO_PIN);
-  b0 = gpio__construct_with_function(GPIO__PORT_0, 8, GPIO__FUNCITON_0_IO_PIN);
-  r1 = gpio__construct_with_function(GPIO__PORT_0, 26, GPIO__FUNCITON_0_IO_PIN);
-  b1 = gpio__construct_with_function(GPIO__PORT_1, 31, GPIO__FUNCITON_0_IO_PIN);
-  A = gpio__construct_with_function(GPIO__PORT_1, 20, GPIO__FUNCITON_0_IO_PIN);
-  C = gpio__construct_with_function(GPIO__PORT_1, 28, GPIO__FUNCITON_0_IO_PIN);
-  clk = gpio__construct_with_function(GPIO__PORT_2, 0, GPIO__FUNCITON_0_IO_PIN);
-  oe = gpio__construct_with_function(GPIO__PORT_2, 2, GPIO__FUNCITON_0_IO_PIN);
+  // r0 = gpio__construct_with_function(GPIO__PORT_0, 6, GPIO__FUNCITON_0_IO_PIN);
+  // b0 = gpio__construct_with_function(GPIO__PORT_0, 8, GPIO__FUNCITON_0_IO_PIN);
+  // r1 = gpio__construct_with_function(GPIO__PORT_0, 26, GPIO__FUNCITON_0_IO_PIN);
+  // b1 = gpio__construct_with_function(GPIO__PORT_1, 31, GPIO__FUNCITON_0_IO_PIN);
+  // A = gpio__construct_with_function(GPIO__PORT_1, 20, GPIO__FUNCITON_0_IO_PIN);
+  // C = gpio__construct_with_function(GPIO__PORT_1, 28, GPIO__FUNCITON_0_IO_PIN);
+  // clk = gpio__construct_with_function(GPIO__PORT_2, 0, GPIO__FUNCITON_0_IO_PIN);
+  // oe = gpio__construct_with_function(GPIO__PORT_2, 2, GPIO__FUNCITON_0_IO_PIN);
 
-  g0 = gpio__construct_with_function(GPIO__PORT_0, 7, GPIO__FUNCITON_0_IO_PIN);
-  g1 = gpio__construct_with_function(GPIO__PORT_0, 9, GPIO__FUNCITON_0_IO_PIN);
-  E = gpio__construct_with_function(GPIO__PORT_0, 25, GPIO__FUNCITON_0_IO_PIN);
-  B = gpio__construct_with_function(GPIO__PORT_1, 30, GPIO__FUNCITON_0_IO_PIN);
-  D = gpio__construct_with_function(GPIO__PORT_1, 23, GPIO__FUNCITON_0_IO_PIN);
+  // g0 = gpio__construct_with_function(GPIO__PORT_0, 7, GPIO__FUNCITON_0_IO_PIN);
+  // g1 = gpio__construct_with_function(GPIO__PORT_0, 9, GPIO__FUNCITON_0_IO_PIN);
+  // E = gpio__construct_with_function(GPIO__PORT_0, 25, GPIO__FUNCITON_0_IO_PIN);
+  // B = gpio__construct_with_function(GPIO__PORT_1, 30, GPIO__FUNCITON_0_IO_PIN);
+  // D = gpio__construct_with_function(GPIO__PORT_1, 23, GPIO__FUNCITON_0_IO_PIN);
 
-  latch = gpio__construct_with_function(GPIO__PORT_1, 29, GPIO__FUNCITON_0_IO_PIN);
+  // latch = gpio__construct_with_function(GPIO__PORT_1, 29, GPIO__FUNCITON_0_IO_PIN);
 
-  r0 = gpio__construct_as_output(GPIO__PORT_0, 6);
-  b0 = gpio__construct_as_output(GPIO__PORT_0, 8);
-  r1 = gpio__construct_as_output(GPIO__PORT_0, 26);
-  b1 = gpio__construct_as_output(GPIO__PORT_1, 31);
-  A = gpio__construct_as_output(GPIO__PORT_1, 20);
-  C = gpio__construct_as_output(GPIO__PORT_1, 28);
-  clk = gpio__construct_as_output(GPIO__PORT_2, 0);
-  oe = gpio__construct_as_output(GPIO__PORT_2, 2);
+  // r0 = gpio__construct_as_output(GPIO__PORT_0, 6);
+  // b0 = gpio__construct_as_output(GPIO__PORT_0, 8);
+  // r1 = gpio__construct_as_output(GPIO__PORT_0, 26);
+  // b1 = gpio__construct_as_output(GPIO__PORT_1, 31);
+  // A = gpio__construct_as_output(GPIO__PORT_1, 20);
+  // C = gpio__construct_as_output(GPIO__PORT_1, 28);
+  // clk = gpio__construct_as_output(GPIO__PORT_2, 0);
+  // oe = gpio__construct_as_output(GPIO__PORT_2, 2);
 
-  g0 = gpio__construct_as_output(GPIO__PORT_0, 7);
-  g1 = gpio__construct_as_output(GPIO__PORT_0, 9);
-  E = gpio__construct_as_output(GPIO__PORT_0, 25);
-  B = gpio__construct_as_output(GPIO__PORT_1, 30);
-  D = gpio__construct_as_output(GPIO__PORT_1, 23);
+  // g0 = gpio__construct_as_output(GPIO__PORT_0, 7);
+  // g1 = gpio__construct_as_output(GPIO__PORT_0, 9);
+  // E = gpio__construct_as_output(GPIO__PORT_0, 25);
+  // B = gpio__construct_as_output(GPIO__PORT_1, 30);
+  // D = gpio__construct_as_output(GPIO__PORT_1, 23);
 
-  latch = gpio__construct_as_output(GPIO__PORT_1, 29);
+  // latch = gpio__construct_as_output(GPIO__PORT_1, 29);
+
+  r0 = gpio__construct_with_function(GPIO__PORT_2, 0, GPIO__FUNCITON_0_IO_PIN);
+  g0 = gpio__construct_with_function(GPIO__PORT_2, 1, GPIO__FUNCITON_0_IO_PIN);
+  b0 = gpio__construct_with_function(GPIO__PORT_2, 2, GPIO__FUNCITON_0_IO_PIN);
+  r1 = gpio__construct_with_function(GPIO__PORT_2, 4, GPIO__FUNCITON_0_IO_PIN);
+  g1 = gpio__construct_with_function(GPIO__PORT_2, 5, GPIO__FUNCITON_0_IO_PIN);
+  b1 = gpio__construct_with_function(GPIO__PORT_2, 6, GPIO__FUNCITON_0_IO_PIN);
+
+  A = gpio__construct_with_function(GPIO__PORT_2, 7, GPIO__FUNCITON_0_IO_PIN);
+  B = gpio__construct_with_function(GPIO__PORT_2, 8, GPIO__FUNCITON_0_IO_PIN);
+  C = gpio__construct_with_function(GPIO__PORT_2, 9, GPIO__FUNCITON_0_IO_PIN);
+  D = gpio__construct_with_function(GPIO__PORT_0, 16, GPIO__FUNCITON_0_IO_PIN);
+  E = gpio__construct_with_function(GPIO__PORT_0, 15, GPIO__FUNCITON_0_IO_PIN);
+
+  oe = gpio__construct_with_function(GPIO__PORT_1, 20, GPIO__FUNCITON_0_IO_PIN);
+  latch = gpio__construct_with_function(GPIO__PORT_1, 23, GPIO__FUNCITON_0_IO_PIN);
+  clk = gpio__construct_with_function(GPIO__PORT_1, 28, GPIO__FUNCITON_0_IO_PIN);
+
+  r0 = gpio__construct_as_output(GPIO__PORT_2, 0);
+  g0 = gpio__construct_as_output(GPIO__PORT_2, 1);
+  b0 = gpio__construct_as_output(GPIO__PORT_2, 2);
+  r1 = gpio__construct_as_output(GPIO__PORT_2, 4);
+  g1 = gpio__construct_as_output(GPIO__PORT_2, 5);
+  b1 = gpio__construct_as_output(GPIO__PORT_2, 6);
+
+  A = gpio__construct_as_output(GPIO__PORT_2, 7);
+  B = gpio__construct_as_output(GPIO__PORT_2, 8);
+  C = gpio__construct_as_output(GPIO__PORT_2, 9);
+  D = gpio__construct_as_output(GPIO__PORT_0, 16);
+  E = gpio__construct_as_output(GPIO__PORT_0, 15);
+
+  oe = gpio__construct_as_output(GPIO__PORT_1, 20);
+  latch = gpio__construct_as_output(GPIO__PORT_1, 23);
+  clk = gpio__construct_as_output(GPIO__PORT_1, 28);
 
   gpio__reset(A);
   gpio__reset(B);
@@ -143,7 +177,7 @@ void led_matrix__fill_data_buffer_till_row(data_size data, uint8_t start_row, ui
 void led_matrix__clear_data_buffer() { memset(frame_buffer, 0, sizeof(frame_buffer)); }
 
 void led_matrix__update_display() {
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < 64; i++) {
     led_matrix__disable_display();
     led_matrix__disable_latch();
     led_matrix__select_row(i); // will select i and i + 32 rows at same time
@@ -152,19 +186,26 @@ void led_matrix__update_display() {
       ((frame_buffer[i][RED_PLANE] >> j) & 1) ? gpio__set(r0) : gpio__reset(r0);
       ((frame_buffer[i][GREEN_PLANE] >> j) & 1) ? gpio__set(g0) : gpio__reset(g0);
       ((frame_buffer[i][BLUE_PLANE] >> j) & 1) ? gpio__set(b0) : gpio__reset(b0);
-
+      // if ((frame_buffer[i][RED_PLANE] >> j) || (frame_buffer[i][GREEN_PLANE] >> j) ||
+      //     (frame_buffer[i][BLUE_PLANE] >> j))
+      //   printf("1");
       ((frame_buffer[i + 32][RED_PLANE] >> j) & 1) ? gpio__set(r1) : gpio__reset(r1);
       ((frame_buffer[i + 32][GREEN_PLANE] >> j) & 1) ? gpio__set(g1) : gpio__reset(g1);
       ((frame_buffer[i + 32][BLUE_PLANE] >> j) & 1) ? gpio__set(b1) : gpio__reset(b1);
+      // if ((frame_buffer[i + 32][RED_PLANE] >> j) || (frame_buffer[i + 32][GREEN_PLANE] >> j) ||
+      //     (frame_buffer[i + 32][BLUE_PLANE] >> j))
+      //   printf("1");
       gpio__set(clk);
       gpio__reset(clk); // shift in all 3 color bits at once for top half/bottom half registers
       led_matrix__enable_latch();
       led_matrix__disable_latch();
     }
+    // printf("\n");
     // at this point, all 3 shift registers should be filled with corresponding row data in frame_buffer
     led_matrix__enable_latch(); // push shift register contents down to output registers
     led_matrix__enable_display();
-    delay__us(250);
+    delay__us(50);
   }
+  // fprintf(stderr, "-------------------\n");
   led_matrix__disable_display();
 }

@@ -11,7 +11,7 @@
 #include "graphics.h"
 #include "led_matrix.h"
 
-static const data_size ALL_LED = 0xFFFFFFFFFFFFFFFF;
+static const data_size ALL_LED = 0x0000FFFFFFFF0000;
 
 // 'static' to make these functions 'private' to this file
 static void create_blinky_tasks(void);
@@ -52,7 +52,7 @@ void display_task(void *p) {
 void graphics_task(void *p) {
   graphics__turn_off_all_leds();
   int First_row_start = 0;
-  int First_row_end = 22;
+  int First_row_end = 1;
   int sec_row_start = 22;
   int sec_row_end = 44;
   int third_row_start = 44;
@@ -63,9 +63,10 @@ void graphics_task(void *p) {
     // vTaskDelay(500);
     // graphics__turn_off_all_leds();
     // vTaskDelay(200);
-    // led_matrix__set_row_data(row, GREEN, ALL_LED);
-    // led_matrix__fill_data_buffer_till_row(ALL_LED, First_row_start, First_row_end, GREEN);
-    graphics_print_test_row();
+    // graphics__turn_on_all_leds(GREEN);
+    //   led_matrix__set_row_data(row, GREEN, ALL_LED);
+    led_matrix__fill_data_buffer_till_row(ALL_LED, First_row_start, First_row_end, GREEN);
+    // graphics_print_test_row();
     // led_matrix__fill_data_buffer_till_row(ALL_LED, third_row_start, third_row_end, LIME);
     vTaskDelay(1000);
   }
