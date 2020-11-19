@@ -57,7 +57,7 @@ void display(void *p) {
 
     led_display_draw_frame();
     led_display_draw_single_pixel(30, 62, 1, 1, 1);
-    vTaskDelay(15);
+    vTaskDelay(10);
   }
 }
 

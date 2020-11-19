@@ -177,6 +177,80 @@ void led_display_draw_frame() {
       led_display_clk();
     }
 
+    for (int8_t a = 31; a >= 0; a--) {
+      // for (int8_t a = 0; a < 64; a++) {
+      b = 0;
+      b = 1 << (a);
+      if (led_board_blue[i] & b)
+        gpio__set(u_red);
+      else
+        gpio__reset(u_red);
+
+      if (led_board_blue[i + offset] & b)
+        gpio__set(l_red);
+      else
+        gpio__reset(l_red);
+
+      if (led_board_green[i] & b)
+        gpio__set(u_green);
+      else
+        gpio__reset(u_green);
+
+      if (led_board_green[i + offset] & (b))
+        gpio__set(l_green);
+      else
+        gpio__reset(l_green);
+
+      if (led_board_red[i] & b)
+        gpio__set(u_blue);
+      else
+        gpio__reset(u_blue);
+
+      if (led_board_red[i + offset] & b)
+        gpio__set(l_blue);
+      else
+        gpio__reset(l_blue);
+
+      led_display_clk();
+    }
+
+    for (int8_t a = 31; a >= 0; a--) {
+      // for (int8_t a = 0; a < 64; a++) {
+      b = 0;
+      b = 1 << (a);
+      if (led_board_green[i] & b)
+        gpio__set(u_red);
+      else
+        gpio__reset(u_red);
+
+      if (led_board_green[i + offset] & b)
+        gpio__set(l_red);
+      else
+        gpio__reset(l_red);
+
+      if (led_board_blue[i] & b)
+        gpio__set(u_green);
+      else
+        gpio__reset(u_green);
+
+      if (led_board_blue[i + offset] & (b))
+        gpio__set(l_green);
+      else
+        gpio__reset(l_green);
+
+      if (led_board_red[i] & b)
+        gpio__set(u_blue);
+      else
+        gpio__reset(u_blue);
+
+      if (led_board_red[i + offset] & b)
+        gpio__set(l_blue);
+      else
+        gpio__reset(l_blue);
+
+      led_display_clk();
+    }
+
     gpio__set(latch);
     gpio__set(oe);
   }
