@@ -1,8 +1,8 @@
 #include "stdio.h"
 
-uint64_t led_board_red[64];
-uint64_t led_board_blue[64];
-uint64_t led_board_green[64];
+uint64_t led_board_red[128];
+uint64_t led_board_blue[128];
+uint64_t led_board_green[128];
 
 uint32_t game_board_red[25];
 uint32_t game_board_blue[25];

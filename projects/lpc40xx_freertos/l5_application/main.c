@@ -56,9 +56,8 @@ void display(void *p) {
   while (1) {
 
     led_display_draw_frame();
-    // game_draw_game_board(2);
-    // led_display_draw_single_pixel(20, 20, 255, 128, 64);
-    vTaskDelay(10);
+    led_display_draw_single_pixel(30, 62, 1, 1, 1);
+    vTaskDelay(15);
   }
 }
 

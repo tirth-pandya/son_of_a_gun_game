@@ -93,50 +93,90 @@ void led_display_set_addr(uint8_t row) {
 
 void led_display_draw_frame() {
 
-  int a = 0, offset = 32;
+  uint8_t offset = 16;
+  uint64_t b;
 
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < 16; i++) {
 
-    // led_display_set_addr(i - 1);
-    led_display_set_addr(i);
+    led_display_set_addr(i - 1);
+    // led_display_set_addr(i);
     gpio__reset(latch);
     gpio__reset(oe);
 
-    for (a = 64; a >= 0; a--) {
-
-      if (led_board_red[i] & (1 << a))
+    for (int8_t a = 31; a >= 0; a--) {
+      // for (int8_t a = 0; a < 64; a++) {
+      b = 0;
+      b = 1 << (a);
+      if (led_board_red[i + 64] & b)
         gpio__set(l_red);
       else
         gpio__reset(l_red);
 
-      if (led_board_red[i + offset] & (1 << a))
+      if (led_board_red[i + offset + 64] & b)
         gpio__set(u_red);
       else
         gpio__reset(u_red);
 
-      if (led_board_green[i + offset] & (1 << a))
+      if (led_board_green[i + 64] & b)
         gpio__set(l_green);
       else
         gpio__reset(l_green);
 
-      if (led_board_green[i] & (1 << a))
+      if (led_board_green[i + offset + 64] & (b))
         gpio__set(u_green);
       else
         gpio__reset(u_green);
 
-      if (led_board_blue[i] & (1 << a))
+      if (led_board_blue[i + 64] & b)
         gpio__set(l_blue);
       else
         gpio__reset(l_blue);
 
-      if (led_board_blue[i + offset] & (1 << a))
+      if (led_board_blue[i + offset + 64] & b)
         gpio__set(u_blue);
       else
         gpio__reset(u_blue);
-      gpio__set(latch);
-      gpio__reset(latch);
+
       led_display_clk();
     }
+
+    for (int8_t a = 31; a >= 0; a--) {
+      // for (int8_t a = 0; a < 64; a++) {
+      b = 0;
+      b = 1 << (a);
+      if (led_board_red[i] & b)
+        gpio__set(l_red);
+      else
+        gpio__reset(l_red);
+
+      if (led_board_red[i + offset] & b)
+        gpio__set(u_red);
+      else
+        gpio__reset(u_red);
+
+      if (led_board_green[i] & b)
+        gpio__set(l_green);
+      else
+        gpio__reset(l_green);
+
+      if (led_board_green[i + offset] & (b))
+        gpio__set(u_green);
+      else
+        gpio__reset(u_green);
+
+      if (led_board_blue[i] & b)
+        gpio__set(l_blue);
+      else
+        gpio__reset(l_blue);
+
+      if (led_board_blue[i + offset] & b)
+        gpio__set(u_blue);
+      else
+        gpio__reset(u_blue);
+
+      led_display_clk();
+    }
+
     gpio__set(latch);
     gpio__set(oe);
   }
@@ -145,24 +185,134 @@ void led_display_draw_frame() {
 
 void game_draw_display() {
 
-  for (int i = 0; i < 64; i++) {
+  for (int i = 0; i < 128; i++) {
     led_board_blue[i] = 0;
     led_board_red[i] = 0;
     led_board_green[i] = 0;
   }
-  led_board_green[12] = 0b10000000000000000000000000000001;
-  // led_board_green[60] = 0b1010100000000000000000000001101111111111111111111111111111111111;
-  led_board_green[60] = 0xF000000FF000000F;
-  /* led_board_red[63] = 0b11111110000011111111111110000000;
-   led_board_red[0] = 0b11111111111110000001111100000000;
 
-   led_board_green[52] = 0b11001111110000000000111110001111;
-   led_board_green[22] = 0b11001111100111100000000001111000;
-   led_board_green[21] = 0b11111111111111111111110000000000;
+  led_board_green[31] = 0b11111111111111111111111111111111;
+  led_board_green[30] = 0b11111111111111111111111111111110;
+  led_board_green[29] = 0b11111111111111111111111111111100;
+  led_board_green[28] = 0b11111111111111111111111111111000;
+  led_board_green[27] = 0b11111111111111111111111111110000;
+  led_board_green[26] = 0b11111111111111111111111111100000;
+  led_board_green[25] = 0b11111111111111111111111111000000;
+  led_board_green[24] = 0b11111111111111111111111110000000;
+  led_board_green[23] = 0b11111111111111111111111100000000;
+  led_board_green[22] = 0b11111111111111111111111000000000;
+  led_board_green[21] = 0b11111111111111111111110000000000;
 
-   led_board_blue[55] = 0b10101000000000000000000000011011;
-   led_board_blue[42] = 0b11111000000000000000000000000000;*/
-  // led_board_blue[12] = 0b10000000000000011000000000000001;
+  led_board_red[21] = 0b11111111111111111111110000000000;
+  led_board_blue[21] = 0b11111111111111111111110000000000;
+
+  led_board_red[20] = 0b11111111111111111111100000000000;
+  led_board_red[19] = 0b11111111111111111111000000000000;
+  led_board_red[18] = 0b11111111111111111110000000000000;
+  led_board_red[17] = 0b11111111111111111100000000000000;
+  led_board_red[16] = 0b11111111111111111000000000000000;
+  led_board_red[15] = 0b11111111111111110000000000000000;
+  led_board_red[14] = 0b11111111111111100000000000000000;
+  led_board_red[13] = 0b11111111111111000000000000000000;
+  led_board_red[12] = 0b11111111111110000000000000000000;
+  led_board_red[11] = 0b11111111111100000000000000000000;
+  led_board_red[10] = 0b11111111111000000000000000000000;
+
+  led_board_blue[9] = 0b11111111110000000000000000000000;
+  led_board_blue[8] = 0b11111111100000000000000000000000;
+  led_board_blue[7] = 0b11111111000000000000000000000000;
+  led_board_blue[6] = 0b11111110000000000000000000000000;
+  led_board_blue[5] = 0b11111100000000000000000000000000;
+  led_board_blue[4] = 0b11111000000000000000000000000000;
+  led_board_blue[3] = 0b11110000000000000000000000000000;
+  led_board_blue[2] = 0b11100000000000000000000000000000;
+  led_board_blue[1] = 0b11000000000000000000000000000000;
+  led_board_blue[0] = 0b10000000000000000000000000000000;
+  /*
+    led_board_green[31] = 0b11111111111111111111111111111111;
+    led_board_green[30] = 0b11111111111111111111111111111111;
+    led_board_green[29] = 0b11111111111111111111111111111111;
+    led_board_green[28] = 0b11111111111111111111111111111111;
+
+    led_board_green[27] = 0b11111111111111111111111111111111;
+    led_board_green[26] = 0b11111111111111111111111111111111;
+    led_board_green[25] = 0b11111111111111111111111111111111;
+    led_board_green[24] = 0b11111111111111111111111111111111;
+    led_board_green[23] = 0b11111111111111111111111111111111;
+    led_board_green[22] = 0b11111111111111111111111111111111;
+    led_board_green[21] = 0b11111111111111111111111111111111;
+
+    led_board_red[23] = 0b11111111111111111111111111111111;
+    led_board_red[22] = 0b11111111111111111111111111111111;
+    led_board_red[21] = 0b11111111111111111111111111111111;
+
+    led_board_blue[27] = 0b11111111111111111111111111111111;
+    led_board_blue[26] = 0b11111111111111111111111111111111;
+    led_board_blue[25] = 0b11111111111111111111111111111111;
+    led_board_blue[24] = 0b11111111111111111111111111111111;
+    led_board_blue[23] = 0b11111111111111111111111111111111;
+    led_board_blue[22] = 0b11111111111111111111111111111111;
+    led_board_blue[21] = 0b11111111111111111111111111111111;
+
+    led_board_red[20] = 0b11111111111111111111111111111111;
+    led_board_red[19] = 0b11111111111111111111111111111111;
+    led_board_red[18] = 0b11111111111111111111111111111111;
+    led_board_red[17] = 0b11111111111111111111111111111111;
+    led_board_red[16] = 0b11111111111111111111111111111111;
+    led_board_red[15] = 0b11111111111111111111111111111111;
+
+    led_board_green[20] = 0b11111111111111111111111111111111;
+    led_board_green[19] = 0b11111111111111111111111111111111;
+    led_board_green[18] = 0b11111111111111111111111111111111;
+    led_board_green[17] = 0b11111111111111111111111111111111;
+    led_board_green[16] = 0b11111111111111111111111111111111;
+    led_board_green[15] = 0b11111111111111111111111111111111;
+
+    led_board_red[14] = 0b11111111111111111111111111111111;
+    led_board_red[13] = 0b11111111111111111111111111111111;
+    led_board_red[12] = 0b11111111111111111111111111111111;
+    led_board_red[11] = 0b11111111111111111111111111111111;
+    led_board_red[10] = 0b11111111111111111111111111111111;
+
+    led_board_blue[9] = 0b11111111111111111111111111111111;
+    led_board_blue[8] = 0b11111111111111111111111111111111;
+    led_board_blue[7] = 0b11111111111111111111111111111111;
+    led_board_blue[6] = 0b11111111111111111111111111111111;
+
+    led_board_green[9] = 0b11111111111111111111111111111111;
+    led_board_green[8] = 0b11111111111111111111111111111111;
+    led_board_green[7] = 0b11111111111111111111111111111111;
+    led_board_green[6] = 0b11111111111111111111111111111111;
+
+    led_board_red[5] = 0b11111111111111111111111111111111;
+    led_board_red[4] = 0b11111111111111111111111111111111;
+    led_board_red[3] = 0b11111111111111111111111111111111;
+
+    led_board_blue[5] = 0b11111111111111111111111111111111;
+    led_board_blue[4] = 0b11111111111111111111111111111111;
+    led_board_blue[3] = 0b11111111111111111111111111111111;
+
+    led_board_blue[2] = 0b11111111111111111111111111111111;
+    led_board_blue[1] = 0b11111111111111111111111111111111;
+    led_board_blue[0] = 0b11111111111111111111111111111111;*/
+
+  // led_board_green[17] = 0b1011001110001111000011111000001111110000001111111000000010101010;
+  /*led_board_green[17] = 0b1011001110001111000011111000001111110000001111111000000010101010;
+  led_board_red[17] = 0b1010100000011111000000000001101000111110000011111100000111111100;
+  led_board_blue[17] = 0b1010100000000001010101100101101110011100011110000111110000011010;*/
+  /*
+    led_board_green[47] = 0b0101010000000011100000000001101111111111111111111111111111111111;
+    led_board_red[47] = 0b1010100000011111000000000001101111111111111111111111111111111111;
+    led_board_blue[47] = 0b1111100000000001111111100001101111111111111111111111111111111111;
+
+    led_board_green[17] = 0b0101010000000011100000000001101111111111111111111111111111111111;
+    led_board_red[17] = 0b1010100000011111000000000001101111111111111111111111111111111111;
+    led_board_blue[17] = 0b1010100000000001010101100101101111111111111111100001111111111111;*/
+  for (int j = 0; j < 64; j++) {
+    led_board_green[j + 64] = led_board_red[j];
+    led_board_blue[j + 64] = led_board_green[j];
+    led_board_red[j + 64] = led_board_blue[j];
+  }
 }
 
 void led_display_draw_single_pixel(uint8_t column, uint8_t row, uint8_t r, uint8_t g, uint8_t b) {
