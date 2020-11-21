@@ -8,12 +8,33 @@
 #include "periodic_scheduler.h"
 #include "sj2_cli.h"
 
+#include "delay.h"
+#include "joystick.h"
 // 'static' to make these functions 'private' to this file
 static void create_blinky_tasks(void);
 static void create_uart_task(void);
 static void blink_task(void *params);
 static void uart_task(void *params);
 
+int main(void) {
+  joystick__values_s my_val = {0};
+  gpio_s x = {0, 25};
+  gpio_s y = {1, 30};
+  gpio_s s_k = {1, 31};
+
+  joystick__initialize(x, y, s_k);
+  while (1) {
+    my_val = joystick__get_value();
+
+    printf("x val : %d  y val : %d\n", my_val.x, my_val.y);
+    delay__ms(1000);
+  }
+  // while (1) {
+  //   printf("here..");
+  // }
+  return 0;
+}
+/*
 int main(void) {
   create_blinky_tasks();
   create_uart_task();
@@ -28,7 +49,7 @@ int main(void) {
 
   return 0;
 }
-
+*/
 static void create_blinky_tasks(void) {
   /**
    * Use '#if (1)' if you wish to observe how two tasks can blink LEDs
