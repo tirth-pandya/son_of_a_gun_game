@@ -23,6 +23,7 @@ static uint8_t calculate_checksum(uint8_t *data) {
   uint32_t sum = 0;
   uint8_t checksum = 0;
   uint16_t total_data_size = (data_frame_header[Length_byte_MSB] << 8) | (data_frame_header[Length_byte_LSB]);
+  printf("total data size from checksum calculation is %x\n", total_data_size);
   for (int i = 3; i < total_data_size; i++) {
     if (i < Frame_header_size) {
       sum += data_frame_header[i];
@@ -31,6 +32,7 @@ static uint8_t calculate_checksum(uint8_t *data) {
       data++;
     }
   }
+  printf("total sum from checksum is %x\n", sum);
   sum = sum & 0xFF;
   checksum = (uint8_t)(0xFF - sum);
   return checksum;
@@ -49,6 +51,8 @@ void zigbee_data_transfer(uint8_t *data, size_t data_size) {
   data_frame_header[Length_byte_LSB] = data_size & 0xFF;
   data_frame_header[Length_byte_MSB] = (data_size >> 8) & 0xFF;
   uint8_t checksum = calculate_checksum(data);
+  printf("Checksum value is %x", checksum);
+  printf("  Total data size except checksum byte is %x\n", data_size);
 
   for (int i = 0; i < data_size; i++) {
     if (i < Frame_header_size) {
@@ -63,4 +67,6 @@ void zigbee_data_transfer(uint8_t *data, size_t data_size) {
       }
     }
   }
+  data_frame_header[Length_byte_LSB] = 0xE;
+  data_frame_header[Length_byte_MSB] = 0x0;
 }

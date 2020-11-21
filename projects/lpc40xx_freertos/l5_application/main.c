@@ -8,6 +8,7 @@
 #include "periodic_scheduler.h"
 #include "sj2_cli.h"
 #include "uart.h"
+#include "zigbee.h"
 
 // 'static' to make these functions 'private' to this file
 // static void create_blinky_tasks(void);
@@ -17,12 +18,8 @@ static void uart_task(void *params);
 static void send_zigbee_task(void *p);
 
 int main(void) {
-  const uint32_t peripheral_clock = clock__get_peripheral_clock_hz();
   const uint32_t uart_baud_rate = 9600;
-  uart__init(UART__2, peripheral_clock, uart_baud_rate);
-
-  gpio__construct_with_function(GPIO__PORT_2, 8, GPIO__FUNCTION_2);
-  gpio__construct_with_function(GPIO__PORT_2, 9, GPIO__FUNCTION_2);
+  zigbee_comm_init(UART__2, uart_baud_rate);
 
   xTaskCreate(send_zigbee_task, "sender", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   // create_blinky_tasks();
@@ -41,40 +38,14 @@ int main(void) {
 
 void send_zigbee_task(void *p) {
   while (1) {
-    const uint8_t write_byte[27] = {0x7E, 00, 0x17, 0x10, 0x01, 00,   0x13, 0xA2, 00,   0x41, 0xB3, 0xCA, 0x57, 0xFF,
-                                    0xFE, 00, 00,   0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x6F, 0x6F, 0x6F, 0x6F, 0x57};
-    for (int i = 0; i < 27; i++) {
-      while (!(uart__polled_put(UART__2, write_byte[i]))) {
-      }
-    }
+    const uint8_t data[] = {0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x6F, 0x6F, 0x6F, 0x6F};
+    zigbee_data_transfer(&data, 9);
     // while (!(uart_lab__polled_put(UART__2, write_byte))) {
     // }
     // printf("The data %X is written successfully\n", write_byte);
     vTaskDelay(2000);
   }
 }
-
-// static void create_blinky_tasks(void) {
-//   /**
-//    * Use '#if (1)' if you wish to observe how two tasks can blink LEDs
-//    * Use '#if (0)' if you wish to use the 'periodic_scheduler.h' that will spawn 4 periodic tasks, one for each LED
-//    */
-// #if (1)
-//   // These variables should not go out of scope because the 'blink_task' will reference this memory
-//   static gpio_s led0, led1;
-
-//   led0 = board_io__get_led0();
-//   led1 = board_io__get_led1();
-
-//   xTaskCreate(blink_task, "led0", configMINIMAL_STACK_SIZE, (void *)&led0, PRIORITY_LOW, NULL);
-//   xTaskCreate(blink_task, "led1", configMINIMAL_STACK_SIZE, (void *)&led1, PRIORITY_LOW, NULL);
-// #else
-//   const bool run_1000hz = true;
-//   const size_t stack_size_bytes = 2048 / sizeof(void *); // RTOS stack size is in terms of 32-bits for ARM M4 32-bit
-//   CPU periodic_scheduler__initialize(stack_size_bytes, !run_1000hz); // Assuming we do not need the high rate 1000Hz
-//   task UNUSED(blink_task);
-// #endif
-// }
 
 static void create_uart_task(void) {
   // It is advised to either run the uart_task, or the SJ2 command-line (CLI), but not both
@@ -87,16 +58,6 @@ static void create_uart_task(void) {
   UNUSED(uart_task); // uart_task is un-used in if we are doing cli init()
 #endif
 }
-
-// static void blink_task(void *params) {
-//   const gpio_s led = *((gpio_s *)params); // Parameter was input while calling xTaskCreate()
-
-//   // Warning: This task starts with very minimal stack, so do not use printf() API here to avoid stack overflow
-//   while (true) {
-//     gpio__toggle(led);
-//     vTaskDelay(500);
-//   }
-// }
 
 // This sends periodic messages over printf() which uses system_calls.c to send them to UART0
 static void uart_task(void *params) {
