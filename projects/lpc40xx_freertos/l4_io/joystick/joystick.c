@@ -19,8 +19,13 @@ void joystick__initialize(gpio_s joystick__x_axis, gpio_s joystick__y_axis, gpio
 joystick__values_s joystick__get_value(void) {
   joystick__values_s joystick_values;
   LPC_IOCON->P0_25 &= ~(0x98);
-  joystick_values.x = adc__get_adc_value(ADC__CHANNEL_2);
+  joystick_values.x = map(joystick_values.x, 0, adc__get_adc_value(ADC__CHANNEL_2), -32, 32);
   LPC_IOCON->P1_30 &= ~(0x98);
   joystick_values.y = adc__get_adc_value(ADC__CHANNEL_4);
+  joystick_values.y = map(joystick_values.y, 0, adc__get_adc_value(ADC__CHANNEL_4), -32, 32);
   return joystick_values;
+}
+
+long map(long x, long in_min, long in_max, long out_min, long out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
