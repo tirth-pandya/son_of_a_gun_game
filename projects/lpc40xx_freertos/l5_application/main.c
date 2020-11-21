@@ -18,6 +18,26 @@ static void create_blinky_tasks(void);
 static void create_uart_task(void);
 static void blink_task(void *params);
 static void uart_task(void *params);
+#include "delay.h"
+#include "joystick.h"
+
+// void joystick_task(void *);
+
+void joystick_task(void *p) {
+  joystick__values_s joystick_val = {0};
+  gpio_s x = {0, 25};
+  gpio_s y = {1, 30};
+  gpio_s s_k = {1, 31};
+  joystick__initialize(x, y, s_k);
+
+  while (1) {
+    joystick_val = joystick__get_value();
+    led_matrix__clear_data_buffer();
+    led_matrix__set_pixel(joystick_val.y, joystick_val.x, RED);
+    printf("X axis : %d,\tY axis : %d\n", joystick_val.x, joystick_val.y);
+    vTaskDelay(30);
+  }
+}
 
 static void graphics_task(void *p);
 static void display_task(void *p);
@@ -27,7 +47,7 @@ int main(void) {
   // create_uart_task();
 
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-  xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+  xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
 
   // If you have the ESP32 wifi module soldered on the board, you can try uncommenting this code
   // See esp32/README.md for more details
@@ -35,8 +55,8 @@ int main(void) {
   // xTaskCreate(esp32_tcp_hello_world_task, "uart3", 1000, NULL, PRIORITY_LOW, NULL); // Include esp32_task.h
 
   puts("Starting RTOS");
+  xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
-
   return 0;
 }
 
