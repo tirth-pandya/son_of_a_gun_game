@@ -54,31 +54,31 @@ static void acceleration_task(void *p) {
   int32_t x = 0, y = 0, z = 0;
   float pitch, roll, yaw, projection_x, projection_y, a = 0;
   while (1) {
-    for (uint8_t i = 0; i < 100; i++) {
+    for (uint8_t i = 0; i < 50; i++) {
       sensor_data = acceleration__get_data();
       x += sensor_data.x;
       y += sensor_data.y;
       z += sensor_data.z;
     }
-    sensor_data.x = x / 100;
-    sensor_data.y = y / 100;
-    sensor_data.z = z / 100;
-    x = 0;
-    y = 0;
-    z = 0;
-    pitch = atan(sensor_data.x / sqrt(sensor_data.y * sensor_data.y + sensor_data.z * sensor_data.z)) * 57.2958;
-    roll = atan(sensor_data.y / sqrt(sensor_data.x * sensor_data.x + sensor_data.z * sensor_data.z)) * 57.2958;
-    yaw = atan(sensor_data.z / sqrt(sensor_data.x * sensor_data.x + sensor_data.y * sensor_data.y)) * 57.2958;
-    projection_x = sensor_data.y;
-    projection_y = sqrt(sensor_data.x * sensor_data.x + sensor_data.y * sensor_data.y + sensor_data.z * sensor_data.z);
-    // printf("Sensor %d %d %d \n", sensor_data.x, sensor_data.y, sensor_data.z);
-    // printf("Angle %5.5f %5.5f %5.5f\n", pitch, roll, yaw);
-    pointer_x = 32 + ((sensor_data.x * 16) / 1024);
-    pointer_y = 32 + ((sensor_data.y * 16) / 1024);
+    sensor_data.x = x / 50;
+    sensor_data.y = y / 50;
+    sensor_data.z = z / 50;
+    // x = 0;
+    // y = 0;
+    // z = 0;
+    // pitch = atan(sensor_data.x / sqrt(sensor_data.y * sensor_data.y + sensor_data.z * sensor_data.z)) * 57.2958;
+    // roll = atan(sensor_data.y / sqrt(sensor_data.x * sensor_data.x + sensor_data.z * sensor_data.z)) * 57.2958;
+    // yaw = atan(sensor_data.z / sqrt(sensor_data.x * sensor_data.x + sensor_data.y * sensor_data.y)) * 57.2958;
+    // projection_x = sensor_data.y;
+    // projection_y = sqrt(sensor_data.x * sensor_data.x + sensor_data.y * sensor_data.y + sensor_data.z *
+    // sensor_data.z); printf("Sensor %d %d %d \n", sensor_data.x, sensor_data.y, sensor_data.z); printf("Angle %5.5f
+    // %5.5f %5.5f\n", pitch, roll, yaw);
+    pointer_x = 32 + ((sensor_data.x * 32) / 1024);
+    pointer_y = 32 + ((sensor_data.y * 32) / 1024);
     // printf("Pointer %d %d\n", pointer_x, pointer_y);
     led_matrix__clear_data_buffer();
     led_matrix__set_pixel(pointer_x, pointer_y, RED);
-    vTaskDelay(50);
+    vTaskDelay(20);
   }
 }
 static void graphics_task(void *p);
@@ -97,8 +97,8 @@ int main(void) {
   // xTaskCreate(esp32_tcp_hello_world_task, "uart3", 1000, NULL, PRIORITY_LOW, NULL); // Include esp32_task.h
 
   puts("Starting RTOS");
-  // xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
-  xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  // xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
   return 0;
 }
