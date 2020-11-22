@@ -35,7 +35,7 @@ void joystick_task(void *p) {
     led_matrix__clear_data_buffer();
     led_matrix__set_pixel(joystick_val.y, joystick_val.x, RED);
     printf("X axis : %d,\tY axis : %d\n", joystick_val.x, joystick_val.y);
-    vTaskDelay(30);
+    vTaskDelay(20);
   }
 }
 
