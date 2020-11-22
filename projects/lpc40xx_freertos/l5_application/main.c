@@ -11,9 +11,7 @@
 #include "zigbee.h"
 
 // 'static' to make these functions 'private' to this file
-// static void create_blinky_tasks(void);
 static void create_uart_task(void);
-// static void blink_task(void *params);
 static void uart_task(void *params);
 static void send_zigbee_task(void *p);
 
@@ -39,7 +37,8 @@ int main(void) {
 void send_zigbee_task(void *p) {
   while (1) {
     const uint8_t data[] = {0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x6F, 0x6F, 0x6F, 0x6F};
-    zigbee_data_transfer(&data, 9);
+    uint8_t size = sizeof(data);
+    zigbee_data_transfer(&data, size);
     // while (!(uart_lab__polled_put(UART__2, write_byte))) {
     // }
     // printf("The data %X is written successfully\n", write_byte);

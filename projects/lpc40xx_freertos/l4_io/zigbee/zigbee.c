@@ -1,5 +1,6 @@
 
 #include "gpio.h"
+#include "stdio.h"
 #include "uart.h"
 
 enum API_data_frame_header {
@@ -24,7 +25,7 @@ static uint8_t calculate_checksum(uint8_t *data) {
   uint8_t checksum = 0;
   uint16_t total_data_size = (data_frame_header[Length_byte_MSB] << 8) | (data_frame_header[Length_byte_LSB]);
   printf("total data size from checksum calculation is %x\n", total_data_size);
-  for (int i = 3; i < total_data_size; i++) {
+  for (int i = 3; i < total_data_size + 3; i++) {
     if (i < Frame_header_size) {
       sum += data_frame_header[i];
     } else {
@@ -32,7 +33,7 @@ static uint8_t calculate_checksum(uint8_t *data) {
       data++;
     }
   }
-  printf("total sum from checksum is %x\n", sum);
+  printf("total sum from checksum is %lx\n", sum);
   sum = sum & 0xFF;
   checksum = (uint8_t)(0xFF - sum);
   return checksum;
@@ -48,25 +49,31 @@ void zigbee_comm_init(uart_e uart, const uint32_t uart_baud_rate) {
 
 void zigbee_data_transfer(uint8_t *data, size_t data_size) {
   data_size = data_size + data_frame_header[Length_byte_LSB];
+  printf("  Total data size frame headers is %x\n", data_frame_header[Length_byte_LSB]);
   data_frame_header[Length_byte_LSB] = data_size & 0xFF;
   data_frame_header[Length_byte_MSB] = (data_size >> 8) & 0xFF;
   uint8_t checksum = calculate_checksum(data);
+
   printf("Checksum value is %x", checksum);
   printf("  Total data size except checksum byte is %x\n", data_size);
+  (void)uart__polled_put(UART__2, data_frame_header[Start_byte]);
+  (void)uart__polled_put(UART__2, data_frame_header[Length_byte_MSB]);
+  (void)uart__polled_put(UART__2, data_frame_header[Length_byte_LSB]);
 
-  for (int i = 0; i < data_size; i++) {
+  // Iterate for all the frame bytes which are included in data size
+  for (int i = Frame_type_byte; i < data_size + Frame_type_byte; i++) {
     if (i < Frame_header_size) {
       while (!(uart__polled_put(UART__2, data_frame_header[i]))) {
       }
-    } else if (i < data_size) {
+      printf("Sent %x\t", data_frame_header[i]);
+    } else if (i < data_size + Frame_type_byte) {
       while (!(uart__polled_put(UART__2, *data))) {
       }
+      printf("Sent %x\t", *data);
       data++;
-    } else {
-      while (!(uart__polled_put(UART__2, checksum))) {
-      }
     }
   }
+  (void)uart__polled_put(UART__2, checksum);
   data_frame_header[Length_byte_LSB] = 0xE;
   data_frame_header[Length_byte_MSB] = 0x0;
 }
