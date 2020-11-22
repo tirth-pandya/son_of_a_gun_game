@@ -42,3 +42,17 @@ acceleration__axis_data_s acceleration__get_data(void) {
 
   return axis_data;
 }
+
+acceleration__axis_data_s acceleration__get_averaged_data(uint8_t no_of_samples) {
+  acceleration__axis_data_s axis_values = {0};
+  int32_t x = 0, y = 0, z = 0;
+  for (int i = 0; i < no_of_samples; i++) {
+    x += axis_values.x;
+    y += axis_values.y;
+    z += axis_values.z;
+  }
+  axis_values.x = x / no_of_samples;
+  axis_values.y = y / no_of_samples;
+  axis_values.z = z / no_of_samples;
+  return axis_values;
+}

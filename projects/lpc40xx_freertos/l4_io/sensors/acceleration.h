@@ -13,3 +13,6 @@ bool acceleration__init(void);
 
 /// @returns data of all 3-axis of the sensor
 acceleration__axis_data_s acceleration__get_data(void);
+
+/// @returns sampled output of all 3-axis data of the sensor
+acceleration__axis_data_s acceleration__get_averaged_data(uint8_t no_of_samples);
