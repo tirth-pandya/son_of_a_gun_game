@@ -17,7 +17,7 @@ static void send_zigbee_task(void *p);
 
 int main(void) {
   const uint32_t uart_baud_rate = 9600;
-  zigbee_comm_init(UART__2, uart_baud_rate);
+  zigbee__comm_init(UART__3, uart_baud_rate);
 
   xTaskCreate(send_zigbee_task, "sender", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   // create_blinky_tasks();
@@ -34,11 +34,17 @@ int main(void) {
   return 0;
 }
 
+void receive_zigbee_task(void *p) {
+  while(1) {
+    delay(100);
+  }
+}
+
 void send_zigbee_task(void *p) {
   while (1) {
     const uint8_t data[] = {0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x6F, 0x6F, 0x6F, 0x6F};
     uint8_t size = sizeof(data);
-    zigbee_data_transfer(&data, size);
+    zigbee__data_transfer(&data, size);
     // while (!(uart_lab__polled_put(UART__2, write_byte))) {
     // }
     // printf("The data %X is written successfully\n", write_byte);
