@@ -21,6 +21,13 @@ static void uart_task(void *params);
 #include "delay.h"
 #include "joystick.h"
 
+#include "acceleration.h"
+#include "ff.h"
+#include <math.h>
+int pointer_x = 0, pointer_y = 0;
+
+acceleration__axis_data_s sensor_data;
+bool sensor_state;
 // void joystick_task(void *);
 
 void joystick_task(void *p) {
@@ -39,6 +46,41 @@ void joystick_task(void *p) {
   }
 }
 
+static void acceleration_task(void *p) {
+  sensor_state = acceleration__init();
+  if (!sensor_state) {
+    acceleration__init();
+  }
+  int32_t x = 0, y = 0, z = 0;
+  float pitch, roll, yaw, projection_x, projection_y, a = 0;
+  while (1) {
+    for (uint8_t i = 0; i < 100; i++) {
+      sensor_data = acceleration__get_data();
+      x += sensor_data.x;
+      y += sensor_data.y;
+      z += sensor_data.z;
+    }
+    sensor_data.x = x / 100;
+    sensor_data.y = y / 100;
+    sensor_data.z = z / 100;
+    x = 0;
+    y = 0;
+    z = 0;
+    pitch = atan(sensor_data.x / sqrt(sensor_data.y * sensor_data.y + sensor_data.z * sensor_data.z)) * 57.2958;
+    roll = atan(sensor_data.y / sqrt(sensor_data.x * sensor_data.x + sensor_data.z * sensor_data.z)) * 57.2958;
+    yaw = atan(sensor_data.z / sqrt(sensor_data.x * sensor_data.x + sensor_data.y * sensor_data.y)) * 57.2958;
+    projection_x = sensor_data.y;
+    projection_y = sqrt(sensor_data.x * sensor_data.x + sensor_data.y * sensor_data.y + sensor_data.z * sensor_data.z);
+    // printf("Sensor %d %d %d \n", sensor_data.x, sensor_data.y, sensor_data.z);
+    // printf("Angle %5.5f %5.5f %5.5f\n", pitch, roll, yaw);
+    pointer_x = 32 + ((sensor_data.x * 16) / 1024);
+    pointer_y = 32 + ((sensor_data.y * 16) / 1024);
+    // printf("Pointer %d %d\n", pointer_x, pointer_y);
+    led_matrix__clear_data_buffer();
+    led_matrix__set_pixel(pointer_x, pointer_y, RED);
+    vTaskDelay(50);
+  }
+}
 static void graphics_task(void *p);
 static void display_task(void *p);
 
