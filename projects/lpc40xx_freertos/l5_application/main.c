@@ -45,6 +45,9 @@ void display_task(void *p) {
 
   while (1) {
     led_matrix__update_display();
+
+    // print_char(test, 9, 5, BLUE);
+    // print_char(test1, 16, 2, GREEN);
     vTaskDelay(1);
   }
 }
@@ -59,19 +62,36 @@ void graphics_task(void *p) {
   int third_row_end = 64;
 
   while (1) {
-    // graphics__turn_on_all_leds(RED);
+    // graphics__turn_o
+    char test[11] = {"abcdefghij"};
+    char test1[11] = {"klmnopqrst"};
+    char test2[11] = {"uvwxyz"};
+    char test3[11] = {"0123456789"};
+    // print_char(test, 10, 2, CYAN);
+    for (int i = 1; i < 8; i++) {
+      // led_matrix__clear_data_buffer();
+
+      print_char(test, 0, 0, i);
+      print_char(test1, 6, 0, i);
+      print_char(test2, 12, 0, i);
+      print_char(test3, 18, 0, i);
+
+      vTaskDelay(500);
+      graphics__turn_off_all_leds();
+    }
+    // led_matrix__fill_data_buffer_till_row(ALL_LED, First_row_start, First_row_end, GREEN);
+    // vTaskDelay(1000);n_all_leds(RED);
     // vTaskDelay(500);
     // graphics__turn_off_all_leds();
     // vTaskDelay(200);
     // graphics__turn_on_all_leds(GREEN);
     //   led_matrix__set_row_data(row, GREEN, ALL_LED);
-    led_matrix__fill_data_buffer_till_row(ALL_LED, First_row_start, First_row_end, GREEN);
+    // led_matrix__fill_data_buffer_till_row(ALL_LED, First_row_start, First_row_end, GREEN);
     // graphics_print_test_row();
     // led_matrix__fill_data_buffer_till_row(ALL_LED, third_row_start, third_row_end, LIME);
-    vTaskDelay(1000);
+    // vTaskDelay(1000);
   }
 }
-
 static void create_blinky_tasks(void) {
   /**
    * Use '#if (1)' if you wish to observe how two tasks can blink LEDs
