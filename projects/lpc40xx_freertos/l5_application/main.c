@@ -13,28 +13,35 @@
 
 #include "acceleration.h"
 #include "ff.h"
-#include <math.h>
+#include "joystick.h"
 
 static const data_size ALL_LED = 0x0000FFFFFFFF0000;
-
-// 'static' to make these functions 'private' to this file
-// static void create_blinky_tasks(void);
-// static void create_uart_task(void);
-// static void blink_task(void *params);
-// static void uart_task(void *params);
 
 acceleration__axis_data_s sensor_data;
 bool sensor_state;
 
+static void joystick_task(void *p) {
+  joystick__values_s joystick_val = {0};
+  gpio_s x = {0, 25};
+  gpio_s y = {1, 30};
+  gpio_s s_k = {1, 31};
+  joystick__initialize(x, y, s_k);
+
+  while (1) {
+    joystick_val = joystick__get_value();
+    // led_matrix__clear_data_buffer();
+    led_matrix__set_pixel(joystick_val.y, joystick_val.x, RED);
+    // printf("X axis : %d,\tY axis : %d\n", joystick_val.x, joystick_val.y);
+    vTaskDelay(10);
+  }
+}
 static void acceleration_task(void *p) {
   sensor_state = acceleration__init();
   if (!sensor_state) {
     acceleration__init();
   }
-
   acceleration__axis_data_s acceleration_rx_data;
   uint8_t led_pt_x = 0, led_pt_y = 0;
-
   while (1) {
     acceleration_rx_data = acceleration__get_averaged_data(20, 100);
     led_pt_x = acceleration_rx_data.x;
@@ -54,6 +61,7 @@ int main(void) {
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
   return 0;
 }
@@ -77,15 +85,6 @@ void graphics_task(void *p) {
   int third_row_end = 64;
 
   while (1) {
-    // graphics__turn_on_all_leds(RED);
-    // vTaskDelay(500);
-    // graphics__turn_off_all_leds();
-    // vTaskDelay(200);
-    // graphics__turn_on_all_leds(GREEN);
-    //   led_matrix__set_row_data(row, GREEN, ALL_LED);
-    // led_matrix__fill_data_buffer_till_row(ALL_LED, First_row_start, First_row_end, GREEN);
-    // graphics_print_test_row();
-    // led_matrix__fill_data_buffer_till_row(ALL_LED, third_row_start, third_row_end, LIME);
     vTaskDelay(1000);
   }
 }
