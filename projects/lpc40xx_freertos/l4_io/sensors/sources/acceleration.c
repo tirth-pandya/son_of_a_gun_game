@@ -43,10 +43,12 @@ acceleration__axis_data_s acceleration__get_data(void) {
   return axis_data;
 }
 
-acceleration__axis_data_s acceleration__get_averaged_data(uint8_t no_of_samples) {
+acceleration__axis_data_s acceleration__get_averaged_data(uint8_t no_of_samples, uint16_t sensitivity) {
   acceleration__axis_data_s axis_values = {0};
+
   int32_t x = 0, y = 0, z = 0;
   for (int i = 0; i < no_of_samples; i++) {
+    axis_values = acceleration__get_data();
     x += axis_values.x;
     y += axis_values.y;
     z += axis_values.z;
@@ -54,5 +56,17 @@ acceleration__axis_data_s acceleration__get_averaged_data(uint8_t no_of_samples)
   axis_values.x = x / no_of_samples;
   axis_values.y = y / no_of_samples;
   axis_values.z = z / no_of_samples;
+
+  axis_values.x = 32 + ((axis_values.x * 32) / sensitivity);
+  if (axis_values.x <= 0)
+    axis_values.x = 0;
+  if (axis_values.x >= 63)
+    axis_values.x = 63;
+  axis_values.y = 32 + ((axis_values.y * 32) / sensitivity);
+  if (axis_values.y <= 0)
+    axis_values.y = 0;
+  if (axis_values.y >= 63)
+    axis_values.y = 63;
+
   return axis_values;
 }

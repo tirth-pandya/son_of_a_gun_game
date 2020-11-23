@@ -36,10 +36,9 @@ static void acceleration_task(void *p) {
   uint8_t led_pt_x = 0, led_pt_y = 0;
 
   while (1) {
-    acceleration_rx_data = acceleration__get_averaged_data(20);
+    acceleration_rx_data = acceleration__get_averaged_data(20, 100);
     led_pt_x = acceleration_rx_data.x;
     led_pt_y = acceleration_rx_data.y;
-
     led_matrix__clear_data_buffer();
     led_matrix__set_pixel(led_pt_x, led_pt_y, RED);
     vTaskDelay(10);
@@ -84,7 +83,7 @@ void graphics_task(void *p) {
     // vTaskDelay(200);
     // graphics__turn_on_all_leds(GREEN);
     //   led_matrix__set_row_data(row, GREEN, ALL_LED);
-    led_matrix__fill_data_buffer_till_row(ALL_LED, First_row_start, First_row_end, GREEN);
+    // led_matrix__fill_data_buffer_till_row(ALL_LED, First_row_start, First_row_end, GREEN);
     // graphics_print_test_row();
     // led_matrix__fill_data_buffer_till_row(ALL_LED, third_row_start, third_row_end, LIME);
     vTaskDelay(1000);
