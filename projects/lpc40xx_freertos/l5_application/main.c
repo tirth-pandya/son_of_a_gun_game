@@ -18,7 +18,69 @@ static void create_blinky_tasks(void);
 static void create_uart_task(void);
 static void blink_task(void *params);
 static void uart_task(void *params);
+#include "delay.h"
+#include "joystick.h"
 
+#include "acceleration.h"
+#include "ff.h"
+#include <math.h>
+int pointer_x = 0, pointer_y = 0;
+
+acceleration__axis_data_s sensor_data;
+bool sensor_state;
+// void joystick_task(void *);
+
+void joystick_task(void *p) {
+  joystick__values_s joystick_val = {0};
+  gpio_s x = {0, 25};
+  gpio_s y = {1, 30};
+  gpio_s s_k = {1, 31};
+  joystick__initialize(x, y, s_k);
+
+  while (1) {
+    joystick_val = joystick__get_value();
+    led_matrix__clear_data_buffer();
+    led_matrix__set_pixel(joystick_val.y, joystick_val.x, RED);
+    printf("X axis : %d,\tY axis : %d\n", joystick_val.x, joystick_val.y);
+    vTaskDelay(20);
+  }
+}
+
+static void acceleration_task(void *p) {
+  sensor_state = acceleration__init();
+  if (!sensor_state) {
+    acceleration__init();
+  }
+  int32_t x = 0, y = 0, z = 0;
+  float pitch, roll, yaw, projection_x, projection_y, a = 0;
+  while (1) {
+    for (uint8_t i = 0; i < 50; i++) {
+      sensor_data = acceleration__get_data();
+      x += sensor_data.x;
+      y += sensor_data.y;
+      z += sensor_data.z;
+    }
+    sensor_data.x = x / 50;
+    sensor_data.y = y / 50;
+    sensor_data.z = z / 50;
+    // x = 0;
+    // y = 0;
+    // z = 0;
+    // pitch = atan(sensor_data.x / sqrt(sensor_data.y * sensor_data.y + sensor_data.z * sensor_data.z)) * 57.2958;
+    // roll = atan(sensor_data.y / sqrt(sensor_data.x * sensor_data.x + sensor_data.z * sensor_data.z)) * 57.2958;
+    // yaw = atan(sensor_data.z / sqrt(sensor_data.x * sensor_data.x + sensor_data.y * sensor_data.y)) * 57.2958;
+    // projection_x = sensor_data.y;
+    // projection_y = sqrt(sensor_data.x * sensor_data.x + sensor_data.y * sensor_data.y + sensor_data.z *
+    // sensor_data.z); printf("Sensor %d %d %d \n", sensor_data.x, sensor_data.y, sensor_data.z); printf("Angle %5.5f
+    // %5.5f %5.5f\n", pitch, roll, yaw);
+    pointer_x = 32 + ((sensor_data.x * 32) / 1024);
+    pointer_y = 32 + ((sensor_data.y * 32) / 1024);
+    // printf("Pointer %d %d\n", pointer_x, pointer_y);
+    led_matrix__clear_data_buffer();
+    led_matrix__set_pixel(pointer_x, pointer_y, RED);
+    vTaskDelay(20);
+  }
+}
 static void graphics_task(void *p);
 static void display_task(void *p);
 
@@ -27,7 +89,7 @@ int main(void) {
   // create_uart_task();
 
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-  xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+  xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
 
   // If you have the ESP32 wifi module soldered on the board, you can try uncommenting this code
   // See esp32/README.md for more details
@@ -35,8 +97,9 @@ int main(void) {
   // xTaskCreate(esp32_tcp_hello_world_task, "uart3", 1000, NULL, PRIORITY_LOW, NULL); // Include esp32_task.h
 
   puts("Starting RTOS");
+  xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  // xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
-
   return 0;
 }
 
