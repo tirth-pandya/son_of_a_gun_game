@@ -14,14 +14,15 @@
 static void create_uart_task(void);
 static void uart_task(void *params);
 static void send_zigbee_task(void *p);
+static void receive_zigbee_task(void *p);
 
 int main(void) {
   const uint32_t uart_baud_rate = 9600;
   zigbee__comm_init(UART__3, uart_baud_rate);
 
-  xTaskCreate(send_zigbee_task, "sender", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+  xTaskCreate(receive_zigbee_task, "sender", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   // create_blinky_tasks();
-  create_uart_task();
+  // create_uart_task();
 
   // If you have the ESP32 wifi module soldered on the board, you can try uncommenting this code
   // See esp32/README.md for more details
@@ -35,16 +36,20 @@ int main(void) {
 }
 
 void receive_zigbee_task(void *p) {
-  while(1) {
-    delay(100);
+  uint8_t message = 0;
+  while (1) {
+    // printf("waiting on queue\n");
+    zigbee__receive_data(&message);
+    printf(" %x  ", message);
+    zigbee__data_receiver(message);
   }
 }
 
 void send_zigbee_task(void *p) {
   while (1) {
-    const uint8_t data[] = {0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x6F, 0x6F, 0x6F, 0x6F};
+    uint8_t data[] = {0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x6F, 0x6F, 0x6F, 0x6F};
     uint8_t size = sizeof(data);
-    zigbee__data_transfer(&data, size);
+    zigbee__data_transfer(data, size);
     // while (!(uart_lab__polled_put(UART__2, write_byte))) {
     // }
     // printf("The data %X is written successfully\n", write_byte);

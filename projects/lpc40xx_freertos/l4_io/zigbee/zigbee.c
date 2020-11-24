@@ -1,10 +1,10 @@
 
-#include "gpio.h"
-#include "stdio.h"
-#include "uart.h"
-#include "lpc_peripherals.h"
-#include "lpc40xx.h"
+#include "zigbee.h"
 #include "assert.h"
+#include "gpio.h"
+#include "lpc40xx.h"
+#include "lpc_peripherals.h"
+#include "stdio.h"
 
 enum API_data_frame_header {
   Start_byte,
@@ -20,7 +20,23 @@ enum API_data_frame_header {
   Frame_header_size,
 };
 
+typedef enum zigbee_receive_state {
+  Start_byte_state,
+  Length_byte_state,
+  Frame_bytes_state,
+  Destination_address_state,
+  Two_byte_address_state,
+  Ignore_byte_state,
+  Data_receive_state,
+  Checksum_receive_state,
+  Max_states,
+} zigbee_receive_state;
+
 static uart_e zigbee_uart;
+static zigbee_receive_state receive_state = Start_byte_state;
+static uint64_t zigbee_destination_address = 0x0013A20041C1A0A3;
+
+QueueHandle_t zigbee__receiver_queue;
 
 static uint8_t data_frame_header[Frame_header_size] = {0x7E, 00,   0xE,  0x10, 0x01, 00,   0x13, 0xA2, 00,
                                                        0x41, 0xB3, 0xCA, 0x57, 0xFF, 0xFE, 00,   00};
@@ -44,7 +60,12 @@ static uint8_t calculate_checksum(uint8_t *data) {
   return checksum;
 }
 
-static uart3_receive_interrupt(void) {
+static uint8_t calculate_checksum_receive(uint16_t sum) {
+  sum &= 0xFF;
+  return (uint8_t)(0xFF - sum);
+}
+
+static void uart3_receive_interrupt(void) {
   const uint8_t interrupt_id_mask = (0b111);
   const uint8_t interrupt_pending_bit = (1 << 0);
   const uint8_t lsr_reg_received_data_ready_bit_mask = (1 << 0);
@@ -59,14 +80,28 @@ static uart3_receive_interrupt(void) {
 
   if ((interrupt_id == 2) && (LPC_UART3->LSR & lsr_reg_received_data_ready_bit_mask)) {
     const char byte = LPC_UART3->RBR;
-    xQueueSendFromISR(uart_rx_queue, &byte, NULL);
-    // printf("I am in ISR, Just put %X data in queue\n", byte);
+    // fprintf(stderr, "I am in ISR, Just put %X data in queue\n", byte);
+    // fprintf(stderr, " %x", byte);
+    xQueueSendFromISR(zigbee__receiver_queue, &byte, NULL);
   }
 }
 
 /*********************************************************************
  *********************PUBLIC FUNCTIONS********************************
  *********************************************************************/
+void zigbee__uart_enable_interrupt(void) {
+  if (zigbee_uart == UART__3) {
+    const uint32_t dlab_bit_mask = (1 << 7);
+    const uint8_t receive_data_enable_interrupt_bit_mask = (1 << 0);
+    LPC_UART3->LCR &= ~(dlab_bit_mask);
+    lpc_peripheral__enable_interrupt(LPC_PERIPHERAL__UART3, uart3_receive_interrupt, "UART3 DATA RECEIVED");
+    LPC_UART3->IER |= (receive_data_enable_interrupt_bit_mask);
+  } else {
+    fprintf(stderr, "zigbee is not on UART3, please reverify");
+    assert(1);
+  }
+  zigbee__receiver_queue = xQueueCreate(100, sizeof(char));
+}
 
 void zigbee__comm_init(uart_e uart, const uint32_t uart_baud_rate) {
   const uint32_t peripheral_clock = clock__get_peripheral_clock_hz();
@@ -75,6 +110,7 @@ void zigbee__comm_init(uart_e uart, const uint32_t uart_baud_rate) {
 
   gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2); // UART_TX
   gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2); // UART_RX
+  zigbee__uart_enable_interrupt();
 }
 
 void zigbee__data_transfer(uint8_t *data, size_t data_size) {
@@ -108,17 +144,100 @@ void zigbee__data_transfer(uint8_t *data, size_t data_size) {
   data_frame_header[Length_byte_MSB] = 0x0;
 }
 
+void zigbee__data_receiver(uint8_t data) {
+  static uint8_t bytes_remaining_to_receive;
+  static uint16_t data_length;
+  static uint16_t data_sum;
+  static uint64_t destination_address;
+  static uint16_t message_length;
+  static uint64_t message;
+  static uint8_t checksum;
+  switch (receive_state) {
+  case Start_byte_state:
+    if (data == 0x7E) {
+      receive_state = Length_byte_state;
+      bytes_remaining_to_receive = 2;
+    } else {
+      assert(1);
+    }
+    break;
+  case Length_byte_state:
+    if (--bytes_remaining_to_receive > 0) {
+      data_length = (data_length << 8) | data;
+    } else {
+      data_length = (data_length << 8) | data;
+      message_length = data_length - 0xC;
+      receive_state = Frame_bytes_state;
+      bytes_remaining_to_receive = 1;
+    }
+    break;
+  case Frame_bytes_state:
+    if (--bytes_remaining_to_receive > 0) {
+      data_sum = +data;
+    } else {
+      data_sum = +data;
+      receive_state = Destination_address_state;
+      bytes_remaining_to_receive = 8;
+    }
+    break;
+  case Destination_address_state:
+    if (--bytes_remaining_to_receive > 0) {
+      data_sum += data;
+      destination_address = (destination_address << 8) | data;
+    } else {
+      data_sum += data;
+      destination_address = (destination_address << 8) | data;
 
-void zigbee__uart_enable_interrupt(void) {
-  if(zigbee_uart == UART__3) {
-    const uint32_t dlab_bit_mask = (1 << 7);
-    const uint8_t receive_data_enable_interrupt_bit_mask = (1 << 0);
-    LPC_UART3->LCR &= ~(dlab_bit_mask);
-    lpc_peripheral__enable_interrupt(LPC_PERIPHERAL__UART3, uart3_receive_interrupt, "UART3 DATA RECEIVED");
-    LPC_UART3->IER  |= (receive_data_enable_interrupt_bit_mask);
-  }
-  else {
-    fprintf(stderr,"zigbee is not on UART3, please reverify");
-    assert(1);
+      if (destination_address == zigbee_destination_address) {
+        receive_state = Two_byte_address_state;
+        bytes_remaining_to_receive = 2;
+      } else {
+        receive_state = Max_states;
+        printf("received invalid destination address\n");
+      }
+    }
+    break;
+  case Two_byte_address_state:
+    if (--bytes_remaining_to_receive > 0) {
+      data_sum += data;
+    } else {
+      data_sum += data;
+      receive_state = Ignore_byte_state;
+      bytes_remaining_to_receive = 1;
+    }
+    break;
+  case Ignore_byte_state:
+    if (--bytes_remaining_to_receive > 0) {
+      data_sum += data;
+    } else {
+      data_sum += data;
+      receive_state = Data_receive_state;
+      bytes_remaining_to_receive = message_length;
+    }
+    break;
+  case Data_receive_state:
+    if (--bytes_remaining_to_receive > 0) {
+      data_sum += data;
+      message = (message << 8) | data;
+    } else {
+      data_sum += data;
+      message = (message << 8) | data;
+      checksum = calculate_checksum_receive(data_sum);
+      bytes_remaining_to_receive = 1;
+      receive_state = Checksum_receive_state;
+    }
+    break;
+  case Checksum_receive_state:
+    if (data == checksum) {
+      receive_state = Start_byte_state;
+      data_length = 0;
+      printf("successfully\n");
+    }
+    break;
+  case Max_states:
+    receive_state = Start_byte_state;
+    break;
   }
 }
+
+bool zigbee__receive_data(uint8_t *message) { return xQueueReceive(zigbee__receiver_queue, message, portMAX_DELAY); }
