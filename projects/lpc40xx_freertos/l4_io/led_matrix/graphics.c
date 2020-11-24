@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include <stdint.h>
 
 const data_size ALL_LEDS_ON = 0xFFFFFFFFFFFFFFFF;
 const data_size ALL_LEDS_OFF = 0x00;

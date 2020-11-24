@@ -14,6 +14,7 @@
 #include "acceleration.h"
 #include "ff.h"
 #include "joystick.h"
+#include "shapes.h"
 
 static const data_size ALL_LED = 0x0000FFFFFFFF0000;
 
@@ -30,8 +31,11 @@ static void joystick_task(void *p) {
   while (1) {
     joystick_val = joystick__get_value();
     // led_matrix__clear_data_buffer();
-    led_matrix__set_pixel(joystick_val.y, joystick_val.x, RED);
+    // led_matrix__set_pixel(joystick_val.y, joystick_val.x, RED);
+    char my_ch[2] = {"x"};
+    print_char(my_ch, joystick_val.y, 63 - joystick_val.x, 7);
     // printf("X axis : %d,\tY axis : %d\n", joystick_val.x, joystick_val.y);
+    graphics__turn_on_all_leds(GREEN);
     vTaskDelay(10);
   }
 }
@@ -60,8 +64,8 @@ int main(void) {
 
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
-  xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
-  xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  // xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  // xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
   return 0;
 }
@@ -71,25 +75,43 @@ void display_task(void *p) {
 
   while (1) {
     led_matrix__update_display();
+
+    // print_char(test, 9, 5, BLUE);
+    // print_char(test1, 16, 2, GREEN);
     vTaskDelay(1);
   }
 }
 
 void graphics_task(void *p) {
   graphics__turn_off_all_leds();
-  int First_row_start = 0;
-  int First_row_end = 1;
-  int sec_row_start = 22;
-  int sec_row_end = 44;
-  int third_row_start = 44;
-  int third_row_end = 64;
+  time_t t;
+  // srand((unsigned)time(&t));
+  int i = 0;
+  int k = 0;
 
+  // const uint_8 cursor[] = {0x18, 0x18, 0x00, 0xdb, 0xdb, 0x00, 0x18, 0x18};
   while (1) {
-    vTaskDelay(1000);
+
+    // led_matrix__drawBall(23, 32, 1);
+    led_matrix__clear_data_buffer();
+    //  graphics__turn_on_all_leds(OFF);
+    shape_update(0, 0, data1, RED);
+    shape_update(0, 8, data2, RED);
+    shape_update(8, 0, data3, RED);
+    shape_update(8, 8, data4, RED);
+    shape_update(30, 30, cursor, WHITE);
+    led_matrix__set_pixel(31, 63 - 37, RED);
+    led_matrix__set_pixel(7, 63 - 11, WHITE);
+    led_matrix__set_pixel(7, 63 - 10, WHITE);
+    led_matrix__set_pixel(7, 63 - 12, WHITE);
+    { /* code */
+    }
+
+    vTaskDelay(5000);
   }
 }
 
-#ifdef DEFAULT_MAIN_TASKS
+#ifdef DEF_TASK
 static void create_blinky_tasks(void) {
   /**
    * Use '#if (1)' if you wish to observe how two tasks can blink LEDs

@@ -12,6 +12,7 @@
  * latch --> set high to enable latch
  * clk
  **/
+
 static gpio_s r0, g0, b0, r1, g1, b1, A, B, C, D, E, oe, latch, clk;
 
 static void clear_pixel(uint8_t row, uint8_t col) {
@@ -175,3 +176,8 @@ void led_matrix__update_display() {
   // fprintf(stderr, "-------------------\n");
   led_matrix__disable_display();
 }
+
+/*void print_digits() {
+  for (uint8_t i = 0; i < 8; i++) {
+    led_matrix__set_row_data(i, 1, digits[8][i]);
+  }*/

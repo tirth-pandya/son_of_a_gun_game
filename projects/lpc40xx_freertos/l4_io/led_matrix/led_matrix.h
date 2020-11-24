@@ -11,8 +11,8 @@ typedef enum { // RGB (000 => Off)
   GREEN,
   CYAN,
   RED,
-  PINK,
-  LIME,
+  MAGENTA,
+  YELLOW,
   WHITE
 } led_matrix__color_e;
 
