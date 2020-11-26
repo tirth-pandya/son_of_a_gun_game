@@ -4,13 +4,13 @@
 #include <stdint.h>
 #include <time.h>
 
-#define number_of_objects 3
+#define number_of_objects 16
 
 typedef enum { FRIEND_OBJECT = 0, ENEMY_OBJECT } OBJECT_NATURE;
 
 struct object_details {
   int row, column;
-  uint8_t *ptr;
+  const uint8_t *ptr;
   OBJECT_NATURE obj_nature;
   bool status;
 };

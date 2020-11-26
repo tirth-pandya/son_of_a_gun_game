@@ -14,55 +14,69 @@ void shape_update(int row, int column, const uint8_t *shape, led_matrix__color_e
   uint64_t temp_row = 0;
 
   column = 63 - column - size_column;
-  if (column < 0)
-    column = 0;
+  // if (column < 0)
+  // column = 0;
+  // column = (column + size_column);
+
+  // if (row < 8)
+  // row = 0;
 
   for (uint8_t i = 0; i < size_row; i++) {
     // printf("%d %d \n", i, shape[i]);
-    temp_row = shape[i];
-    temp_row = temp_row << column;
-    temp_row = ~temp_row;
-    frame_buffer[row + i][BLUE_PLANE] &= temp_row;
-    frame_buffer[row + i][RED_PLANE] &= temp_row;
-    frame_buffer[row + i][GREEN_PLANE] &= temp_row;
+    if (((row + i) >= 0) && ((row + i) <= 63)) {
+      temp_row = shape[i];
+      // printf("%d \n", shape[i]);
+      if (column >= 0)
+        temp_row = temp_row << column;
+      else
+        temp_row = temp_row >> (column * -1);
+      temp_row = ~temp_row;
+      frame_buffer[row + i][BLUE_PLANE] &= temp_row;
+      frame_buffer[row + i][RED_PLANE] &= temp_row;
+      frame_buffer[row + i][GREEN_PLANE] &= temp_row;
 
-    temp_row = shape[i];
-    temp_row = temp_row << column;
+      temp_row = shape[i];
+      if (column >= 0)
+        temp_row = temp_row << column;
+      else
+        temp_row = temp_row >> (column * -1);
 
-    switch (shape_color) {
-    case OFF:
-      temp_row = 0;
-      frame_buffer[row + i][BLUE_PLANE] |= temp_row;
-      frame_buffer[row + i][RED_PLANE] |= temp_row;
-      frame_buffer[row + i][GREEN_PLANE] |= temp_row;
-      break;
-    case BLUE:
-      frame_buffer[row + i][BLUE_PLANE] |= temp_row;
-    case GREEN:
-      frame_buffer[row + i][GREEN_PLANE] |= temp_row;
-      break;
-    case CYAN:
-      frame_buffer[row + i][BLUE_PLANE] |= temp_row;
-      frame_buffer[row + i][GREEN_PLANE] |= temp_row;
-      break;
-    case RED:
-      frame_buffer[row + i][RED_PLANE] |= temp_row;
-      break;
-    case MAGENTA:
-      frame_buffer[row + i][BLUE_PLANE] |= temp_row;
-      frame_buffer[row + i][RED_PLANE] |= temp_row;
-      break;
-    case YELLOW:
-      frame_buffer[row + i][RED_PLANE] |= temp_row;
-      frame_buffer[row + i][GREEN_PLANE] |= temp_row;
-      break;
-    case WHITE:
-      frame_buffer[row + i][BLUE_PLANE] |= temp_row;
-      frame_buffer[row + i][RED_PLANE] |= temp_row;
-      frame_buffer[row + i][GREEN_PLANE] |= temp_row;
-      break;
-    default:
-      break;
+      switch (shape_color) {
+      case OFF:
+        temp_row = 0;
+        frame_buffer[row + i][BLUE_PLANE] |= temp_row;
+        frame_buffer[row + i][RED_PLANE] |= temp_row;
+        frame_buffer[row + i][GREEN_PLANE] |= temp_row;
+        break;
+      case BLUE:
+        frame_buffer[row + i][BLUE_PLANE] |= temp_row;
+        break;
+      case GREEN:
+        frame_buffer[row + i][GREEN_PLANE] |= temp_row;
+        break;
+      case CYAN:
+        frame_buffer[row + i][BLUE_PLANE] |= temp_row;
+        frame_buffer[row + i][GREEN_PLANE] |= temp_row;
+        break;
+      case RED:
+        frame_buffer[row + i][RED_PLANE] |= temp_row;
+        break;
+      case MAGENTA:
+        frame_buffer[row + i][BLUE_PLANE] |= temp_row;
+        frame_buffer[row + i][RED_PLANE] |= temp_row;
+        break;
+      case YELLOW:
+        frame_buffer[row + i][RED_PLANE] |= temp_row;
+        frame_buffer[row + i][GREEN_PLANE] |= temp_row;
+        break;
+      case WHITE:
+        frame_buffer[row + i][BLUE_PLANE] |= temp_row;
+        frame_buffer[row + i][RED_PLANE] |= temp_row;
+        frame_buffer[row + i][GREEN_PLANE] |= temp_row;
+        break;
+      default:
+        break;
+      }
     }
   }
 }
