@@ -12,6 +12,7 @@
 #include "led_matrix.h"
 
 #include "acceleration.h"
+#include "delay.h"
 #include "ff.h"
 #include "joystick.h"
 #include "shapes.h"
@@ -63,7 +64,7 @@ int main(void) {
   // create_uart_task();
 
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-  xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  xTaskCreate(graphics_task, "graphics", 4096 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   // xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   // xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
@@ -84,33 +85,64 @@ void display_task(void *p) {
 
 void graphics_task(void *p) {
   graphics__turn_off_all_leds();
-  time_t t;
-  // srand((unsigned)time(&t));
-  int i = 0;
-  int k = 0;
-
-  // const uint_8 cursor[] = {0x18, 0x18, 0x00, 0xdb, 0xdb, 0x00, 0x18, 0x18};
+  initialize_object_details();
+  int i = rand() % 63;
+  int j = rand() % 63;
+  int k = rand() % 63;
+  int l = rand() % 63;
+  int m = rand() % 63;
+  int n = rand() % 63;
+  int o = rand() % 63;
+  int pa = rand() % 63;
+  int q = rand() % 63;
+  int r = rand() % 63;
+  int s = rand() % 63;
+  int t = rand() % 63;
   while (1) {
-
-    // led_matrix__drawBall(23, 32, 1);
+    randomizer_objects();
+    // initialize_object_details();
     led_matrix__clear_data_buffer();
-    //  graphics__turn_on_all_leds(OFF);
-    shape_update(0, 0, data1, RED);
-    shape_update(0, 8, data2, RED);
-    shape_update(8, 0, data3, RED);
-    shape_update(8, 8, data4, RED);
-    shape_update(30, 30, cursor, WHITE);
-    led_matrix__set_pixel(31, 63 - 37, RED);
-    led_matrix__set_pixel(7, 63 - 11, WHITE);
-    led_matrix__set_pixel(7, 63 - 10, WHITE);
-    led_matrix__set_pixel(7, 63 - 12, WHITE);
-    { /* code */
-    }
-
-    vTaskDelay(5000);
+    draw_from_structure();
+    // shape_update(i, j, test, 1);
+    // i += ((rand() % 3) - 1);
+    // j += ((rand() % 3) - 1);
+    // i = 0;
+    // j = 10;
+    // shape_update(k, l, test, 2);
+    // k += ((rand() % 3) - 1);
+    // l += ((rand() % 3) - 1);
+    // k = -44;
+    // l = 0;
+    // shape_update(m, n, test, 7);
+    // m += ((rand() % 3) - 1);
+    // n += ((rand() % 3) - 1);
+    // m = 30;
+    // n = 54;
+    // shape_update(o, pa, test, 4);
+    // o += ((rand() % 3) - 1);
+    // pa += ((rand() % 3) - 1);
+    // o = 42;
+    // pa = 56;
+    // shape_update(m, n, cursor, 5);
+    // q += ((rand() % 3) - 1);
+    // r += ((rand() % 3) - 1);
+    // q = 61;
+    // r = 47;
+    // shape_update(s, t, cursor, 6);
+    // s += ((rand() % 3) - 1);
+    // t += ((rand() % 3) - 1);
+    // s = 0;
+    // t = 0;
+    // printf("%d %d %d %d %d %d \n %d %d %d %d %d %d \n", i, o, j, pa, k, q, l, r, m, s, n, t);
+    vTaskDelay(100);
   }
 }
-
+void graphics_task1(void *p) {
+  while (1) {
+    shape_update(-50, 20, test, WHITE);
+    vTaskDelay(10);
+  }
+}
 #ifdef DEF_TASK
 static void create_blinky_tasks(void) {
   /**
