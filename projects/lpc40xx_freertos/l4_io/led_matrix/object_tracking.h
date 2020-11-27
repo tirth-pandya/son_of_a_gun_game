@@ -15,7 +15,27 @@ struct object_details {
   bool status;
 };
 
+/**
+ *  Draw from structure accesses the structure elements to get the x,y co-ordinate
+ * and status and object_type to draw the shape
+*/
 void draw_from_structure();
+
+/**
+ * Randomizer changes the position of objects which needs to be changed in gameplay
+ * This affects the .x and.y element in structure
+ */
 void randomizer_objects();
+
+/**
+ * Initialize the maximum number of objects with random/pseudo co-ordinate.
+ * This is idially executed once as it is an initialize function.
+*/
 void initialize_object_details();
+
+/**
+ * Detect the click from the gun.
+ * Once the click is detected, use the appropriate friend,enemy plane to determine the 
+ * location of cursor on the object_type and take approriate action
+ */
 void detect_click(uint8_t hit);
