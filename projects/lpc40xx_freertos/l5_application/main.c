@@ -88,11 +88,13 @@ void graphics_task(void *p) {
   graphics__turn_off_all_leds();
   initialize_object_details();
 
+  uint8_t hit = 1;
   while (1) {
     randomizer_objects();
     led_matrix__clear_data_buffer();
     // graphics__turn_on_all_leds(1);
     draw_from_structure();
+    detect_click(hit);
     vTaskDelay(50);
   }
 }

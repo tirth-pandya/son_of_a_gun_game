@@ -9,28 +9,25 @@ const uint8_t test[8] = {0xe0, 0xe0, 0xe0, 0xe0, 0xe0, 0xe0, 0xfb, 0xfb},
               cursor[8] = {0x02, 0x05, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00},
               empty[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-void shape_update(int row, int column, const uint8_t *shape, led_matrix__color_e shape_color) {
+void shape_update(int row, int column, const uint8_t *shape, led_matrix__color_e shape_color,
+                  game_object_type object_type) {
   uint8_t size_column = 8, size_row = 8;
   uint64_t temp_row = 0;
 
   column = 63 - column - size_column;
-  // if (column < 0)
-  // column = 0;
-  // column = (column + size_column);
-
-  // if (row < 8)
-  // row = 0;
 
   for (uint8_t i = 0; i < size_row; i++) {
-    // printf("%d %d \n", i, shape[i]);
+
     if (((row + i) >= 0) && ((row + i) <= 63)) {
       temp_row = shape[i];
-      // printf("%d \n", shape[i]);
+
       if (column >= 0)
         temp_row = temp_row << column;
       else
         temp_row = temp_row >> (column * -1);
+
       temp_row = ~temp_row;
+
       frame_buffer[row + i][BLUE_PLANE] &= temp_row;
       frame_buffer[row + i][RED_PLANE] &= temp_row;
       frame_buffer[row + i][GREEN_PLANE] &= temp_row;
@@ -73,6 +70,20 @@ void shape_update(int row, int column, const uint8_t *shape, led_matrix__color_e
         frame_buffer[row + i][BLUE_PLANE] |= temp_row;
         frame_buffer[row + i][RED_PLANE] |= temp_row;
         frame_buffer[row + i][GREEN_PLANE] |= temp_row;
+        break;
+      default:
+        break;
+      }
+
+      switch (object_type) {
+      case FRIEND:
+        frame_buffer[row + i][FRIEND_PLANE] |= temp_row;
+        break;
+      case ENEMY:
+        frame_buffer[row + i][ENEMY_PLANE] |= temp_row;
+        break;
+      case LIFE:
+        frame_buffer[row + i][LIFE_PLANE] |= temp_row;
         break;
       default:
         break;

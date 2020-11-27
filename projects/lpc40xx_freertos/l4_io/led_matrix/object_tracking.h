@@ -18,3 +18,4 @@ struct object_details {
 void draw_from_structure();
 void randomizer_objects();
 void initialize_object_details();
+void detect_click(uint8_t hit);
