@@ -32,17 +32,19 @@ static void joystick_task(void *p) {
   gpio_s y = {1, 30};
   gpio_s s_k = {1, 31};
   joystick__initialize(x, y, s_k);
+  int count = 4;
 
   while (1) {
+
     // joystick_val = joystick__get_value();
     // led_matrix__clear_data_buffer();
     // led_matrix__set_pixel(joystick_val.y, joystick_val.x, RED);
     // char my_ch[2] = {"x"};
     // print_char(my_ch, joystick_val.y, 63 - joystick_val.x, 7);
-    // // printf("X axis : %d,\tY axis : %d\n", joystick_val.x, joystick_val.y);
+    // printf("X axis : %d,\tY axis : %d\n", joystick_val.x, joystick_val.y);
     // graphics__turn_on_all_leds(GREEN);
     joystick_comm__send();
-    vTaskDelay(100);
+    vTaskDelay(20);
   }
 }
 static void acceleration_task(void *p) {
@@ -74,10 +76,10 @@ int main(void) {
 
   zigbee__comm_init(UART__3, uart_baud_rate);
   // xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-  // xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-  // xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
+  xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   // xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
-  xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  // xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
   return 0;
 }
@@ -134,7 +136,7 @@ void graphics_task(void *p) {
     shape_update(0, 8, data2, RED);
     shape_update(8, 0, data3, RED);
     shape_update(8, 8, data4, RED);
-    shape_update(30, 30, cursor, WHITE);
+    shape_update(zigbee_message[X_coord], zigbee_message[Y_coord], cursor, WHITE);
     // printf("GT %d  %d\n", zigbee_message[X_coord], zigbee_message[Y_coord]);
     led_matrix__set_pixel(zigbee_message[X_coord], 63 - zigbee_message[Y_coord], RED);
     // led_matrix__set_pixel(7, 63 - 11, WHITE);

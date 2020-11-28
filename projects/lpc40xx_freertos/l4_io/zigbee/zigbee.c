@@ -45,7 +45,7 @@ static uint8_t calculate_checksum(uint8_t *data) {
   uint32_t sum = 0;
   uint8_t checksum = 0;
   uint16_t total_data_size = (data_frame_header[Length_byte_MSB] << 8) | (data_frame_header[Length_byte_LSB]);
-  printf("total data size from checksum calculation is %x\n", total_data_size);
+  // printf("total data size from checksum calculation is %x\n", total_data_size);
   for (int i = 3; i < total_data_size + 3; i++) {
     if (i < Frame_header_size) {
       sum += data_frame_header[i];
@@ -54,7 +54,7 @@ static uint8_t calculate_checksum(uint8_t *data) {
       data++;
     }
   }
-  printf("total sum from checksum is %lx\n", sum);
+  // printf("total sum from checksum is %lx\n", sum);
   sum = sum & 0xFF;
   checksum = (uint8_t)(0xFF - sum);
   return checksum;

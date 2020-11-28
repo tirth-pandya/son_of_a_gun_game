@@ -5,9 +5,9 @@
 #include "uart.h"
 
 typedef enum zigbee_comm_message_element {
-  X_coord,
-  Y_coord,
   Button_press,
+  Y_coord,
+  X_coord,
   Max_message_elemets,
 } zigbee_comm_message_element;
 
