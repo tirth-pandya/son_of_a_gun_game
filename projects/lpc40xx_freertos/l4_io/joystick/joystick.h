@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 typedef struct {
-  uint8_t x, y;
+  int8_t x, y;
   uint8_t sw;
 } joystick__values_s;
 
