@@ -4,6 +4,14 @@
 #include "queue.h"
 #include "uart.h"
 
+typedef enum zigbee_comm_message_element {
+  X_coord,
+  Y_coord,
+  Button_press,
+  Max_message_elemets,
+} zigbee_comm_message_element;
+
+volatile uint8_t zigbee_message[Max_message_elemets];
 /**
  * @brief
  */
