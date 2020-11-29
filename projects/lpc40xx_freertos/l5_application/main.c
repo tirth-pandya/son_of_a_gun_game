@@ -20,6 +20,7 @@ int main(void) {
   const uint32_t uart_baud_rate = 9600;
   zigbee__comm_init(UART__3, uart_baud_rate);
 
+  // xTaskCreate(send_zigbee_task, "sender", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   xTaskCreate(receive_zigbee_task, "sender", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   // create_blinky_tasks();
   // create_uart_task();
@@ -37,11 +38,20 @@ int main(void) {
 
 void receive_zigbee_task(void *p) {
   uint8_t message = 0;
+  zigbee__cs();
   while (1) {
-    // printf("waiting on queue\n");
-    zigbee__receive_data(&message);
-    printf(" %x  ", message);
-    zigbee__data_receiver(message);
+
+    if (xSemaphoreTake(zigbee_spi_data_receive_sempahore, portMAX_DELAY)) {
+      const uint8_t dummy_MOSI_data = 0xFF;
+      gpio_s gpio_attn = gpio__construct(0, 6);
+      printf("rece ");
+      while (!gpio__get(gpio_attn)) {
+        message = ssp2__exchange_byte(dummy_MOSI_data);
+        printf("%x ", message);
+        zigbee__data_receiver(message);
+      }
+      printf("\n");
+    }
   }
 }
 
@@ -53,7 +63,7 @@ void send_zigbee_task(void *p) {
     // while (!(uart_lab__polled_put(UART__2, write_byte))) {
     // }
     // printf("The data %X is written successfully\n", write_byte);
-    vTaskDelay(2000);
+    vTaskDelay(100);
   }
 }
 

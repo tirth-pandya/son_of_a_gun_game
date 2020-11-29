@@ -6,6 +6,9 @@
 #include "lpc_peripherals.h"
 #include "stdio.h"
 
+//#define Zigbee_Using_UART
+#define Zigbee_Using_SPI
+
 enum API_data_frame_header {
   Start_byte,
   Length_byte_MSB,
@@ -86,9 +89,50 @@ static void uart3_receive_interrupt(void) {
   }
 }
 
+static void zigbee_pin_configuration(void) {
+  // Select SSP pin clock
+  gpio__construct_with_function(GPIO__PORT_1, 0, GPIO__FUNCTION_4);
+
+  // Select SSP pin MOSI
+  gpio__construct_with_function(GPIO__PORT_1, 1, GPIO__FUNCTION_4);
+
+  // Select SSP pin MISO
+  gpio__construct_with_function(GPIO__PORT_1, 4, GPIO__FUNCTION_4);
+
+  // Select CS
+  gpio_s gpio_ssp_select = gpio__construct_as_output(GPIO__PORT_1, 10);
+  // Active low single needs be set by default
+  gpio__set(gpio_ssp_select);
+
+  // Select CS pin to replicate original CS operation to monitor on Logic Analyzer
+  gpio_s gpio_ssp_select_replicate = gpio__construct_as_output(GPIO__PORT_1, 14);
+  // Active low single needs be set by default
+  gpio__set(gpio_ssp_select_replicate);
+
+  // XBee module output this pin to get attention from master, when it has some valid data
+  // to send
+  gpio__construct_as_input(GPIO__PORT_0, 6);
+}
+
+static void zigbee_data_receive_interrupt(void) {
+  fprintf(stderr, "ISR\n");
+  LPC_GPIOINT->IO0IntClr |= (1 << 6);
+  xSemaphoreGiveFromISR(zigbee_spi_data_receive_sempahore, NULL);
+}
+
+static void zigbee__enable_spi_attn_interrupt(void) {
+  lpc_peripheral__enable_interrupt(LPC_PERIPHERAL__GPIO, zigbee_data_receive_interrupt, "Zigbee SPI data received");
+  LPC_GPIOINT->IO0IntEnF |= (1 << 6);
+}
+
 /*********************************************************************
  *********************PUBLIC FUNCTIONS********************************
  *********************************************************************/
+
+void zigbee__cs(void) { LPC_GPIO1->CLR = (1 << 14); }
+
+void zigbee__ds(void) { LPC_GPIO1->SET = (1 << 14); }
+
 void zigbee__uart_enable_interrupt(void) {
   if (zigbee_uart == UART__3) {
     const uint32_t dlab_bit_mask = (1 << 7);
@@ -100,10 +144,11 @@ void zigbee__uart_enable_interrupt(void) {
     fprintf(stderr, "zigbee is not on UART3, please reverify");
     assert(1);
   }
-  zigbee__receiver_queue = xQueueCreate(100, sizeof(char));
+  // zigbee__receiver_queue = xQueueCreate(100, sizeof(char));
 }
 
 void zigbee__comm_init(uart_e uart, const uint32_t uart_baud_rate) {
+#ifdef Zigbee_Using_UART
   const uint32_t peripheral_clock = clock__get_peripheral_clock_hz();
   zigbee_uart = uart;
   uart__init(UART__3, peripheral_clock, uart_baud_rate);
@@ -111,6 +156,15 @@ void zigbee__comm_init(uart_e uart, const uint32_t uart_baud_rate) {
   gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2); // UART_TX
   gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2); // UART_RX
   zigbee__uart_enable_interrupt();
+#endif
+
+#ifdef Zigbee_Using_SPI
+  const uint32_t max_clock_khz = 1000;
+  ssp2__initialize(max_clock_khz);
+  zigbee_pin_configuration();
+  zigbee__enable_spi_attn_interrupt();
+  zigbee_spi_data_receive_sempahore = xSemaphoreCreateBinary();
+#endif
 }
 
 void zigbee__data_transfer(uint8_t *data, size_t data_size) {
@@ -122,6 +176,7 @@ void zigbee__data_transfer(uint8_t *data, size_t data_size) {
 
   printf("Checksum value is %x", checksum);
   printf("  Total data size except checksum byte is %x\n", data_size);
+#ifdef Zigbee_Using_UART
   (void)uart__polled_put(UART__3, data_frame_header[Start_byte]);
   (void)uart__polled_put(UART__3, data_frame_header[Length_byte_MSB]);
   (void)uart__polled_put(UART__3, data_frame_header[Length_byte_LSB]);
@@ -140,6 +195,32 @@ void zigbee__data_transfer(uint8_t *data, size_t data_size) {
     }
   }
   (void)uart__polled_put(UART__3, checksum);
+#endif
+
+#ifdef Zigbee_Using_SPI
+
+  zigbee__cs();
+
+  (void)ssp2__exchange_byte(data_frame_header[Start_byte]);
+  (void)ssp2__exchange_byte(data_frame_header[Length_byte_MSB]);
+  (void)ssp2__exchange_byte(data_frame_header[Length_byte_LSB]);
+
+  // Iterate for all the frame bytes which are included in data size
+  for (int i = Frame_type_byte; i < data_size + Frame_type_byte; i++) {
+    if (i < Frame_header_size) {
+      (void)ssp2__exchange_byte(data_frame_header[i]);
+      printf("Sent %x\t", data_frame_header[i]);
+    } else if (i < data_size + Frame_type_byte) {
+      (void)ssp2__exchange_byte(*data);
+      printf("Sent %x\t", *data);
+      data++;
+    }
+  }
+  (void)ssp2__exchange_byte(checksum);
+
+  zigbee__ds();
+
+#endif
   data_frame_header[Length_byte_LSB] = 0xE;
   data_frame_header[Length_byte_MSB] = 0x0;
 }
