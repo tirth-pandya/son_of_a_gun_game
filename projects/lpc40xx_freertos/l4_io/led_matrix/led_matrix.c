@@ -101,6 +101,7 @@ void led_matrix__clear_pixel(int row, int column) {
 }
 
 void led_matrix__set_pixel(int row, int column, led_matrix__color_e color) {
+  // column = 63 - column;
   data_size pixel = ((data_size)1 << column);
   if (color & BLUE_COLOR_BIT) {
     frame_buffer[row][BLUE_PLANE] |= pixel;

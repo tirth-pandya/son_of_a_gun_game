@@ -8,6 +8,7 @@ extern const uint8_t empty[8], test[8], data1[8], data2[8], data3[8], data4[8], 
  * Shape update draws the shape which has been passed as parameters to the function.
  * Parameters are self explanatory.
  * Shapes are created in matrix in .c file.
+ * Virtual plane of friend, enemy and life is also filled for object type detection, scoring and gameplay.
  */
 void shape_update(int row, int column, const uint8_t *shape, led_matrix__color_e shape_color,
                   game_object_type object_type);

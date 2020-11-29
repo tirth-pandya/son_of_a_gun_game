@@ -8,7 +8,14 @@ const uint8_t test[8] = {0xe0, 0xe0, 0xe0, 0xe0, 0xe0, 0xe0, 0xfb, 0xfb},
               data4[8] = {0xf8, 0x20, 0x20, 0xe0, 0xe0, 0x20, 0x20, 0x00},
               cursor[8] = {0x02, 0x05, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00},
               empty[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
+/**
+ * This function first cleares the RGB plane where the object is to be placed.
+ * This avoids color mixing. Foreground/background object placement is achived here.
+ * Objects which are drawn using this function...the one which is called last is printed on top
+ * of the objects which were drawn on previous calls.
+ * Only clear part where object is to be drawn and not the complete image.
+ * Clear image plane on each refresh cycle.
+ */
 void shape_update(int row, int column, const uint8_t *shape, led_matrix__color_e shape_color,
                   game_object_type object_type) {
   uint8_t size_column = 8, size_row = 8;

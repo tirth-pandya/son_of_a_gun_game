@@ -77,10 +77,9 @@ void display_task(void *p) {
 
   while (1) {
     led_matrix__update_display();
-
+    // char test = "test";
     // print_char(test, 9, 5, BLUE);
-    // print_char(test1, 16, 2, GREEN);
-    vTaskDelay(1);
+    vTaskDelay(5);
   }
 }
 
@@ -93,8 +92,10 @@ void graphics_task(void *p) {
     randomizer_objects();
     led_matrix__clear_data_buffer();
     // graphics__turn_on_all_leds(1);
+    // shape_update(10, 20, test, 3, FRIEND);
     draw_from_structure();
-    detect_click(hit);
+    // detect_click(hit);
+    collision_detection();
     vTaskDelay(50);
   }
 }

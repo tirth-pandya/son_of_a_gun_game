@@ -56,6 +56,7 @@ void led_matrix__select_row(int row);
  * @param row Row index of the given pixel
  * @param column Column index of the given pixel
  * @param color Color to be set for the given pixel
+ * this has column flipped compared to other object functions
  */
 void led_matrix__set_pixel(int row, int column, led_matrix__color_e color);
 
