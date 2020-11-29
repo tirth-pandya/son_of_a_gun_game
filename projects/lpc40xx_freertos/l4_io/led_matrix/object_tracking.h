@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define number_of_objects 8
+#define number_of_objects 16
 uint8_t friend_score, enemy_score;
 
 typedef enum { FRIEND_OBJECT = 0, ENEMY_OBJECT } OBJECT_NATURE;

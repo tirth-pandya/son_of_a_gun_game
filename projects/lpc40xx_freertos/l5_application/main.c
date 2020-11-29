@@ -63,7 +63,6 @@ static void display_task(void *p);
 int main(void) {
   // create_blinky_tasks();
   // create_uart_task();
-
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 4096 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   // xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
@@ -77,8 +76,6 @@ void display_task(void *p) {
 
   while (1) {
     led_matrix__update_display();
-    // char test = "test";
-    // print_char(test, 9, 5, BLUE);
     vTaskDelay(5);
   }
 }
@@ -86,15 +83,18 @@ void display_task(void *p) {
 void graphics_task(void *p) {
   graphics__turn_off_all_leds();
   initialize_object_details();
+  // char test = "test";
 
   uint8_t hit = 1;
   while (1) {
+    // print_char(test, 9, 5, BLUE);
     randomizer_objects();
     led_matrix__clear_data_buffer();
     // graphics__turn_on_all_leds(1);
     // shape_update(10, 20, test, 3, FRIEND);
     draw_from_structure();
     // detect_click(hit);
+    // printf("cd calling");
     collision_detection();
     vTaskDelay(50);
   }

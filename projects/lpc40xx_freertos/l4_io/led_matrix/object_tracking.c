@@ -54,7 +54,7 @@ void detect_click(uint8_t hit) {
     uint64_t temp;
 
     temp = frame_buffer[x][ENEMY_PLANE];
-    temp = temp >> 63 - y;
+    temp = temp >> (63 - y);
     temp = temp << 63;
     led_matrix__set_pixel(x, 63 - y, RED);
 
@@ -71,7 +71,7 @@ void detect_click(uint8_t hit) {
     }
 
     temp = frame_buffer[p][FRIEND_PLANE];
-    temp = temp >> 63 - q;
+    temp = temp >> (63 - q);
     temp = temp << 63;
     led_matrix__set_pixel(p, 63 - q, YELLOW);
 
@@ -98,14 +98,18 @@ void collision_detection() {
     if (temp) {
       x = j;
       y = set_bit_position(temp);
-      printf("%llu", temp);
+      fprintf(stderr, "%d %d\n", x, y);
 
       for (uint8_t i = 0; i < number_of_objects; i++) {
 
         if (((onscreen_objects_struct[i].row) <= x) && ((onscreen_objects_struct[i].row) + 7 >= x) &&
-            //((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
+            ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
             ((onscreen_objects_struct[i].obj_nature) == FRIEND_OBJECT)) {
           onscreen_objects_struct[i].status = false;
+          uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
+          temp = temp >> 32;
+          uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
+          //(stderr, "%lx %lx \n", temp, temp1);
         }
       }
     }
@@ -114,11 +118,13 @@ void collision_detection() {
 
 uint8_t set_bit_position(uint64_t temp) {
   uint64_t buffer;
+  uint8_t column = 0;
   for (uint8_t i = 0; i < 64; i++) {
-    buffer = (temp & (1 < i));
-    if (buffer == 1) {
-      printf("%d", (63 - i));
-      return (63 - i);
+    buffer = (temp & (1 << i));
+    if (buffer) {
+      // printf("%d column", (63 - i));
+      column = 63 - i;
     }
   }
+  return (column);
 }
