@@ -27,13 +27,10 @@ bool sensor_state;
 SemaphoreHandle_t controller_data_update_mutex;
 
 static void joystick_task(void *p) {
-  joystick__values_s joystick_val = {0};
   gpio_s x = {0, 25};
   gpio_s y = {1, 30};
   gpio_s s_k = {1, 31};
   joystick__initialize(x, y, s_k);
-  int count = 4;
-
   while (1) {
 
     // joystick_val = joystick__get_value();
@@ -44,7 +41,7 @@ static void joystick_task(void *p) {
     // printf("X axis : %d,\tY axis : %d\n", joystick_val.x, joystick_val.y);
     // graphics__turn_on_all_leds(GREEN);
     joystick_comm__send();
-    vTaskDelay(20);
+    vTaskDelay(30);
   }
 }
 static void acceleration_task(void *p) {
@@ -72,38 +69,32 @@ int main(void) {
   // create_blinky_tasks();
   // create_uart_task();
   controller_data_update_mutex = xSemaphoreCreateMutex();
-  const uint32_t uart_baud_rate = 38400;
 
-  zigbee__comm_init(UART__3, uart_baud_rate);
+  zigbee__comm_init();
   // xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-  xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-  xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  // xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
+  // xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   // xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
-  // xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
   return 0;
 }
 
 void receive_zigbee_task(void *p) {
-  static uint8_t message;
-  uint8_t count = 14;
+  uint8_t message = 0;
+  zigbee__cs();
   while (1) {
-    // if (xSemaphoreTake(controller_data_update_mutex, 1000)) {
-    // printf("waiting on queue\n");
-    // if (zigbee__receive_data(&message)) {
-    //   printf(" %x  ", message);
-    //   zigbee__data_receiver(message);
-    // }
-    count = 14;
-    while (count > 0) {
-      uart__polled_get(UART__3, &message);
-      printf(" %x  ", message);
-      zigbee__data_receiver(message);
-      count--;
+    if (xSemaphoreTake(zigbee_spi_data_receive_sempahore, portMAX_DELAY)) {
+      const uint8_t dummy_MOSI_data = 0xFF;
+      gpio_s gpio_attn = gpio__construct(0, 6);
+      printf("rece ");
+      while (!gpio__get(gpio_attn)) {
+        message = ssp2__exchange_byte(dummy_MOSI_data);
+        printf("%x ", message);
+        zigbee__data_parcer(message);
+      }
+      printf("\n");
     }
-    // xSemaphoreGive(controller_data_update_mutex);
-    // }
-    vTaskDelay(50);
   }
 }
 void display_task(void *p) {
@@ -114,7 +105,7 @@ void display_task(void *p) {
 
     // print_char(test, 9, 5, BLUE);
     // print_char(test1, 16, 2, GREEN);
-    vTaskDelay(1);
+    vTaskDelay(2);
   }
 }
 
@@ -131,7 +122,7 @@ void graphics_task(void *p) {
     // if (xSemaphoreTake(controller_data_update_mutex, 1000)) {
     // led_matrix__drawBall(23, 32, 1);
     led_matrix__clear_data_buffer();
-    // /graphics__turn_on_all_leds(CYAN);
+    // graphics__turn_on_all_leds(BLUE);
     shape_update(0, 0, data1, RED);
     shape_update(0, 8, data2, RED);
     shape_update(8, 0, data3, RED);
@@ -144,7 +135,8 @@ void graphics_task(void *p) {
     // led_matrix__set_pixel(7, 63 - 12, WHITE);
     // xSemaphoreGive(controller_data_update_mutex);
     // }
-    vTaskDelay(500);
+    // printf("The data %X is written successfully\n", write_byte);
+    vTaskDelay(100);
   }
 }
 

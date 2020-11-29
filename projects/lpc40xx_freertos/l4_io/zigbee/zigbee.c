@@ -32,7 +32,14 @@ typedef enum zigbee_receive_state {
   Max_states,
 } zigbee_receive_state;
 
-static uart_e zigbee_uart;
+typedef enum {
+  MOSI_Pin_Mask = 1,
+  MISO_Pin_Mask = 4,
+  SSel_Pin_Mask = 14,
+  Clk_Pin_Mask = 0,
+  Attn_Pin_Mask = 6,
+} SJ2_pins_to_connect_zigbee;
+
 static zigbee_receive_state receive_state = Start_byte_state;
 static uint64_t zigbee_destination_address = 0x0013A20041C1A0A3;
 
@@ -65,64 +72,51 @@ static uint8_t calculate_checksum_receive(uint16_t sum) {
   return (uint8_t)(0xFF - sum);
 }
 
-static void uart3_receive_interrupt(void) {
-  const uint8_t interrupt_id_mask = (0b111);
-  const uint8_t interrupt_pending_bit = (1 << 0);
-  const uint8_t lsr_reg_received_data_ready_bit_mask = (1 << 0);
-  uint8_t interrupt_id;
+static void zigbee_pin_configuration(void) {
+  // Select SSP pin clock
+  gpio__construct_with_function(GPIO__PORT_1, Clk_Pin_Mask, GPIO__FUNCTION_4);
 
-  // Check whether there is pending interrupt corresponding to UART3
-  if (!(LPC_UART3->IIR & interrupt_pending_bit)) {
-    interrupt_id = ((LPC_UART3->IIR >> 1) & interrupt_id_mask);
-    // fprintf(stderr, "%d  \n", interrupt_id);
-  } else {
-    fprintf(stderr, "UART Interrupt occured due to unconfigured UART cannel, habe look into it");
-    assert(0);
-  }
-  // int count = 8;
-  if ((interrupt_id == 2) && (LPC_UART3->LSR & lsr_reg_received_data_ready_bit_mask)) {
-    LPC_UART3->LCR &= ~(1 << 7);
-    // while (count > 0) {
-    const char byte = LPC_UART3->RBR;
-    // fprintf(stderr, "I am in ISR, Just put %X data in queue\n", byte);
-    fprintf(stderr, " %x", byte);
-    // xQueueSendFromISR(zigbee__receiver_queue, &byte, NULL);
-    // count--;
-    //}
-    zigbee__data_receiver(byte);
-  }
+  // Select SSP pin MOSI
+  gpio__construct_with_function(GPIO__PORT_1, MOSI_Pin_Mask, GPIO__FUNCTION_4);
+
+  // Select SSP pin MISO
+  gpio__construct_with_function(GPIO__PORT_1, MISO_Pin_Mask, GPIO__FUNCTION_4);
+
+  // Select CS pin to replicate original CS operation to monitor on Logic Analyzer
+  gpio_s gpio_ssp_select_replicate = gpio__construct_as_output(GPIO__PORT_1, SSel_Pin_Mask);
+  // Active low single needs be set by default
+  gpio__set(gpio_ssp_select_replicate);
+
+  // XBee module output this pin to get attention from master, when it has some valid data
+  // to send
+  gpio__construct_as_input(GPIO__PORT_0, Attn_Pin_Mask);
+}
+
+static void zigbee_data_receive_interrupt(void) {
+  fprintf(stderr, "ISR\n");
+  LPC_GPIOINT->IO0IntClr |= (1 << 6);
+  xSemaphoreGiveFromISR(zigbee_spi_data_receive_sempahore, NULL);
+}
+
+static void zigbee__enable_spi_attn_interrupt(void) {
+  lpc_peripheral__enable_interrupt(LPC_PERIPHERAL__GPIO, zigbee_data_receive_interrupt, "Zigbee SPI data received");
+  LPC_GPIOINT->IO0IntEnF |= (1 << 6);
 }
 
 /*********************************************************************
  *********************PUBLIC FUNCTIONS********************************
  *********************************************************************/
-void zigbee__uart_enable_interrupt(void) {
-  if (zigbee_uart == UART__3) {
-    const uint32_t dlab_bit_mask = (1 << 7);
-    const uint8_t receive_data_enable_interrupt_bit_mask = (1 << 0);
-    LPC_UART3->LCR &= ~(dlab_bit_mask);
-    lpc_peripheral__enable_interrupt(LPC_PERIPHERAL__UART3, uart3_receive_interrupt, "UART3 DATA RECEIVED");
-    LPC_UART3->IER |= (receive_data_enable_interrupt_bit_mask);
 
-    // Enable FIFO
-    LPC_UART3->FCR &= ~(1 << 0);
-  } else {
-    fprintf(stderr, "zigbee is not on UART3, please reverify");
-    assert(1);
-  }
-  zigbee__receiver_queue = xQueueCreate(50, sizeof(char));
-}
+void zigbee__cs(void) { LPC_GPIO1->CLR = (1 << SSel_Pin_Mask); }
 
-void zigbee__comm_init(uart_e uart, const uint32_t uart_baud_rate) {
-  const uint32_t peripheral_clock = clock__get_peripheral_clock_hz();
-  zigbee_uart = uart;
-  uart__init(UART__3, peripheral_clock, uart_baud_rate);
+void zigbee__ds(void) { LPC_GPIO1->SET = (1 << SSel_Pin_Mask); }
 
-  // LPC_UART3->FCR |= (3 << 6);
-  gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2); // UART_TX
-  gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2); // UART_RX
-  LPC_UART3->FCR &= ~(1 << 0);
-  zigbee__uart_enable_interrupt();
+void zigbee__comm_init(void) {
+  const uint32_t max_clock_khz = 1000;
+  ssp2__initialize(max_clock_khz);
+  zigbee_pin_configuration();
+  zigbee__enable_spi_attn_interrupt();
+  zigbee_spi_data_receive_sempahore = xSemaphoreCreateBinary();
 }
 
 void zigbee__data_transfer(uint8_t *data, size_t data_size) {
@@ -132,31 +126,36 @@ void zigbee__data_transfer(uint8_t *data, size_t data_size) {
   data_frame_header[Length_byte_MSB] = (data_size >> 8) & 0xFF;
   uint8_t checksum = calculate_checksum(data);
 
-  // printf("Checksum value is %x", checksum);
-  // printf("  Total data size except checksum byte is %x\n", data_size);
-  (void)uart__polled_put(UART__3, data_frame_header[Start_byte]);
-  (void)uart__polled_put(UART__3, data_frame_header[Length_byte_MSB]);
-  (void)uart__polled_put(UART__3, data_frame_header[Length_byte_LSB]);
+  printf("Checksum value is %x", checksum);
+  printf("  Total data size except checksum byte is %x\n", data_size);
+
+  zigbee__cs();
+
+  (void)ssp2__exchange_byte(data_frame_header[Start_byte]);
+  (void)ssp2__exchange_byte(data_frame_header[Length_byte_MSB]);
+  (void)ssp2__exchange_byte(data_frame_header[Length_byte_LSB]);
 
   // Iterate for all the frame bytes which are included in data size
   for (int i = Frame_type_byte; i < data_size + Frame_type_byte; i++) {
     if (i < Frame_header_size) {
-      while (!(uart__polled_put(UART__3, data_frame_header[i]))) {
-      }
-      // printf("Sent %x\t", data_frame_header[i]);
+      (void)ssp2__exchange_byte(data_frame_header[i]);
+      printf("Sent %x\t", data_frame_header[i]);
     } else if (i < data_size + Frame_type_byte) {
-      while (!(uart__polled_put(UART__3, *data))) {
-      }
-      // printf("Sent %x\t", *data);
+      (void)ssp2__exchange_byte(*data);
+      printf("Sent %x\t", *data);
       data++;
     }
   }
-  (void)uart__polled_put(UART__3, checksum);
+  (void)ssp2__exchange_byte(checksum);
+
+  zigbee__ds();
+
+  // Resetting the frame length parameter in frame header
   data_frame_header[Length_byte_LSB] = 0xE;
   data_frame_header[Length_byte_MSB] = 0x0;
 }
 
-void zigbee__data_receiver(uint8_t data) {
+void zigbee__data_parcer(uint8_t data) {
   static uint8_t bytes_remaining_to_receive;
   static uint16_t data_length;
   static uint16_t data_sum;
@@ -260,5 +259,3 @@ void zigbee__data_receiver(uint8_t data) {
     break;
   }
 }
-
-bool zigbee__receive_data(uint8_t *message) { return xQueueReceive(zigbee__receiver_queue, message, portMAX_DELAY); }

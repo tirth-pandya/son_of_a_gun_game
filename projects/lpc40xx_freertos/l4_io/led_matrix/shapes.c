@@ -21,7 +21,8 @@ void shape_update(int row, int column, uint8_t *shape, led_matrix__color_e shape
   column = 63 - column - size_column;
   if (column < 0)
     column = 0;
-
+  if (row + 8 > 63)
+    row = 63 - 8;
   for (uint8_t i = 0; i < size_row; i++) {
     // printf("%d %d \n", i, shape[i]);
     temp_row = shape[i];
