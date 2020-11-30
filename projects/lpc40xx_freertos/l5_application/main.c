@@ -42,6 +42,31 @@ static int8_t Send_buf[8] = {0}; // The MP3 player undestands orders in a 8 int 
 #define SET_CYCLEPLAY 0X19 // data is needed 00 start; 01 close
 #define SET_DAC 0X17       // data is needed 00 start DAC OUTPUT;01 DAC no output
 
+void sendCommand_card() {
+  Send_buf[0] = 0x7e;
+  Send_buf[1] = 0xff;
+  Send_buf[2] = 0x06;
+  Send_buf[3] = 0x09;
+  Send_buf[4] = 0x00;
+  Send_buf[5] = 0x00;
+  Send_buf[6] = 0x02;
+  Send_buf[7] = 0xef;
+  for (uint8_t i = 0; i < 8; i++)
+    uart__polled_put(UART__3, Send_buf[i]);
+}
+
+void sendCommand_play() {
+  Send_buf[0] = 0x7e;
+  Send_buf[1] = 0xff;
+  Send_buf[2] = 0x06;
+  Send_buf[3] = 0x22;
+  Send_buf[4] = 0x00;
+  Send_buf[5] = 0x1e;
+  Send_buf[6] = 0x01;
+  Send_buf[7] = 0xef;
+  for (uint8_t i = 0; i < 8; i++)
+    uart__polled_put(UART__3, Send_buf[i]);
+}
 void sendCommand(int8_t command, int16_t dat) {
   Send_buf[0] = 0x7e;               // starting byte
   Send_buf[1] = 0xff;               // version
@@ -93,6 +118,13 @@ void sendCommand4(void) {
   for (uint8_t i = 0; i < 4; i++)
     uart__polled_put(UART__3, Send_buf[i]);
 }
+void send_task(void *p) {
+  while (1) {
+    sendCommand_card();
+    sendCommand_play();
+    vTaskDelay(5000);
+  }
+}
 int main(void) {
   //  create_blinky_tasks();
   // create_uart_task();
@@ -114,15 +146,15 @@ int main(void) {
   // sendCommand(CMD_SET_VOLUME, 25);
 
   printf("initialized..");
-  sendCommand2();
-  sendCommand1();
-  sendCommand3();
+  // sendCommand2();
+  // sendCommand1();
+  // sendCommand3();
+  xTaskCreate(send_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  // printf("\nI did it");
+  // while (1)
+  //   ;
 
-  printf("\nI did it");
-  while (1)
-    ;
-
-  // vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
+  vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
 
   return 0;
 }
