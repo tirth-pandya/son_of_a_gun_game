@@ -7,11 +7,12 @@
 #define number_of_objects 16
 uint8_t friend_score, enemy_score;
 
+// typedef void (*void_function_t)(int x, int y);
+
 typedef enum { FRIEND_OBJECT = 0, ENEMY_OBJECT } OBJECT_NATURE;
 
 struct object_details {
   int row, column;
-  const uint8_t *ptr;
   OBJECT_NATURE obj_nature;
   bool status;
 };
@@ -49,5 +50,4 @@ void collision_detection();
 /**
  * Determine the position of first 1 in uint64_t for determining the column position
  */
-
 uint8_t set_bit_position(uint64_t temp);

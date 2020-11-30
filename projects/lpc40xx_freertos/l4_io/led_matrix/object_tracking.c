@@ -8,12 +8,12 @@ void initialize_object_details() {
   int random;
   friend_score = 0;
   enemy_score = 0;
+  // void_function_t draw_enemy_pointer = &draw_enemy;
   for (int i = 0; i < number_of_objects; i++) {
     random = rand() % 63;
     onscreen_objects_struct[i].row = random;
     random = rand() % 63;
     onscreen_objects_struct[i].column = random;
-    onscreen_objects_struct[i].ptr = test;
     onscreen_objects_struct[i].obj_nature = i % 2;
     onscreen_objects_struct[i].status = true;
   }
@@ -40,8 +40,19 @@ void draw_from_structure() {
 
   for (uint8_t i = 0; i < number_of_objects; i++) {
     if (onscreen_objects_struct[i].status) {
-      shape_update(onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, onscreen_objects_struct[i].ptr,
-                   1 + (i % 2), onscreen_objects_struct[i].obj_nature);
+      switch (onscreen_objects_struct[i].obj_nature) {
+
+      case FRIEND_OBJECT:
+        draw_friend(onscreen_objects_struct[i].row, onscreen_objects_struct[i].column);
+        break;
+
+      case ENEMY_OBJECT:
+        draw_enemy(onscreen_objects_struct[i].row, onscreen_objects_struct[i].column);
+        break;
+
+      default:
+        break;
+      }
     }
   }
 }
@@ -98,7 +109,7 @@ void collision_detection() {
     if (temp) {
       x = j;
       y = set_bit_position(temp);
-      fprintf(stderr, "%d %d\n", x, y);
+      // fprintf(stderr, "%d %d\n", x, y);
 
       for (uint8_t i = 0; i < number_of_objects; i++) {
 
@@ -109,7 +120,6 @@ void collision_detection() {
           uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
           temp = temp >> 32;
           uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
-          //(stderr, "%lx %lx \n", temp, temp1);
         }
       }
     }

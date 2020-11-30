@@ -12,13 +12,12 @@
 #include "led_matrix.h"
 
 #include "acceleration.h"
+#include "alphabets.h"
 #include "delay.h"
 #include "ff.h"
 #include "joystick.h"
 #include "object_tracking.h"
 #include "shapes.h"
-
-static const data_size ALL_LED = 0x0000FFFFFFFF0000;
 
 acceleration__axis_data_s sensor_data;
 bool sensor_state;
@@ -75,6 +74,9 @@ void display_task(void *p) {
   led_matrix_init();
 
   while (1) {
+    // char test123 = "abc";
+    // print_char(test123, 32, 32, BLUE);
+    // shape_update(10, 20, test, 3, FRIEND);
     led_matrix__update_display();
     vTaskDelay(5);
   }
@@ -85,16 +87,22 @@ void graphics_task(void *p) {
   initialize_object_details();
   // char test = "test";
 
+  // void (*draw_enemy_pointer)(void);
+  // draw_enemy_pointer = &draw_enemy;
+
   uint8_t hit = 1;
   while (1) {
     // print_char(test, 9, 5, BLUE);
+
+    // shape_update(10, 20, a1, GREEN, FRIEND);
+    // shape_update(10, 20, a2, RED, FRIEND);
+    // shape_update(10, 20, a3, BLUE, FRIEND);
+
     randomizer_objects();
     led_matrix__clear_data_buffer();
-    // graphics__turn_on_all_leds(1);
-    // shape_update(10, 20, test, 3, FRIEND);
+    // draw_enemy_pointer();
     draw_from_structure();
-    // detect_click(hit);
-    // printf("cd calling");
+    detect_click(hit);
     collision_detection();
     vTaskDelay(50);
   }
