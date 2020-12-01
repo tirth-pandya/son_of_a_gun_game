@@ -1,5 +1,6 @@
 #pragma once
 #include "led_matrix.h"
+#include <stdint.h>
 
 typedef enum { FRIEND, ENEMY, LIFE } game_object_type;
 extern const uint8_t empty[8], test[8], a1[8], a2[8], a3[8], data4[8], cursor[8];

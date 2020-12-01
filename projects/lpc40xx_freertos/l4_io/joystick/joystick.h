@@ -1,11 +1,12 @@
 #pragma once
 
+#include "gpio.h"
 #include <stdbool.h>
 #include <stdint.h>
 
 typedef struct {
-  int16_t x, y;
-  // bool sw;
+  int8_t x, y;
+  uint8_t sw;
 } joystick__values_s;
 
 joystick__values_s joystick__get_value(void);
