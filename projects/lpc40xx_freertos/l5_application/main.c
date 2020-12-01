@@ -12,12 +12,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "mp3.h"
+
 // 'static' to make these functions 'private' to this file
 static void create_blinky_tasks(void);
 static void create_uart_task(void);
 static void blink_task(void *params);
 static void uart_task(void *params);
 
+#if 0
 static int8_t Send_buf[8] = {0}; // The MP3 player undestands orders in a 8 int string
                                  // 0X7E FF 06 command 00 00 00 EF;(if command =01 next song order)
 #define NEXT_SONG 0X01
@@ -120,9 +123,18 @@ void sendCommand4(void) {
 }
 void send_task(void *p) {
   while (1) {
-    sendCommand_card();
-    sendCommand_play();
-    vTaskDelay(5000);
+    sendCommand_card();-
+    while (1)
+      ;
+  }
+}
+#endif
+
+void send_mp3_task(void *p) {
+  mp3__send_command(C_SEL_DEV, D_TF_CARD);
+  while (1) {
+    mp3__send_command(C_PLAY_W_VOL, 0x1e01);
+    vTaskDelay(10000);
   }
 }
 int main(void) {
@@ -136,9 +148,6 @@ int main(void) {
 
   puts("Starting RTOS");
 
-  uart__init(UART__3, 96 * 1000 * 1000, 9600);
-  gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2);
-  gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2);
   // sendCommand(0x08, 0x0003);
   // sendCommand(CMD_SET_VOLUME, 25);
   // sendCommand(0x03, 0x0001);
@@ -146,10 +155,12 @@ int main(void) {
   // sendCommand(CMD_SET_VOLUME, 25);
 
   printf("initialized..");
+  mp3__init();
+
   // sendCommand2();
   // sendCommand1();
   // sendCommand3();
-  xTaskCreate(send_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   // printf("\nI did it");
   // while (1)
   //   ;
