@@ -31,6 +31,7 @@ static void joystick_task(void *p) {
   gpio_s y = {1, 30};
   gpio_s s_k = {1, 31};
   joystick__initialize(x, y, s_k);
+  zigbee__cs();
   while (1) {
 
     // joystick_val = joystick__get_value();

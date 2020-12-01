@@ -48,6 +48,8 @@ QueueHandle_t zigbee__receiver_queue;
 static uint8_t data_frame_header[Frame_header_size] = {0x7E, 00,   0xE,  0x10, 0x01, 00,   0x13, 0xA2, 00,
                                                        0x41, 0xB3, 0xCA, 0x57, 0xFF, 0xFE, 00,   00};
 
+// static uint8_t data_frame_header[Frame_header_size] = {0x7E, 00,   0xE,  0x10, 0x01, 00,   0x13, 0xA2, 00,
+//                                                        0x41, 0xC1, 0xA0, 0xD2, 0xFF, 0xFE, 00,   00};
 static uint8_t calculate_checksum(uint8_t *data) {
   uint32_t sum = 0;
   uint8_t checksum = 0;
@@ -117,6 +119,7 @@ void zigbee__comm_init(void) {
   zigbee_pin_configuration();
   zigbee__enable_spi_attn_interrupt();
   zigbee_spi_data_receive_sempahore = xSemaphoreCreateBinary();
+  zigbee__cs();
 }
 
 void zigbee__data_transfer(uint8_t *data, size_t data_size) {
@@ -128,8 +131,6 @@ void zigbee__data_transfer(uint8_t *data, size_t data_size) {
 
   printf("Checksum value is %x", checksum);
   printf("  Total data size except checksum byte is %x\n", data_size);
-
-  zigbee__cs();
 
   (void)ssp2__exchange_byte(data_frame_header[Start_byte]);
   (void)ssp2__exchange_byte(data_frame_header[Length_byte_MSB]);
@@ -147,8 +148,6 @@ void zigbee__data_transfer(uint8_t *data, size_t data_size) {
     }
   }
   (void)ssp2__exchange_byte(checksum);
-
-  zigbee__ds();
 
   // Resetting the frame length parameter in frame header
   data_frame_header[Length_byte_LSB] = 0xE;
@@ -204,6 +203,7 @@ void zigbee__data_parcer(uint8_t data) {
         bytes_remaining_to_receive = 2;
       } else {
         receive_state = Two_byte_address_state;
+        bytes_remaining_to_receive = 2;
         // printf("XX\n");
       }
     }
