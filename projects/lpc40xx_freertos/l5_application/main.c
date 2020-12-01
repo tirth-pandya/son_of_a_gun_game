@@ -12,11 +12,12 @@
 #include "led_matrix.h"
 
 #include "acceleration.h"
+#include "alphabets.h"
+#include "delay.h"
 #include "ff.h"
 #include "joystick.h"
+#include "object_tracking.h"
 #include "shapes.h"
-
-static const data_size ALL_LED = 0x0000FFFFFFFF0000;
 
 acceleration__axis_data_s sensor_data;
 bool sensor_state;
@@ -61,9 +62,8 @@ static void display_task(void *p);
 int main(void) {
   // create_blinky_tasks();
   // create_uart_task();
-
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-  xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  xTaskCreate(graphics_task, "graphics", 4096 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   // xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   // xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
@@ -74,40 +74,37 @@ void display_task(void *p) {
   led_matrix_init();
 
   while (1) {
+    // char test123 = "abc";
+    // print_char(test123, 32, 32, BLUE);
+    // shape_update(10, 20, test, 3, FRIEND);
     led_matrix__update_display();
-
-    // print_char(test, 9, 5, BLUE);
-    // print_char(test1, 16, 2, GREEN);
-    vTaskDelay(1);
+    vTaskDelay(5);
   }
 }
 
 void graphics_task(void *p) {
   graphics__turn_off_all_leds();
-  time_t t;
-  // srand((unsigned)time(&t));
-  int i = 0;
-  int k = 0;
+  initialize_object_details();
+  // char test = "test";
 
-  // const uint_8 cursor[] = {0x18, 0x18, 0x00, 0xdb, 0xdb, 0x00, 0x18, 0x18};
+  // void (*draw_enemy_pointer)(void);
+  // draw_enemy_pointer = &draw_enemy;
+
+  uint8_t hit = 1;
   while (1) {
+    // print_char(test, 9, 5, BLUE);
 
-    // led_matrix__drawBall(23, 32, 1);
+    // shape_update(10, 20, a1, GREEN, FRIEND);
+    // shape_update(10, 20, a2, RED, FRIEND);
+    // shape_update(10, 20, a3, BLUE, FRIEND);
+
+    randomizer_objects();
     led_matrix__clear_data_buffer();
-    //  graphics__turn_on_all_leds(OFF);
-    shape_update(0, 0, data1, RED);
-    shape_update(0, 8, data2, RED);
-    shape_update(8, 0, data3, RED);
-    shape_update(8, 8, data4, RED);
-    shape_update(30, 30, cursor, WHITE);
-    led_matrix__set_pixel(31, 63 - 37, RED);
-    led_matrix__set_pixel(7, 63 - 11, WHITE);
-    led_matrix__set_pixel(7, 63 - 10, WHITE);
-    led_matrix__set_pixel(7, 63 - 12, WHITE);
-    { /* code */
-    }
-
-    vTaskDelay(5000);
+    // draw_enemy_pointer();
+    draw_from_structure();
+    detect_click(hit);
+    collision_detection();
+    vTaskDelay(50);
   }
 }
 
