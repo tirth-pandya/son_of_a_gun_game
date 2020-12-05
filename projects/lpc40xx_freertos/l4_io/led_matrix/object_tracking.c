@@ -6,7 +6,7 @@ struct object_details onscreen_objects_struct[number_of_objects];
 
 void initialize_object_details() {
   int random;
-  friend_score = 0;
+  life = 3;
   enemy_score = 0;
   // void_function_t draw_enemy_pointer = &draw_enemy;
   for (int i = 0; i < number_of_objects; i++) {
@@ -61,8 +61,6 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
 
   if (hit) {
     uint8_t x = p, y = q;
-    p = 0;
-    q = 0;
 
     uint64_t temp;
 
@@ -79,8 +77,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
           onscreen_objects_struct[i].status = false;
           enemy_score++;
           mp3__send_command(C_PLAY_FOLD_FILE, 0x0301);
-          printf("Friendly kill %d Enemy Kill %d\n", friend_score, enemy_score);
-          // print_score(friend_score, 0, 0);
+          printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
         }
       }
     }
@@ -97,10 +94,10 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
         if (((onscreen_objects_struct[i].row) <= p) && ((onscreen_objects_struct[i].row) + 7 >= p) &&
             ((onscreen_objects_struct[i].column) <= q) && ((onscreen_objects_struct[i].column) + 7 >= q)) {
           onscreen_objects_struct[i].status = false;
-          friend_score++;
+          life--;
 
           // mp3__send_command(C_PLAY_W_VOL, 0x1e01);
-          printf("Friendly kill %d Enemy Kill %d\n", friend_score, enemy_score);
+          printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
           // print_score(enemy_score, 0, 32);
         }
       }
@@ -124,9 +121,10 @@ void collision_detection() {
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
             ((onscreen_objects_struct[i].obj_nature) == FRIEND_OBJECT)) {
           onscreen_objects_struct[i].status = false;
-          uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
-          temp = temp >> 32;
-          uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
+          life--;
+          // uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
+          // temp = temp >> 32;
+          // uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
         }
       }
     }

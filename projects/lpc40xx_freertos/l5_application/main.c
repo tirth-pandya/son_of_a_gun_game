@@ -103,7 +103,7 @@ int main(void) {
   controller_data_update_mutex = xSemaphoreCreateMutex();
 
   zigbee__comm_init();
-  xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
+  // xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   // xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
@@ -167,13 +167,24 @@ void graphics_task(void *p) {
     // shape_update(10, 20, a1, GREEN, FRIEND);
     // shape_update(10, 20, a2, RED, FRIEND);
 
+    // for (int i = 0; i < 8; i++)
+    //   for (int j = 0; j < 8; j++) {
+    //     shape_update(i * 8, j * 8, a1, i + 1, ENEMY);
+    //     shape_update(i * 8, j * 8, a2, j + 1, ENEMY);
+    //     shape_update(i * 8, j * 8, a3, (rand() % 8) + 1, ENEMY);
+    //     shape_update(5, 10, cursor, WHITE, ENEMY);
+
+    //     // shape_update(x, y, a3, BLUE, ENEMY);
+    //   }
+
     randomizer_objects();
     led_matrix__clear_data_buffer();
-    shape_update(zigbee_message[X_coord], zigbee_message[Y_coord], a3, BLUE, FRIEND);
-    // draw_enemy_pointer();
+    // shape_update(zigbee_message[X_coord], zigbee_message[Y_coord], a3, BLUE, FRIEND);
+
     draw_from_structure();
-    detect_click(zigbee_message[X_coord], zigbee_message[Y_coord], hit);
-    collision_detection();
+    shape_update(5, 10, cursor, WHITE, ENEMY);
+    // detect_click(zigbee_message[X_coord], zigbee_message[Y_coord], hit);
+    // collision_detection();
     vTaskDelay(50);
   }
 }

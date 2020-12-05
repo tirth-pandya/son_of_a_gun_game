@@ -5,7 +5,7 @@
 #include <time.h>
 
 #define number_of_objects 16
-uint8_t friend_score, enemy_score;
+uint8_t life, enemy_score;
 
 // typedef void (*void_function_t)(int x, int y);
 
