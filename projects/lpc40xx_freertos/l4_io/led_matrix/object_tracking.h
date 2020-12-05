@@ -40,7 +40,7 @@ void initialize_object_details();
  * Once the click is detected, use the appropriate friend,enemy plane to determine the
  * location of cursor on the object_type and take approriate action
  */
-void detect_click(uint8_t hit);
+void detect_click(uint8_t p, uint8_t q, uint8_t hit);
 
 /**
  * Detect interseaction of two objects with different object type and take appropriate action

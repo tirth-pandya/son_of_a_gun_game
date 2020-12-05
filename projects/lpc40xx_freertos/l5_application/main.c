@@ -17,15 +17,17 @@
 #include "alphabets.h"
 #include "delay.h"
 #include "ff.h"
+#include "gun_comm.h"
 #include "joystick.h"
-#include "object_tracking.h"
 #include "joystick_comm.h"
+#include "object_tracking.h"
 #include "shapes.h"
 
 acceleration__axis_data_s sensor_data;
 bool sensor_state;
 
 SemaphoreHandle_t controller_data_update_mutex;
+extern volatile uint8_t zigbee_message[Max_message_elemets];
 
 static void joystick_task(void *p) {
   gpio_s x = {0, 25};
@@ -46,22 +48,30 @@ static void joystick_task(void *p) {
     vTaskDelay(30);
   }
 }
-static void acceleration_task(void *p) {
-  sensor_state = acceleration__init();
-  if (!sensor_state) {
-    acceleration__init();
-  }
-  acceleration__axis_data_s acceleration_rx_data;
-  uint8_t led_pt_x = 0, led_pt_y = 0;
+// static void acceleration_task(void *p) {
+//   sensor_state = acceleration__init();
+//   if (!sensor_state) {
+//     acceleration__init();
+//   }
+//   acceleration__axis_data_s acceleration_rx_data;
+//   uint8_t led_pt_x = 0, led_pt_y = 0;
+//   while (1) {
+//     acceleration_rx_data = acceleration__get_averaged_data(20, 100);
+//     led_pt_x = acceleration_rx_data.x;
+//     led_pt_y = acceleration_rx_data.y;
+//     led_matrix__clear_data_buffer();
+//     led_matrix__set_pixel(led_pt_x, led_pt_y, RED);
+//     vTaskDelay(10);
+//   }
+// }
+
+void gun_send_task(void *p) {
   while (1) {
-    acceleration_rx_data = acceleration__get_averaged_data(20, 100);
-    led_pt_x = acceleration_rx_data.x;
-    led_pt_y = acceleration_rx_data.y;
-    led_matrix__clear_data_buffer();
-    led_matrix__set_pixel(led_pt_x, led_pt_y, RED);
-    vTaskDelay(10);
+    gun_comm__send_data();
+    vTaskDelay(30);
   }
 }
+
 static void graphics_task(void *p);
 static void display_task(void *p);
 
@@ -77,8 +87,10 @@ int main(void) {
   // xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   // xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   // xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
-  xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  // /xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  xTaskCreate(gun_send_task, "send_gun_param", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
+
   return 0;
 }
 
@@ -99,6 +111,7 @@ void receive_zigbee_task(void *p) {
     }
   }
 }
+
 void display_task(void *p) {
   led_matrix_init();
 
@@ -128,13 +141,13 @@ void graphics_task(void *p) {
 
     // shape_update(10, 20, a1, GREEN, FRIEND);
     // shape_update(10, 20, a2, RED, FRIEND);
-    // shape_update(10, 20, a3, BLUE, FRIEND);
 
     randomizer_objects();
     led_matrix__clear_data_buffer();
+    shape_update(zigbee_message[X_coord], zigbee_message[Y_coord], a3, BLUE, FRIEND);
     // draw_enemy_pointer();
     draw_from_structure();
-    detect_click(hit);
+    detect_click(zigbee_message[X_coord], zigbee_message[Y_coord], hit);
     collision_detection();
     vTaskDelay(50);
   }

@@ -30,10 +30,10 @@ joystick__values_s joystick__get_value(void) {
 
   LPC_IOCON->P0_25 &= ~(0x98);
   x_raw = adc__get_adc_value(ADC__CHANNEL_2);
-  joystick_values.x = map(x_raw, 0, 4096, 2, -2);
+  joystick_values.x = map(x_raw, 0, 4096, 3, -2);
   LPC_IOCON->P1_30 &= ~(0x98);
   y_raw = adc__get_adc_value(ADC__CHANNEL_4);
-  joystick_values.y = map(y_raw, 0, 4096, -2, 2);
+  joystick_values.y = map(y_raw, 0, 4096, -2, 3);
 
   new_val.x = joystick_values.x + new_val.x;
   if (new_val.x > 63)

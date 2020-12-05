@@ -41,7 +41,8 @@ typedef enum {
 } SJ2_pins_to_connect_zigbee;
 
 static zigbee_receive_state receive_state = Start_byte_state;
-static uint64_t zigbee_destination_address = 0x0013A20041C1A0A3;
+static uint64_t zigbee_joystick_address = 0x0013A20041C1A0A3;
+static uint64_t zigbee_gun_address = 0x0013A20041C1A0D2;
 
 QueueHandle_t zigbee__receiver_queue;
 
@@ -129,9 +130,9 @@ void zigbee__data_transfer(uint8_t *data, size_t data_size) {
   data_frame_header[Length_byte_MSB] = (data_size >> 8) & 0xFF;
   uint8_t checksum = calculate_checksum(data);
 
-  printf("Checksum value is %x", checksum);
-  printf("  Total data size except checksum byte is %x\n", data_size);
-
+  printf("\nChecksum value is %x", checksum);
+  printf("  Total data size except checksum byte is %x   ", data_size);
+  zigbee__cs();
   (void)ssp2__exchange_byte(data_frame_header[Start_byte]);
   (void)ssp2__exchange_byte(data_frame_header[Length_byte_MSB]);
   (void)ssp2__exchange_byte(data_frame_header[Length_byte_LSB]);
@@ -140,15 +141,15 @@ void zigbee__data_transfer(uint8_t *data, size_t data_size) {
   for (int i = Frame_type_byte; i < data_size + Frame_type_byte; i++) {
     if (i < Frame_header_size) {
       (void)ssp2__exchange_byte(data_frame_header[i]);
-      printf("Sent %x\t", data_frame_header[i]);
+      printf(" %x\t", data_frame_header[i]);
     } else if (i < data_size + Frame_type_byte) {
       (void)ssp2__exchange_byte(*data);
-      printf("Sent %x\t", *data);
+      printf(" %x\t", *data);
       data++;
     }
   }
   (void)ssp2__exchange_byte(checksum);
-
+  zigbee__ds();
   // Resetting the frame length parameter in frame header
   data_frame_header[Length_byte_LSB] = 0xE;
   data_frame_header[Length_byte_MSB] = 0x0;
@@ -198,7 +199,7 @@ void zigbee__data_parcer(uint8_t data) {
       data_sum += data;
       destination_address = (destination_address << 8) | data;
 
-      if (destination_address == zigbee_destination_address) {
+      if (destination_address == zigbee_joystick_address) {
         receive_state = Two_byte_address_state;
         bytes_remaining_to_receive = 2;
       } else {

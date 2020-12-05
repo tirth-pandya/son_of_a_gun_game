@@ -1,0 +1,1 @@
+void gun_comm__send_data(void);

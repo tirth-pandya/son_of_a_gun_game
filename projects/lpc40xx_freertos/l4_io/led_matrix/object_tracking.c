@@ -57,10 +57,12 @@ void draw_from_structure() {
   }
 }
 
-void detect_click(uint8_t hit) {
+void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
 
   if (hit) {
-    uint8_t x = 50, y = 53, p = 10, q = 22;
+    uint8_t x = p, y = q;
+    p = 0;
+    q = 0;
 
     uint64_t temp;
 
