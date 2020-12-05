@@ -114,12 +114,14 @@ void zigbee__cs(void) { LPC_GPIO1->CLR = (1 << SSel_Pin_Mask); }
 
 void zigbee__ds(void) { LPC_GPIO1->SET = (1 << SSel_Pin_Mask); }
 
-void zigbee__comm_init(void) {
+void zigbee__comm_init(bool is_receiver) {
   const uint32_t max_clock_khz = 1000;
   ssp2__initialize(max_clock_khz);
   zigbee_pin_configuration();
-  zigbee__enable_spi_attn_interrupt();
-  zigbee_spi_data_receive_sempahore = xSemaphoreCreateBinary();
+  if (is_receiver) {
+    zigbee__enable_spi_attn_interrupt();
+    zigbee_spi_data_receive_sempahore = xSemaphoreCreateBinary();
+  }
   zigbee__cs();
 }
 

@@ -17,6 +17,7 @@
 #include "alphabets.h"
 #include "delay.h"
 #include "ff.h"
+#include "gun.h"
 #include "gun_comm.h"
 #include "joystick.h"
 #include "joystick_comm.h"
@@ -72,6 +73,14 @@ void gun_send_task(void *p) {
   }
 }
 
+void gunFire_send_task(void *p) {
+  while (1) {
+    if (xSemaphoreTake(send_gun_shot_semaphore, portMAX_DELAY)) {
+      gun_comm__send_gunFire();
+    }
+  }
+}
+
 #include "uart.h"
 #include <stdlib.h>
 #include <string.h>
@@ -100,19 +109,31 @@ static void receive_zigbee_task(void *p);
 int main(void) {
   // create_blinky_tasks();
   // create_uart_task();
-  controller_data_update_mutex = xSemaphoreCreateMutex();
+  // controller_data_update_mutex = xSemaphoreCreateMutex();
 
-  zigbee__comm_init();
-  xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-  xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-  xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  // LED Matrix tasks
+  // zigbee__comm_init(true);
+  // xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
+  // xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  // xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
+
   // xTaskCreate(acceleration_task, "read_acc", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
-  // xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
-  // xTaskCreate(gun_send_task, "send_gun_param", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);puts("Starting
-  // RTOS");
-  mp3__init();
 
-  xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+  // Joystick related tasks
+  // zigbee__comm_init(false);
+  // xTaskCreate(joystick_task, "read_joystick", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+
+  // Gun related tasks
+  gun__init();
+  zigbee__comm_init(false);
+  xTaskCreate(gun_send_task, "send_gun_param", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  xTaskCreate(gunFire_send_task, "send gun fire", 1024 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+
+  // Mp3 decoder fucntionality
+  // mp3__init();
+  // xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+
+  puts("Starting RTOS");
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
 
   return 0;

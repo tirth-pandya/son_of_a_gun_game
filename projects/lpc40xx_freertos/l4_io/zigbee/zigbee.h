@@ -4,6 +4,7 @@
 #include "queue.h"
 #include "semphr.h"
 #include "ssp2.h"
+#include "stdbool.h"
 #include "stdio.h"
 
 typedef enum zigbee_comm_message_element {
@@ -19,7 +20,7 @@ xSemaphoreHandle zigbee_spi_data_receive_sempahore;
 /**
  * @brief
  */
-void zigbee__comm_init(void);
+void zigbee__comm_init(bool is_receiver);
 
 /**
  * @brief
