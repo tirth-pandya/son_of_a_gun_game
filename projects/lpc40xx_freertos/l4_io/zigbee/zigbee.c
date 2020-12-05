@@ -27,7 +27,9 @@ typedef enum zigbee_receive_state {
   Destination_address_state,
   Two_byte_address_state,
   Ignore_byte_state,
-  Data_receive_state,
+  Random_Data_receive_state,
+  Joystick_data_receive_state,
+  Gun_data_receive_state,
   Checksum_receive_state,
   Max_states,
 } zigbee_receive_state;
@@ -114,12 +116,14 @@ void zigbee__cs(void) { LPC_GPIO1->CLR = (1 << SSel_Pin_Mask); }
 
 void zigbee__ds(void) { LPC_GPIO1->SET = (1 << SSel_Pin_Mask); }
 
-void zigbee__comm_init(void) {
+void zigbee__comm_init(bool is_receiver) {
   const uint32_t max_clock_khz = 1000;
   ssp2__initialize(max_clock_khz);
   zigbee_pin_configuration();
-  zigbee__enable_spi_attn_interrupt();
-  zigbee_spi_data_receive_sempahore = xSemaphoreCreateBinary();
+  if (is_receiver) {
+    zigbee__enable_spi_attn_interrupt();
+    zigbee_spi_data_receive_sempahore = xSemaphoreCreateBinary();
+  }
   zigbee__cs();
 }
 
@@ -164,12 +168,14 @@ void zigbee__data_parcer(uint8_t data) {
   static uint64_t message;
   static uint8_t checksum;
   switch (receive_state) {
+
   case Start_byte_state:
     if (data == 0x7E) {
       receive_state = Length_byte_state;
       bytes_remaining_to_receive = 2;
     }
     break;
+
   case Length_byte_state:
     if (--bytes_remaining_to_receive > 0) {
       data_length = (data_length << 8) | data;
@@ -182,6 +188,7 @@ void zigbee__data_parcer(uint8_t data) {
       bytes_remaining_to_receive = 1;
     }
     break;
+
   case Frame_bytes_state:
     if (--bytes_remaining_to_receive > 0) {
       data_sum = +data;
@@ -191,6 +198,7 @@ void zigbee__data_parcer(uint8_t data) {
       bytes_remaining_to_receive = 8;
     }
     break;
+
   case Destination_address_state:
     if (--bytes_remaining_to_receive > 0) {
       data_sum += data;
@@ -198,17 +206,12 @@ void zigbee__data_parcer(uint8_t data) {
     } else {
       data_sum += data;
       destination_address = (destination_address << 8) | data;
-
-      if (destination_address == zigbee_joystick_address) {
-        receive_state = Two_byte_address_state;
-        bytes_remaining_to_receive = 2;
-      } else {
-        receive_state = Two_byte_address_state;
-        bytes_remaining_to_receive = 2;
-        // printf("XX\n");
-      }
+      receive_state = Two_byte_address_state;
+      bytes_remaining_to_receive = 2;
+      // printf("XX\n");
     }
     break;
+
   case Two_byte_address_state:
     if (--bytes_remaining_to_receive > 0) {
       data_sum += data;
@@ -218,34 +221,61 @@ void zigbee__data_parcer(uint8_t data) {
       bytes_remaining_to_receive = 1;
     }
     break;
+
   case Ignore_byte_state:
     if (--bytes_remaining_to_receive > 0) {
       data_sum += data;
     } else {
       data_sum += data;
-      receive_state = Data_receive_state;
+      if (destination_address == zigbee_joystick_address)
+        receive_state = Joystick_data_receive_state;
+      else if (destination_address == zigbee_gun_address)
+        receive_state = Gun_data_receive_state;
+      else
+        receive_state = Random_Data_receive_state;
       bytes_remaining_to_receive = message_length;
     }
     break;
-  case Data_receive_state:
+
+  case Random_Data_receive_state:
     if (--bytes_remaining_to_receive > 0) {
       data_sum += data;
-      if (message_length == Max_message_elemets)
-        zigbee_message[bytes_remaining_to_receive] = data;
-      else
-        message = (message << 8) | data;
-
+      message = (message << 8) | data;
     } else {
       data_sum += data;
-      if (message_length == Max_message_elemets)
-        zigbee_message[bytes_remaining_to_receive] = data;
-      else
-        message = (message << 8) | data;
+      message = (message << 8) | data;
       checksum = calculate_checksum_receive(data_sum);
       bytes_remaining_to_receive = 1;
       receive_state = Checksum_receive_state;
     }
     break;
+
+  case Joystick_data_receive_state:
+    if (--bytes_remaining_to_receive > 0) {
+      data_sum += data;
+      zigbee_joystick_message[bytes_remaining_to_receive] = data;
+    } else {
+      data_sum += data;
+      zigbee_joystick_message[bytes_remaining_to_receive] = data;
+      checksum = calculate_checksum_receive(data_sum);
+      bytes_remaining_to_receive = 1;
+      receive_state = Checksum_receive_state;
+    }
+    break;
+
+  case Gun_data_receive_state:
+    if (--bytes_remaining_to_receive > 0) {
+      data_sum += data;
+      zigbee_gun_message[bytes_remaining_to_receive] = data;
+    } else {
+      data_sum += data;
+      zigbee_gun_message[bytes_remaining_to_receive] = data;
+      checksum = calculate_checksum_receive(data_sum);
+      bytes_remaining_to_receive = 1;
+      receive_state = Checksum_receive_state;
+    }
+    break;
+
   case Checksum_receive_state:
     if (data == checksum) {
       data_length = 0;
@@ -255,6 +285,7 @@ void zigbee__data_parcer(uint8_t data) {
     }
     receive_state = Start_byte_state;
     break;
+
   case Max_states:
     receive_state = Start_byte_state;
     break;

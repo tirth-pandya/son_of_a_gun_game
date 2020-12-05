@@ -4,6 +4,7 @@
 #include "queue.h"
 #include "semphr.h"
 #include "ssp2.h"
+#include "stdbool.h"
 #include "stdio.h"
 
 typedef enum zigbee_comm_message_element {
@@ -13,13 +14,14 @@ typedef enum zigbee_comm_message_element {
   Max_message_elemets,
 } zigbee_comm_message_element;
 
-volatile uint8_t zigbee_message[Max_message_elemets];
+volatile uint8_t zigbee_joystick_message[Max_message_elemets];
+volatile uint8_t zigbee_gun_message[Max_message_elemets];
 
 xSemaphoreHandle zigbee_spi_data_receive_sempahore;
 /**
  * @brief
  */
-void zigbee__comm_init(void);
+void zigbee__comm_init(bool is_receiver);
 
 /**
  * @brief

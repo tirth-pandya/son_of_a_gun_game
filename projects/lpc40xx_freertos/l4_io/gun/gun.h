@@ -4,7 +4,11 @@
  * @brief This header file is mainting declarations of APIs and variables used for gun interfacing functions
  */
 
+#include "FreeRTOS.h"
 #include "acceleration.h"
+#include "semphr.h"
+
+SemaphoreHandle_t send_gun_shot_semaphore;
 
 typedef struct gun_param {
   int8_t x_coord;
@@ -20,3 +24,5 @@ typedef struct gun_param {
  * @return gun_param The relevent gun parameter to move gun pointer
  */
 gun_param gun__get_current_param(uint8_t samples_to_avg, uint16_t sensitivity);
+
+void gun__init(void);
