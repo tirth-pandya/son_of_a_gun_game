@@ -140,9 +140,10 @@ void display_task(void *p) {
   led_matrix_init();
 
   while (1) {
-    // char test123 = "abc";
-    // print_char(test123, 32, 32, BLUE);
+    // char test1[] = "abc";
+    // print_char(&test1, 0, 32, BLUE);
     // shape_update(10, 20, test, 3, FRIEND);
+    // print_score(91, 20, 20, RED);
     led_matrix__update_display();
 
     // print_char(test, 9, 5, BLUE);

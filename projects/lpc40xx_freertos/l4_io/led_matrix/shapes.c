@@ -110,3 +110,16 @@ void shape_update(int row, int column, const uint8_t *shape, led_matrix__color_e
     }
   }
 }
+
+void print_score(uint8_t score, int x, int y, led_matrix__color_e shape_color) {
+  int temp_int = 0;
+  char temp_char[3];
+
+  temp_int = score % 10;
+  temp_char[2] = temp_int + '0';
+
+  temp_int = score / 10;
+  temp_char[1] = temp_int + '0';
+
+  print_char(&temp_char, x, y, shape_color);
+}

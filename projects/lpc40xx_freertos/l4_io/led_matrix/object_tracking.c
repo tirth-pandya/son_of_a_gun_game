@@ -80,6 +80,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
           enemy_score++;
           mp3__send_command(C_PLAY_FOLD_FILE, 0x0301);
           printf("Friendly kill %d Enemy Kill %d\n", friend_score, enemy_score);
+          // print_score(friend_score, 0, 0);
         }
       }
     }
@@ -100,6 +101,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
 
           // mp3__send_command(C_PLAY_W_VOL, 0x1e01);
           printf("Friendly kill %d Enemy Kill %d\n", friend_score, enemy_score);
+          // print_score(enemy_score, 0, 32);
         }
       }
     }
