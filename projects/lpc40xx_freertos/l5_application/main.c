@@ -22,6 +22,11 @@
 #include "joystick_comm.h"
 #include "object_tracking.h"
 #include "shapes.h"
+#include "uart.h"
+#include <stdlib.h>
+#include <string.h>
+
+#include "mp3.h"
 
 acceleration__axis_data_s sensor_data;
 bool sensor_state;
@@ -72,12 +77,6 @@ void gun_send_task(void *p) {
   }
 }
 
-#include "uart.h"
-#include <stdlib.h>
-#include <string.h>
-
-#include "mp3.h"
-
 // 'static' to make these functions 'private' to this file
 static void create_blinky_tasks(void);
 static void create_uart_task(void);
@@ -86,10 +85,31 @@ static void uart_task(void *params);
 
 void send_mp3_task(void *p) {
   mp3__send_command(C_SEL_DEV, D_TF_CARD);
-  while (1) {
-    mp3__send_command(C_PLAY_W_VOL, 0x0201);
-    vTaskDelay(4000);
+  while(1)
+  {
+    switch(mp3_details.mp3_to_play)
+    {
+      case DEFAULT_BG:
+        mp3__send_command(C_ONE_CY_PLAY_FOLD,0x0101);
+        break;
+
+        case GUNSHOT:
+        mp3__send_command(C_PLAY_FOLD_FILE,0x0301);
+        vTaskDelay(mp3_details.mp3_duration);
+
+    }
   }
+  // while (1) {
+  //   if (current_mp3 == DEFAULT_BG) {
+  //     play_def_bg_loop;
+  //   }
+  //   if (current_mp3 == GUNSHOT) {
+  //     play_gunshot;
+  //     vTaskDelay(length_of_gunshot);
+  //     play_def_bg_loop;
+  //   }
+  //   mp3__send_command(C_PLAY_W_VOL, 0x0201);
+  vTaskDelay(4000);
 }
 
 static void graphics_task(void *p);
