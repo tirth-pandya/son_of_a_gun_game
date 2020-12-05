@@ -1,4 +1,5 @@
 #pragma once
+#include "alphabets.h"
 #include "led_matrix.h"
 
 typedef enum { FRIEND, ENEMY, LIFE } game_object_type;
@@ -15,10 +16,15 @@ void shape_update(int row, int column, const uint8_t *shape, led_matrix__color_e
 
 /**
  * Draw enemy shape for given co-ordinates.
-*/
+ */
 void draw_enemy(int x, int y);
 
 /**
  * Draw friend objects as given co-ordinates.
-*/
+ */
 void draw_friend(int x, int y);
+
+/**
+ * Print score
+ */
+void print_score(uint8_t score, int x, int y, led_matrix__color_e shape_color);

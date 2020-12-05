@@ -77,6 +77,7 @@ void detect_click(uint8_t hit) {
           onscreen_objects_struct[i].status = false;
           enemy_score++;
           printf("Friendly kill %d Enemy Kill %d\n", friend_score, enemy_score);
+          // print_score(friend_score, 0, 0);
         }
       }
     }
@@ -95,6 +96,7 @@ void detect_click(uint8_t hit) {
           onscreen_objects_struct[i].status = false;
           friend_score++;
           printf("Friendly kill %d Enemy Kill %d\n", friend_score, enemy_score);
+          // print_score(enemy_score, 0, 32);
         }
       }
     }
