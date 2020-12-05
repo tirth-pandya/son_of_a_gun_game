@@ -8,8 +8,8 @@ bool mp3__init() {
   bool status = false;
   int mp3_baud_rate = 9600;
   uart__init(UART__3, clock__get_peripheral_clock_hz(), mp3_baud_rate);
-  gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2);
-  gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2);
+  gpio__construct_with_function(GPIO__PORT_0, 1, GPIO__FUNCTION_2);
+  gpio__construct_with_function(GPIO__PORT_0, 0, GPIO__FUNCTION_2);
   return status = true;
 }
 
