@@ -117,9 +117,9 @@ void collision_detection() {
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
             ((onscreen_objects_struct[i].obj_nature) == FRIEND_OBJECT)) {
           onscreen_objects_struct[i].status = false;
-          uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
-          temp = temp >> 32;
-          uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
+          // uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
+          // temp = temp >> 32;
+          // uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
         }
       }
     }

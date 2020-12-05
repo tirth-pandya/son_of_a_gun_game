@@ -10,14 +10,14 @@ const uint8_t test[8] = {0xe0, 0xe0, 0xe0, 0xe0, 0xe0, 0xe0, 0xfb, 0xfb},
               empty[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 void draw_enemy(int x, int y) {
-  shape_update(x, y, a1, GREEN, ENEMY);
+  shape_update(x, y, a1, RED, ENEMY);
   shape_update(x, y, a2, RED, ENEMY);
   // shape_update(x, y, a3, BLUE, ENEMY);
 }
 
 void draw_friend(int x, int y) {
-  shape_update(x, y, a2, BLUE, FRIEND);
-  shape_update(x, y, a3, RED, FRIEND);
+  shape_update(x, y, a2, CYAN, FRIEND);
+  shape_update(x, y, a3, CYAN, FRIEND);
   // shape_update(x, y, a1, BLUE, FRIEND);
 }
 
