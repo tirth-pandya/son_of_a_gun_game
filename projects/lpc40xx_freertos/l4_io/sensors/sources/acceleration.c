@@ -58,28 +58,6 @@ acceleration__axis_data_s acceleration__get_averaged_data(uint8_t no_of_samples,
   axis_values.y = y / no_of_samples;
   axis_values.z = z / no_of_samples;
 
-  // axis_values.x = 32 + ((axis_values.x * 32) / sensitivity);
-  // if (axis_values.x <= 0)
-  //   axis_values.x = 0;
-  // if (axis_values.x >= 63)
-  //   axis_values.x = 63;
-  // axis_values.y = 32 + ((axis_values.y * 32) / sensitivity);
-  // if (axis_values.y <= 0)
-  //   axis_values.y = 0;
-  // if (axis_values.y >= 63)
-  //   axis_values.y = 63;
-
-  // axis_values.y = 32 + ((axis_values.y * 32) / sensitivity);
-  // if (axis_values.y <= 0)
-  //   axis_values.y = 0;
-  // if (axis_values.y >= 63)
-  //   axis_values.y = 63;
-  // axis_values.z = 32 + ((axis_values.z * 32) / sensitivity);
-  // if (axis_values.z <= 0)
-  //   axis_values.z = 0;
-  // if (axis_values.z >= 63)
-  //   axis_values.z = 63;
-
   axis_values.x = 32 + ((axis_values.x * 32) / sensitivity);
   if (axis_values.x <= 0)
     axis_values.x = 0;

@@ -88,7 +88,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
     temp = frame_buffer[p][FRIEND_PLANE];
     temp = temp >> (63 - q);
     temp = temp << 63;
-    led_matrix__set_pixel(p, 63 - q, YELLOW);
+    // led_matrix__set_pixel(p, 63 - q, YELLOW);
 
     if (temp != 0) {
 

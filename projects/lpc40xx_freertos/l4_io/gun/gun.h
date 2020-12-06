@@ -8,7 +8,7 @@
 #include "acceleration.h"
 #include "semphr.h"
 
-SemaphoreHandle_t send_gun_shot_semaphore;
+// SemaphoreHandle_t send_gun_shot_semaphore;
 
 typedef struct gun_param {
   int8_t x_coord;

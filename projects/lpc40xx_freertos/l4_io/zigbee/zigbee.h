@@ -18,6 +18,8 @@ volatile uint8_t zigbee_joystick_message[Max_message_elemets];
 volatile uint8_t zigbee_gun_message[Max_message_elemets];
 
 xSemaphoreHandle zigbee_spi_data_receive_sempahore;
+
+xSemaphoreHandle gun_shot_detect_semaphore;
 /**
  * @brief
  */

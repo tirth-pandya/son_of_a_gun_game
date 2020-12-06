@@ -123,6 +123,7 @@ void zigbee__comm_init(bool is_receiver) {
   if (is_receiver) {
     zigbee__enable_spi_attn_interrupt();
     zigbee_spi_data_receive_sempahore = xSemaphoreCreateBinary();
+    gun_shot_detect_semaphore = xSemaphoreCreateBinary();
   }
   zigbee__cs();
 }
@@ -270,6 +271,8 @@ void zigbee__data_parcer(uint8_t data) {
     } else {
       data_sum += data;
       zigbee_gun_message[bytes_remaining_to_receive] = data;
+      if (zigbee_gun_message[Button_press] == 1)
+        xSemaphoreGive(gun_shot_detect_semaphore);
       checksum = calculate_checksum_receive(data_sum);
       bytes_remaining_to_receive = 1;
       receive_state = Checksum_receive_state;

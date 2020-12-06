@@ -58,14 +58,6 @@ void gun_send_task(void *p) {
   }
 }
 
-void gunFire_send_task(void *p) {
-  while (1) {
-    if (xSemaphoreTake(send_gun_shot_semaphore, portMAX_DELAY)) {
-      gun_comm__send_gunFire();
-    }
-  }
-}
-
 #include "uart.h"
 #include <stdlib.h>
 #include <string.h>
@@ -90,6 +82,7 @@ static void graphics_task(void *p);
 static void display_task(void *p);
 
 static void receive_zigbee_task(void *p);
+static void gun_shot_task(void *p);
 
 int main(void) {
   // create_blinky_tasks();
@@ -103,6 +96,7 @@ int main(void) {
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
+  xTaskCreate(gun_shot_task, "gun shot detected", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
 
   // Joystick related tasks
   // zigbee__comm_init(false);
@@ -142,15 +136,17 @@ void display_task(void *p) {
   led_matrix_init();
 
   while (1) {
-    // char test1[] = "abc";
-    // print_char(&test1, 0, 32, BLUE);
-    // shape_update(10, 20, test, 3, FRIEND);
-    // print_score(91, 20, 20, RED);
     led_matrix__update_display();
 
-    // print_char(test, 9, 5, BLUE);
-    // print_char(test1, 16, 2, GREEN);
     vTaskDelay(2);
+  }
+}
+
+void gun_shot_task(void *p) {
+  while (1) {
+    if (xSemaphoreTake(gun_shot_detect_semaphore, portMAX_DELAY)) {
+      detect_click(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], 1);
+    }
   }
 }
 
@@ -162,7 +158,7 @@ void graphics_task(void *p) {
   // void (*draw_enemy_pointer)(void);
   // draw_enemy_pointer = &draw_enemy;
 
-  uint8_t hit = 1;
+  // uint8_t hit = 1;
   while (1) {
     // print_char(test, 9, 5, BLUE);
 
@@ -171,10 +167,18 @@ void graphics_task(void *p) {
 
     randomizer_objects();
     led_matrix__clear_data_buffer();
-    shape_update(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], a3, BLUE, FRIEND);
+    shape_update(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], a3, BLUE, FRIEND);
     // draw_enemy_pointer();
     draw_from_structure();
-    detect_click(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], hit);
+    // uint8_t hit;
+    // if (zigbee_gun_message[Button_press] != 0)
+    //   hit = 1;
+    // else
+    //   hit = 0;
+    // printf("gun shot value is %d\n", hit);
+    led_matrix__set_pixel(zigbee_gun_message[X_coord], 63 - zigbee_gun_message[Y_coord], RED);
+    // detect_click(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], zigbee_gun_message[Button_press]);
+    //(32, 32, 1);
     collision_detection();
     vTaskDelay(50);
   }
