@@ -14,8 +14,10 @@ void initialize_object_details() {
     onscreen_objects_struct[i].row = random;
     random = rand() % 63;
     onscreen_objects_struct[i].column = random;
-    if(i==0)onscreen_objects_struct[i].obj_nature = FRIEND_OBJECT;
-    else     onscreen_objects_struct[i].obj_nature = ENEMY_OBJECT;
+    if (i == 0)
+      onscreen_objects_struct[i].obj_nature = FRIEND_OBJECT;
+    else
+      onscreen_objects_struct[i].obj_nature = ENEMY_OBJECT;
     onscreen_objects_struct[i].status = true;
   }
 }

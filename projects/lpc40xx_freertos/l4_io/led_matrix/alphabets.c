@@ -23,7 +23,7 @@ u_int8_t a[6] = {0x00, 0x7c, 0x44, 0x44, 0x7c, 0x44}, b[6] = {0x00, 0x7c, 0x44, 
 
 void print_char(char *input_char, uint8_t row, uint8_t column, led_matrix__color_e color) {
   int it;
-  uint64_t row_buff = 0;
+  uint64_t row_buff = 0, temp_row;
   uint8_t len, spacer = 6;
   int shifter;
   char char_finder;
@@ -239,9 +239,54 @@ void print_char(char *input_char, uint8_t row, uint8_t column, led_matrix__color
     else {
       row_buff = row_buff << shifter;
     }
-    // row_buff = row_buff >> 20;
-    // printf("%d  %d test \n", shifter, len);
-    led_matrix__set_row_data(row + iterator - 1, color, row_buff);
+
+    temp_row = row_buff;
+
+    temp_row = ~temp_row;
+
+    frame_buffer[row + iterator - 1][BLUE_PLANE] &= temp_row;
+    frame_buffer[row + iterator - 1][RED_PLANE] &= temp_row;
+    frame_buffer[row + iterator - 1][GREEN_PLANE] &= temp_row;
+
+    temp_row = ~temp_row;
+
+    switch (color) {
+    case OFF:
+      temp_row = 0;
+      frame_buffer[row + iterator - 1][BLUE_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][RED_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][GREEN_PLANE] |= temp_row;
+      break;
+    case BLUE:
+      frame_buffer[row + iterator - 1][BLUE_PLANE] |= temp_row;
+      break;
+    case GREEN:
+      frame_buffer[row + iterator - 1][GREEN_PLANE] |= temp_row;
+      break;
+    case CYAN:
+      frame_buffer[row + iterator - 1][BLUE_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][GREEN_PLANE] |= temp_row;
+      break;
+    case RED:
+      frame_buffer[row + iterator - 1][RED_PLANE] |= temp_row;
+      break;
+    case MAGENTA:
+      frame_buffer[row + iterator - 1][BLUE_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][RED_PLANE] |= temp_row;
+      break;
+    case YELLOW:
+      frame_buffer[row + iterator - 1][RED_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][GREEN_PLANE] |= temp_row;
+      break;
+    case WHITE:
+      frame_buffer[row + iterator - 1][BLUE_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][RED_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][GREEN_PLANE] |= temp_row;
+      break;
+    default:
+      break;
+    }
+    
     row_buff = 0;
   }
 }

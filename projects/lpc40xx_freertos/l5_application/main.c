@@ -96,18 +96,13 @@ int main(void) {
   // create_uart_task();
   // controller_data_update_mutex = xSemaphoreCreateMutex();
 
-<<<<<<< HEAD
-  zigbee__comm_init();
-  // xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-=======
   // LED Matrix tasks
-  zigbee__comm_init(true);
-  mp3__init();
-  xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
->>>>>>> fa3b8bda6aa542ec705ddfa93a4ada39336f08d5
+  // zigbee__comm_init(true);
+  // mp3__init();
+  // xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
-  xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
+  // xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
 
   // Joystick related tasks
   // zigbee__comm_init(false);
@@ -186,20 +181,13 @@ void graphics_task(void *p) {
 
     randomizer_objects();
     led_matrix__clear_data_buffer();
-<<<<<<< HEAD
-    // shape_update(zigbee_message[X_coord], zigbee_message[Y_coord], a3, BLUE, FRIEND);
-
-    draw_from_structure();
-    shape_update(5, 10, cursor, WHITE, ENEMY);
-    // detect_click(zigbee_message[X_coord], zigbee_message[Y_coord], hit);
-    // collision_detection();
-=======
-    shape_update(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], a3, BLUE, FRIEND);
+    shape_update(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], enemy_3, BLUE, FRIEND);
     // draw_enemy_pointer();
     draw_from_structure();
+    char test1[] = "abc";
+    print_char(test1, 30, 20, CYAN);
     detect_click(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], hit);
     collision_detection();
->>>>>>> fa3b8bda6aa542ec705ddfa93a4ada39336f08d5
     vTaskDelay(50);
   }
 }
