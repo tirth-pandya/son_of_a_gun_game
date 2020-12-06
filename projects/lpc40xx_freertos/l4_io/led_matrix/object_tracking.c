@@ -39,7 +39,7 @@ void randomizer_objects() {
   }
 }
 
-void randomizer_objects_level1() {
+void randomizer_objects_level_1() {
   int random;
   for (int i = 1; i < number_of_objects; i++) {
 
@@ -53,7 +53,7 @@ void randomizer_objects_level1() {
   }
 }
 
-void randomizer_objects_level2() {
+void randomizer_objects_level_2() {
   int random;
   for (int i = 1; i < number_of_objects; i++) {
     random = rand() % 3;

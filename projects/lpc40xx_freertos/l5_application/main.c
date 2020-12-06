@@ -180,13 +180,18 @@ void graphics_task(void *p) {
     //   }
 
     // randomizer_objects();
-    randomizer_objects_level2();
+    randomizer_objects_level_1();
     led_matrix__clear_data_buffer();
     shape_update(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], enemy_3, BLUE, FRIEND);
     // draw_enemy_pointer();
-    // char test1[] = "son";
-    // print_char(test1, 30, 0, RED);
+
     draw_from_structure();
+
+    // char test1[] = "son";
+    // print_char(test1, 0, 32, RED);
+
+    print_score(enemy_score, 1, 32, RED);
+    print_score(life, 1, 0, GREEN);
 
     // detect_click(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], hit);
     collision_detection();

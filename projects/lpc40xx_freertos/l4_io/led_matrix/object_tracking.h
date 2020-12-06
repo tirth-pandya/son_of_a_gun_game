@@ -33,15 +33,17 @@ void randomizer_objects();
  * Randomizer changes the position of objects which needs to be changed in gameplay
  * This affects the .x and.y element in structure
  * Level 1
+ * Row is constant, Column varies by --1
  */
-void randomizer_objects_level1();
+void randomizer_objects_level_1();
 
 /**
  * Randomizer changes the position of objects which needs to be changed in gameplay
  * This affects the .x and.y element in structure
  * Level 2
+ * Ro
  */
-void randomizer_objects_level2();
+void randomizer_objects_level_2();
 
 /**
  * Initialize the maximum number of objects with random/pseudo co-ordinate.
