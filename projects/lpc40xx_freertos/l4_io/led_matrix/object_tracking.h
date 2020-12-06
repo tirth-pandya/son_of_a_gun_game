@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include <time.h>
 
-#define number_of_objects 16
-uint8_t friend_score, enemy_score;
+#define number_of_objects 6
+uint8_t life, enemy_score;
 
 // typedef void (*void_function_t)(int x, int y);
 
@@ -28,6 +28,22 @@ void draw_from_structure();
  * This affects the .x and.y element in structure
  */
 void randomizer_objects();
+
+/**
+ * Randomizer changes the position of objects which needs to be changed in gameplay
+ * This affects the .x and.y element in structure
+ * Level 1
+ * Row is constant, Column varies by --1
+ */
+void randomizer_objects_level_1();
+
+/**
+ * Randomizer changes the position of objects which needs to be changed in gameplay
+ * This affects the .x and.y element in structure
+ * Level 2
+ * Ro
+ */
+void randomizer_objects_level_2();
 
 /**
  * Initialize the maximum number of objects with random/pseudo co-ordinate.

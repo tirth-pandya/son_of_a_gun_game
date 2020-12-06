@@ -90,9 +90,9 @@ int main(void) {
   // controller_data_update_mutex = xSemaphoreCreateMutex();
 
   // LED Matrix tasks
-  zigbee__comm_init(true);
-  mp3__init();
-  xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+  // zigbee__comm_init(true);
+  // mp3__init();
+  // xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
@@ -165,10 +165,22 @@ void graphics_task(void *p) {
     // shape_update(10, 20, a1, GREEN, FRIEND);
     // shape_update(10, 20, a2, RED, FRIEND);
 
-    randomizer_objects();
+    // for (int i = 0; i < 8; i++)
+    //   for (int j = 0; j < 8; j++) {
+    //     shape_update(i * 8, j * 8, a1, i + 1, ENEMY);
+    //     shape_update(i * 8, j * 8, a2, j + 1, ENEMY);
+    //     shape_update(i * 8, j * 8, a3, (rand() % 8) + 1, ENEMY);
+    //     shape_update(5, 10, cursor, WHITE, ENEMY);
+
+    //     // shape_update(x, y, a3, BLUE, ENEMY);
+    //   }
+
+    // randomizer_objects();
+    randomizer_objects_level_1();
     led_matrix__clear_data_buffer();
     shape_update(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], a3, BLUE, FRIEND);
     // draw_enemy_pointer();
+
     draw_from_structure();
     // uint8_t hit;
     // if (zigbee_gun_message[Button_press] != 0)
@@ -179,6 +191,14 @@ void graphics_task(void *p) {
     led_matrix__set_pixel(zigbee_gun_message[X_coord], 63 - zigbee_gun_message[Y_coord], RED);
     // detect_click(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], zigbee_gun_message[Button_press]);
     //(32, 32, 1);
+
+    // char test1[] = "son";
+    // print_char(test1, 0, 32, RED);
+
+    print_score(enemy_score, 1, 32, RED);
+    print_score(life, 1, 0, GREEN);
+
+    // detect_click(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], hit);
     collision_detection();
     vTaskDelay(50);
   }

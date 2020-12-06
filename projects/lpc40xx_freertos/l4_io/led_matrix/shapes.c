@@ -1,23 +1,20 @@
 #include "shapes.h"
 
-const uint8_t test[8] = {0xe0, 0xe0, 0xe0, 0xe0, 0xe0, 0xe0, 0xfb, 0xfb},
-              a1[8] = {0x08, 0x00, 0x00, 0x63, 0x00, 0x00, 0x08, 0x00},
-              a2[8] = {0x00, 0x1c, 0x22, 0x00, 0x22, 0x1c, 0x00, 0x00},
-              a3[8] = {0x00, 0x00, 0x14, 0x08, 0x14, 0x00, 0x00, 0x00},
-              data4[8] = {0xf8, 0x20, 0x20, 0xe0, 0xe0, 0x20, 0x20, 0x00},
+const uint8_t enemy_1[8] = {0x08, 0x08, 0x00, 0x00, 0x63, 0x00, 0x00, 0x00},
+              enemy_2[8] = {0x00, 0x00, 0x1c, 0x22, 0x00, 0x22, 0x1c, 0x00},
+              enemy_3[8] = {0x00, 0x00, 0x00, 0x14, 0x08, 0x08, 0x00, 0x00},
               cursor[8] = {0x02, 0x05, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00},
               empty[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 void draw_enemy(int x, int y) {
-  shape_update(x, y, a1, GREEN, ENEMY);
-  shape_update(x, y, a2, RED, ENEMY);
-  // shape_update(x, y, a3, BLUE, ENEMY);
+  shape_update(x, y, enemy_1, YELLOW, ENEMY);
+  shape_update(x, y, enemy_2, BLUE, ENEMY);
+  shape_update(x, y, enemy_3, RED, ENEMY);
 }
 
 void draw_friend(int x, int y) {
-  shape_update(x, y, a2, BLUE, FRIEND);
-  shape_update(x, y, a3, RED, FRIEND);
-  // shape_update(x, y, a1, BLUE, FRIEND);
+  // shape_update(x, y, enemy_1, OFF, FRIEND);
+  // shape_update(x, y, enemy_1, OFF, FRIEND);
 }
 
 /**
@@ -111,7 +108,7 @@ void shape_update(int row, int column, const uint8_t *shape, led_matrix__color_e
   }
 }
 
-void print_score(uint8_t score, int x, int y, led_matrix__color_e shape_color) {
+void print_score(uint8_t score, uint8_t x, uint8_t y, led_matrix__color_e shape_color) {
   int temp_int = 0;
   char temp_char[3];
 
@@ -121,5 +118,5 @@ void print_score(uint8_t score, int x, int y, led_matrix__color_e shape_color) {
   temp_int = score / 10;
   temp_char[1] = temp_int + '0';
 
-  print_char(&temp_char, x, y, shape_color);
+  print_char(temp_char, x, y, shape_color);
 }

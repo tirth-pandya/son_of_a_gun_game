@@ -6,7 +6,7 @@ struct object_details onscreen_objects_struct[number_of_objects];
 
 void initialize_object_details() {
   int random;
-  friend_score = 0;
+  life = 3;
   enemy_score = 0;
   // void_function_t draw_enemy_pointer = &draw_enemy;
   for (int i = 0; i < number_of_objects; i++) {
@@ -14,7 +14,10 @@ void initialize_object_details() {
     onscreen_objects_struct[i].row = random;
     random = rand() % 63;
     onscreen_objects_struct[i].column = random;
-    onscreen_objects_struct[i].obj_nature = i % 2;
+    if (i == 0)
+      onscreen_objects_struct[i].obj_nature = FRIEND_OBJECT;
+    else
+      onscreen_objects_struct[i].obj_nature = ENEMY_OBJECT;
     onscreen_objects_struct[i].status = true;
   }
 }
@@ -32,6 +35,36 @@ void randomizer_objects() {
     onscreen_objects_struct[i].column += random;
     if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71))
       onscreen_objects_struct[i].column = rand() % 63;
+    // printf("%d %d %d\n", onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, i);
+  }
+}
+
+void randomizer_objects_level_1() {
+  int random;
+  for (int i = 1; i < number_of_objects; i++) {
+
+    if ((onscreen_objects_struct[i].row < -8) || (onscreen_objects_struct[i].row > 71))
+      onscreen_objects_struct[i].row = rand() % 63;
+
+    onscreen_objects_struct[i].column--;
+    if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71))
+      onscreen_objects_struct[i].column = 63;
+    // printf("%d %d %d\n", onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, i);
+  }
+}
+
+void randomizer_objects_level_2() {
+  int random;
+  for (int i = 1; i < number_of_objects; i++) {
+    random = rand() % 3;
+    random = random - 1;
+    onscreen_objects_struct[i].row += random;
+    if ((onscreen_objects_struct[i].row < -8) || (onscreen_objects_struct[i].row > 71))
+      onscreen_objects_struct[i].row = rand() % 63;
+
+    onscreen_objects_struct[i].column--;
+    if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71))
+      onscreen_objects_struct[i].column = 63;
     // printf("%d %d %d\n", onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, i);
   }
 }
@@ -61,8 +94,6 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
 
   if (hit) {
     uint8_t x = p, y = q;
-    p = 0;
-    q = 0;
 
     uint64_t temp;
 
@@ -79,8 +110,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
           onscreen_objects_struct[i].status = false;
           enemy_score++;
           mp3__send_command(C_PLAY_FOLD_FILE, 0x0301);
-          printf("Friendly kill %d Enemy Kill %d\n", friend_score, enemy_score);
-          // print_score(friend_score, 0, 0);
+          printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
         }
       }
     }
@@ -97,10 +127,10 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
         if (((onscreen_objects_struct[i].row) <= p) && ((onscreen_objects_struct[i].row) + 7 >= p) &&
             ((onscreen_objects_struct[i].column) <= q) && ((onscreen_objects_struct[i].column) + 7 >= q)) {
           onscreen_objects_struct[i].status = false;
-          friend_score++;
+          life--;
 
           // mp3__send_command(C_PLAY_W_VOL, 0x1e01);
-          printf("Friendly kill %d Enemy Kill %d\n", friend_score, enemy_score);
+          printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
           // print_score(enemy_score, 0, 32);
         }
       }
@@ -124,9 +154,10 @@ void collision_detection() {
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
             ((onscreen_objects_struct[i].obj_nature) == FRIEND_OBJECT)) {
           onscreen_objects_struct[i].status = false;
-          uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
-          temp = temp >> 32;
-          uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
+          life--;
+          // uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
+          // temp = temp >> 32;
+          // uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
         }
       }
     }
