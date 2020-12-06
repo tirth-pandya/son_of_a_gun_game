@@ -224,6 +224,10 @@ void print_char(char *input_char, uint8_t row, uint8_t column, led_matrix__color
         row_buff = row_buff << spacer;
         break;
 
+      case ' ':
+        row_buff = row_buff << 2;
+        break;
+
       default:;
         // row_buff |= x[iterator];
         // row_buff = row_buff << 5;
@@ -286,7 +290,7 @@ void print_char(char *input_char, uint8_t row, uint8_t column, led_matrix__color
     default:
       break;
     }
-    
+
     row_buff = 0;
   }
 }
