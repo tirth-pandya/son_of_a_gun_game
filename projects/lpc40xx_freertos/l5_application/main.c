@@ -90,9 +90,9 @@ int main(void) {
   // controller_data_update_mutex = xSemaphoreCreateMutex();
 
   // LED Matrix tasks
-  // zigbee__comm_init(true);
-  // mp3__init();
-  // xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+  zigbee__comm_init(true);
+  mp3__init();
+  xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
@@ -121,13 +121,13 @@ void receive_zigbee_task(void *p) {
     if (xSemaphoreTake(zigbee_spi_data_receive_sempahore, portMAX_DELAY)) {
       const uint8_t dummy_MOSI_data = 0xFF;
       gpio_s gpio_attn = gpio__construct(0, 6);
-      printf("rece ");
+      // printf("rece ");
       while (!gpio__get(gpio_attn)) {
         message = ssp2__exchange_byte(dummy_MOSI_data);
-        printf("%x ", message);
+        // printf("%x ", message);
         zigbee__data_parcer(message);
       }
-      printf("\n");
+      // printf("\n");
     }
   }
 }
@@ -153,52 +153,23 @@ void gun_shot_task(void *p) {
 void graphics_task(void *p) {
   graphics__turn_off_all_leds();
   initialize_object_details();
-  // char test = "test";
 
-  // void (*draw_enemy_pointer)(void);
-  // draw_enemy_pointer = &draw_enemy;
-
-  // uint8_t hit = 1;
   while (1) {
-    // print_char(test, 9, 5, BLUE);
 
-    // shape_update(10, 20, a1, GREEN, FRIEND);
-    // shape_update(10, 20, a2, RED, FRIEND);
-
-    // for (int i = 0; i < 8; i++)
-    //   for (int j = 0; j < 8; j++) {
-    //     shape_update(i * 8, j * 8, a1, i + 1, ENEMY);
-    //     shape_update(i * 8, j * 8, a2, j + 1, ENEMY);
-    //     shape_update(i * 8, j * 8, a3, (rand() % 8) + 1, ENEMY);
-    //     shape_update(5, 10, cursor, WHITE, ENEMY);
-
-    //     // shape_update(x, y, a3, BLUE, ENEMY);
-    //   }
-
-    // randomizer_objects();
-    randomizer_objects_level_1();
+    randomizer_objects();
+    // randomizer_objects_level_1();
+    // randomizer_objects_level_2();
     led_matrix__clear_data_buffer();
-    shape_update(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], a3, BLUE, FRIEND);
-    // draw_enemy_pointer();
+
+    // update_friend_location();
 
     draw_from_structure();
-    // uint8_t hit;
-    // if (zigbee_gun_message[Button_press] != 0)
-    //   hit = 1;
-    // else
-    //   hit = 0;
-    // printf("gun shot value is %d\n", hit);
-    led_matrix__set_pixel(zigbee_gun_message[X_coord], 63 - zigbee_gun_message[Y_coord], RED);
-    // detect_click(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], zigbee_gun_message[Button_press]);
-    //(32, 32, 1);
 
-    // char test1[] = "son";
-    // print_char(test1, 0, 32, RED);
+    led_matrix__set_pixel(zigbee_gun_message[X_coord], 63 - zigbee_gun_message[Y_coord], RED);
 
     print_score(enemy_score, 1, 32, RED);
     print_score(life, 1, 0, GREEN);
 
-    // detect_click(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], hit);
     collision_detection();
     vTaskDelay(50);
   }

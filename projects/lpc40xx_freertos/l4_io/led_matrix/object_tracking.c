@@ -6,7 +6,7 @@ struct object_details onscreen_objects_struct[number_of_objects];
 
 void initialize_object_details() {
   int random;
-  life = 3;
+  life = 50;
   enemy_score = 0;
   // void_function_t draw_enemy_pointer = &draw_enemy;
   for (int i = 0; i < number_of_objects; i++) {
@@ -14,10 +14,13 @@ void initialize_object_details() {
     onscreen_objects_struct[i].row = random;
     random = rand() % 63;
     onscreen_objects_struct[i].column = random;
-    if (i == 0)
-      onscreen_objects_struct[i].obj_nature = FRIEND_OBJECT;
-    else
-      onscreen_objects_struct[i].obj_nature = ENEMY_OBJECT;
+
+    // if (i == 0)
+    //   onscreen_objects_struct[i].obj_nature = FRIEND_OBJECT;
+    // else
+    //   onscreen_objects_struct[i].obj_nature = ENEMY_OBJECT;
+
+    onscreen_objects_struct[i].obj_nature = rand() % 2;
     onscreen_objects_struct[i].status = true;
   }
 }
@@ -54,6 +57,7 @@ void randomizer_objects_level_1() {
 }
 
 void randomizer_objects_level_2() {
+
   int random;
   for (int i = 1; i < number_of_objects; i++) {
     random = rand() % 3;
@@ -110,7 +114,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
           onscreen_objects_struct[i].status = false;
           enemy_score++;
           mp3__send_command(C_PLAY_FOLD_FILE, 0x0301);
-          printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
+          // printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
         }
       }
     }
@@ -130,7 +134,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
           life--;
 
           // mp3__send_command(C_PLAY_W_VOL, 0x1e01);
-          printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
+          // printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
           // print_score(enemy_score, 0, 32);
         }
       }
@@ -153,8 +157,11 @@ void collision_detection() {
         if (((onscreen_objects_struct[i].row) <= x) && ((onscreen_objects_struct[i].row) + 7 >= x) &&
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
             ((onscreen_objects_struct[i].obj_nature) == FRIEND_OBJECT)) {
+          // life--;
+          // fprintf(stderr, "Collision! \n");
+          // if (life == 0) {
           onscreen_objects_struct[i].status = false;
-          life--;
+          //}
           // uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
           // temp = temp >> 32;
           // uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
@@ -175,4 +182,13 @@ uint8_t set_bit_position(uint64_t temp) {
     }
   }
   return (column);
+}
+
+void update_friend_location() {
+
+  // onscreen_objects_struct[0].row = zigbee_joystick_message[X_coord];
+  // onscreen_objects_struct[0].column = zigbee_joystick_message[Y_coord];
+
+  onscreen_objects_struct[0].row = 45;
+  onscreen_objects_struct[0].column = 13;
 }

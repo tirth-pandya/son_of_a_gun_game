@@ -13,7 +13,8 @@ typedef enum { // RGB (000 => Off)
   RED,
   MAGENTA,
   YELLOW,
-  WHITE
+  WHITE,
+  FILL
 } led_matrix__color_e;
 
 typedef enum { RED_PLANE, GREEN_PLANE, BLUE_PLANE, FRIEND_PLANE, ENEMY_PLANE, LIFE_PLANE } led_matrix__color_plane_e;
