@@ -17,7 +17,7 @@ static const uint8_t gun_button_gpio_port = 0;
 static const uint8_t gun_button_gpio_pin = 29;
 
 static void gun_shot_interrupt(void) {
-  fprintf(stderr, "hi from gun button isr\n");
+  // fprintf(stderr, "hi from gun button isr\n");
   gun_com__set_gunShotValue();
   LPC_GPIOINT->IO0IntClr |= (1 << gun_button_gpio_pin);
 }

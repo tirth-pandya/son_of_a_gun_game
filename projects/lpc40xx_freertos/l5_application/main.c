@@ -24,75 +24,39 @@
 #include "object_tracking.h"
 #include "shapes.h"
 
-acceleration__axis_data_s sensor_data;
-bool sensor_state;
-
-SemaphoreHandle_t controller_data_update_mutex;
-extern volatile uint8_t zigbee_joystick_message[Max_message_elemets];
-extern volatile uint8_t zigbee_gun_message[Max_message_elemets];
-
-static void joystick_task(void *p) {
-  gpio_s x = {0, 25};
-  gpio_s y = {1, 30};
-  gpio_s s_k = {1, 31};
-  joystick__initialize(x, y, s_k);
-  zigbee__cs();
-  while (1) {
-
-    // joystick_val = joystick__get_value();
-    // led_matrix__clear_data_buffer();
-    // led_matrix__set_pixel(joystick_val.y, joystick_val.x, RED);
-    // char my_ch[2] = {"x"};
-    // print_char(my_ch, joystick_val.y, 63 - joystick_val.x, 7);
-    // printf("X axis : %d,\tY axis : %d\n", joystick_val.x, joystick_val.y);
-    // graphics__turn_on_all_leds(GREEN);
-    joystick_comm__send();
-    vTaskDelay(30);
-  }
-}
-
-void gun_send_task(void *p) {
-  while (1) {
-    gun_comm__send_data();
-    vTaskDelay(30);
-  }
-}
-
 #include "uart.h"
 #include <stdlib.h>
 #include <string.h>
 
 #include "mp3.h"
 
+extern volatile uint8_t zigbee_joystick_message[Max_message_elemets];
+extern volatile uint8_t zigbee_gun_message[Max_message_elemets];
+
+#ifdef DEF_TASK
 // 'static' to make these functions 'private' to this file
 static void create_blinky_tasks(void);
 static void create_uart_task(void);
 static void blink_task(void *params);
 static void uart_task(void *params);
-
-void send_mp3_task(void *p) {
-  mp3__send_command(C_SEL_DEV, D_TF_CARD);
-  while (1) {
-    mp3__send_command(C_PLAY_W_VOL, 0x0201);
-    vTaskDelay(4000);
-  }
-}
+#endif
 
 static void graphics_task(void *p);
 static void display_task(void *p);
-
 static void receive_zigbee_task(void *p);
 static void gun_shot_task(void *p);
+static void joystick_task(void *p);
+static void gun_send_task(void *p);
+static void send_mp3_task(void *p);
 
 int main(void) {
   // create_blinky_tasks();
   // create_uart_task();
-  // controller_data_update_mutex = xSemaphoreCreateMutex();
 
   // LED Matrix tasks
-  // zigbee__comm_init(true);
-  // mp3__init();
-  // xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+  zigbee__comm_init(true);
+  mp3__init();
+  xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
@@ -106,7 +70,6 @@ int main(void) {
   // gun__init();
   // zigbee__comm_init(false);
   // xTaskCreate(gun_send_task, "send_gun_param", 2048 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
-  // xTaskCreate(gunFire_send_task, "send gun fire", 1024 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
 
   puts("Starting RTOS");
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
@@ -114,24 +77,9 @@ int main(void) {
   return 0;
 }
 
-void receive_zigbee_task(void *p) {
-  uint8_t message = 0;
-  zigbee__cs();
-  while (1) {
-    if (xSemaphoreTake(zigbee_spi_data_receive_sempahore, portMAX_DELAY)) {
-      const uint8_t dummy_MOSI_data = 0xFF;
-      gpio_s gpio_attn = gpio__construct(0, 6);
-      printf("rece ");
-      while (!gpio__get(gpio_attn)) {
-        message = ssp2__exchange_byte(dummy_MOSI_data);
-        printf("%x ", message);
-        zigbee__data_parcer(message);
-      }
-      printf("\n");
-    }
-  }
-}
-
+//**************************************************************************************************
+// LED Matrix tasks **********************************************************************************
+//**************************************************************************************************
 void display_task(void *p) {
   led_matrix_init();
 
@@ -139,14 +87,6 @@ void display_task(void *p) {
     led_matrix__update_display();
 
     vTaskDelay(2);
-  }
-}
-
-void gun_shot_task(void *p) {
-  while (1) {
-    if (xSemaphoreTake(gun_shot_detect_semaphore, portMAX_DELAY)) {
-      detect_click(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], 1);
-    }
   }
 }
 
@@ -178,7 +118,7 @@ void graphics_task(void *p) {
     // randomizer_objects();
     randomizer_objects_level_1();
     led_matrix__clear_data_buffer();
-    shape_update(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], a3, BLUE, FRIEND);
+    shape_update(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], enemy_3, BLUE, FRIEND);
     // draw_enemy_pointer();
 
     draw_from_structure();
@@ -201,6 +141,74 @@ void graphics_task(void *p) {
     // detect_click(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], hit);
     collision_detection();
     vTaskDelay(50);
+  }
+}
+
+void receive_zigbee_task(void *p) {
+  uint8_t message = 0;
+  zigbee__cs();
+  while (1) {
+    if (xSemaphoreTake(zigbee_spi_data_receive_sempahore, portMAX_DELAY)) {
+      const uint8_t dummy_MOSI_data = 0xFF;
+      gpio_s gpio_attn = gpio__construct(0, 6);
+      printf("rece ");
+      while (!gpio__get(gpio_attn)) {
+        message = ssp2__exchange_byte(dummy_MOSI_data);
+        printf("%x ", message);
+        zigbee__data_parcer(message);
+      }
+      printf("\n");
+    }
+  }
+}
+
+void send_mp3_task(void *p) {
+  mp3__send_command(C_SEL_DEV, D_TF_CARD);
+  while (1) {
+    mp3__send_command(C_PLAY_W_VOL, 0x0201);
+    vTaskDelay(4000);
+  }
+}
+
+//**************************************************************************************************
+// Joystick tasks **********************************************************************************
+//**************************************************************************************************
+void joystick_task(void *p) {
+  gpio_s x = {0, 25};
+  gpio_s y = {1, 30};
+  gpio_s s_k = {1, 31};
+  joystick__initialize(x, y, s_k);
+  zigbee__cs();
+  while (1) {
+
+    // joystick_val = joystick__get_value();
+    // led_matrix__clear_data_buffer();
+    // led_matrix__set_pixel(joystick_val.y, joystick_val.x, RED);
+    // char my_ch[2] = {"x"};
+    // print_char(my_ch, joystick_val.y, 63 - joystick_val.x, 7);
+    // printf("X axis : %d,\tY axis : %d\n", joystick_val.x, joystick_val.y);
+    // graphics__turn_on_all_leds(GREEN);
+    joystick_comm__send();
+    vTaskDelay(30);
+  }
+}
+
+//**************************************************************************************************
+// Gun tasks **********************************************************************************
+//**************************************************************************************************
+
+void gun_send_task(void *p) {
+  while (1) {
+    gun_comm__send_data();
+    vTaskDelay(30);
+  }
+}
+
+void gun_shot_task(void *p) {
+  while (1) {
+    if (xSemaphoreTake(gun_shot_detect_semaphore, portMAX_DELAY)) {
+      detect_click(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], 1);
+    }
   }
 }
 
