@@ -31,6 +31,8 @@
 acceleration__axis_data_s sensor_data;
 bool sensor_state;
 
+uint8_t change_song = 1;
+
 SemaphoreHandle_t controller_data_update_mutex;
 extern volatile uint8_t zigbee_message[Max_message_elemets];
 
@@ -85,18 +87,24 @@ static void uart_task(void *params);
 
 void send_mp3_task(void *p) {
   mp3__send_command(C_SEL_DEV, D_TF_CARD);
-  while(1)
-  {
-    switch(mp3_details.mp3_to_play)
-    {
-      case DEFAULT_BG:
-        mp3__send_command(C_ONE_CY_PLAY_FOLD,0x0101);
-        break;
+  update_mp3_details(DEFAULT_BG, default_bg_duration);
+  while (1) {
+    switch (mp3_details.mp3_to_play) {
+    case DEFAULT_BG:
+      if (change_song == 1) {
+        mp3__send_command(C_ONE_CY_PLAY_FOLD, 0x0101);
+        change_song = 0;
+      }
+      break;
 
-        case GUNSHOT:
-        mp3__send_command(C_PLAY_FOLD_FILE,0x0301);
-        vTaskDelay(mp3_details.mp3_duration);
+    case GUNSHOT:
+      mp3__send_command(C_PLAY_FOLD_FILE, 0x0201);
+      change_song = 1;
+      vTaskDelay(mp3_details.mp3_duration);
+      break;
 
+    default:
+      break;
     }
   }
   // while (1) {
@@ -123,6 +131,7 @@ int main(void) {
   controller_data_update_mutex = xSemaphoreCreateMutex();
 
   zigbee__comm_init();
+  mp3_details.mp3_duration = 100;
   xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);

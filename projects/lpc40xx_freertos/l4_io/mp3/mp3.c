@@ -2,8 +2,8 @@
 #include "gpio.h"
 #include "uart.h"
 
-const uint32_t default_bg_duration = 5000;
-const uint32_t gunshot_duration = 1000;
+const uint32_t default_bg_duration = 6000;
+const uint32_t gunshot_duration = 500;
 static uint8_t mp3_uart_buffer[8];
 
 bool mp3__init() {
@@ -34,8 +34,7 @@ bool mp3__send_command(uint8_t command, uint16_t data) {
   return status = true;
 }
 
-void update_mp3_details(MP3_SOUNDS sound_file, uint32_t sound_duration)
-{
+void update_mp3_details(MP3_SOUNDS sound_file, uint32_t sound_duration) {
   mp3_details.mp3_to_play = sound_file;
-  mp3_details.mp3_duration = sound_duration; 
+  mp3_details.mp3_duration = sound_duration;
 }

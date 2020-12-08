@@ -36,14 +36,19 @@ _____________|_____________
 
 #define C_D_NONE 0x00
 
-typedef enum { DEFAULT_BG = 0, GUNSHOT, GAME_OVER, NONE } MP3_SOUNDS;
+typedef enum { DEFAULT_BG = 0, GUNSHOT = 1, GAME_OVER = 1, NONE } MP3_SOUNDS;
+
 const uint32_t default_bg_duration, gunshot_duration;
-typedef struct mp3_details_s {
+
+typedef struct {
   MP3_SOUNDS mp3_to_play;
   uint32_t mp3_duration;
-};
-extern struct mp3_details_s mp3_details;
+} mp3_details_s;
+
+mp3_details_s mp3_details;
 
 bool mp3__init();
 bool mp3__send_command(uint8_t command, uint16_t data);
 void update_mp3_details(MP3_SOUNDS, uint32_t);
+
+extern uint8_t change_song;
