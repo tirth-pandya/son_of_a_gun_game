@@ -135,8 +135,8 @@ void zigbee__data_transfer(uint8_t *data, size_t data_size) {
   data_frame_header[Length_byte_MSB] = (data_size >> 8) & 0xFF;
   uint8_t checksum = calculate_checksum(data);
 
-  printf("\nChecksum value is %x", checksum);
-  printf("  Total data size except checksum byte is %x   ", data_size);
+  // printf("\nChecksum value is %x", checksum);
+  // printf("  Total data size except checksum byte is %x   ", data_size);
   zigbee__cs();
   (void)ssp2__exchange_byte(data_frame_header[Start_byte]);
   (void)ssp2__exchange_byte(data_frame_header[Length_byte_MSB]);
@@ -146,10 +146,10 @@ void zigbee__data_transfer(uint8_t *data, size_t data_size) {
   for (int i = Frame_type_byte; i < data_size + Frame_type_byte; i++) {
     if (i < Frame_header_size) {
       (void)ssp2__exchange_byte(data_frame_header[i]);
-      printf(" %x\t", data_frame_header[i]);
+      // printf(" %x\t", data_frame_header[i]);
     } else if (i < data_size + Frame_type_byte) {
       (void)ssp2__exchange_byte(*data);
-      printf(" %x\t", *data);
+      // printf(" %x\t", *data);
       data++;
     }
   }
