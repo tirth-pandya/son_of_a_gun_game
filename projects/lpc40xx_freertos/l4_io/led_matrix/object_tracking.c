@@ -1,6 +1,8 @@
 #include "object_tracking.h"
 #include "mp3.h"
 #include "shapes.h"
+
+static uint8_t old_i = 50;
 time_t t;
 struct object_details onscreen_objects_struct[number_of_objects];
 
@@ -45,7 +47,7 @@ void randomizer_objects() {
 
 void randomizer_objects_level_1() {
   int random;
-  for (int i = 1; i < 3; i++) {
+  for (int i = 1; i < number_of_objects; i++) {
 
     if ((onscreen_objects_struct[i].row < -8) || (onscreen_objects_struct[i].row > 71))
       onscreen_objects_struct[i].row = rand() % 63;
@@ -144,7 +146,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
 }
 
 void collision_detection() {
-  uint8_t x, y, i = 0;
+  uint8_t x, y;
   uint64_t temp, a, b;
 
   for (uint8_t j = 0; j < 64; j++) {
@@ -159,21 +161,32 @@ void collision_detection() {
       // fprintf(stderr, "%d %d\n", x, y);
 
       // for (uint8_t i = 0; i < number_of_objects; i++) {
+      // uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
+      // temp = temp >> 32;
+      // uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
+      // fprintf(stderr, "%lu  %lu \n", temp1, temp2);
 
-      if (((onscreen_objects_struct[i].row) <= x) && ((onscreen_objects_struct[i].row) + 7 >= x) &&
-          ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
-          ((onscreen_objects_struct[i].obj_nature) == FRIEND_OBJECT)) {
-        life--;
-        // fprintf(stderr, "Collision! \n");
-        // if (life == 0) {
-        onscreen_objects_struct[i].status = false;
-        //}
+      for (int i = 1; i <= (number_of_objects - 1); i++) {
+        if (((onscreen_objects_struct[i].row) <= x) && ((onscreen_objects_struct[i].row) + 7 >= x) &&
+            ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
+            ((onscreen_objects_struct[i].obj_nature) == ENEMY_OBJECT)) {
 
-        // }
-        uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
-        temp = temp >> 32;
-        uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
-        fprintf(stderr, "%lu  %lu \n", temp1, temp2);
+          if (old_i != i) {
+            // fprintf(stderr, "old_i %d i %d", old_i, i);
+            life--;
+            old_i = i;
+          }
+        }
+      }
+
+      if (((onscreen_objects_struct[0].row) <= x) && ((onscreen_objects_struct[0].row) + 7 >= x) &&
+          ((onscreen_objects_struct[0].column) <= y) && ((onscreen_objects_struct[0].column) + 7 >= y) &&
+          ((onscreen_objects_struct[0].obj_nature) == FRIEND_OBJECT)) {
+
+        if (life == 0) {
+          // life--;
+          onscreen_objects_struct[0].status = false;
+        }
       }
     }
   }
