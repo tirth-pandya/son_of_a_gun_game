@@ -33,11 +33,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mp3.h"
-
 extern volatile uint8_t zigbee_joystick_message[Max_message_elemets];
 extern volatile uint8_t zigbee_gun_message[Max_message_elemets];
-
+uint8_t change_song = 1;
 #ifdef DEF_TASK
 // 'static' to make these functions 'private' to this file
 static void create_blinky_tasks(void);
@@ -140,10 +138,28 @@ void receive_zigbee_task(void *p) {
 
 void send_mp3_task(void *p) {
   mp3__send_command(C_SEL_DEV, D_TF_CARD);
+  change_song = 1;
+  update_mp3_details(DEFAULT_BG, default_bg_duration);
   while (1) {
-    mp3__send_command(C_PLAY_W_VOL, 0x0201);
-    vTaskDelay(4000);
+    switch (mp3_details.mp3_to_play) {
+    case DEFAULT_BG:
+      if (change_song == 1) {
+        mp3__send_command(C_ONE_CY_PLAY_FOLD, 0x0101);
+        change_song = 0;
+      }
+      break;
+
+    case GUNSHOT:
+      mp3__send_command(C_PLAY_FOLD_FILE, 0x0201);
+      change_song = 1;
+      vTaskDelay(mp3_details.mp3_duration);
+      break;
+
+    default:
+      break;
+    }
   }
+  vTaskDelay(4000);
 }
 
 //**************************************************************************************************

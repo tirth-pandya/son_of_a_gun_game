@@ -7,11 +7,6 @@
 #include "lpc_peripherals.h"
 #include "stdio.h"
 
-static void joystick_interrupt(void) {
-  fprintf(stderr, "ADC ISR\n");
-  joystick_comm__send();
-}
-
 // Public
 
 void joystick__initialize(gpio_s joystick__x_axis, gpio_s joystick__y_axis, gpio_s joystick__switch) {
