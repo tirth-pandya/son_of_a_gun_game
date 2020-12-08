@@ -46,7 +46,7 @@ void randomizer_objects() {
 }
 
 void randomizer_objects_level_1() {
-  int random;
+
   for (int i = 1; i < number_of_objects; i++) {
 
     if ((onscreen_objects_struct[i].row < -8) || (onscreen_objects_struct[i].row > 71))
