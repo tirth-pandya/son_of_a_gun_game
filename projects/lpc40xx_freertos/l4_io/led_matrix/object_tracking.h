@@ -1,11 +1,13 @@
 #pragma once
 #include "shapes.h"
+#include "zigbee.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
 
-#define number_of_objects 16
-uint8_t friend_score, enemy_score;
+#define number_of_objects 2
+
+uint8_t life, enemy_score;
 
 // typedef void (*void_function_t)(int x, int y);
 
@@ -30,6 +32,22 @@ void draw_from_structure();
 void randomizer_objects();
 
 /**
+ * Randomizer changes the position of objects which needs to be changed in gameplay
+ * This affects the .x and.y element in structure
+ * Level 1
+ * Row is constant, Column varies by --1
+ */
+void randomizer_objects_level_1();
+
+/**
+ * Randomizer changes the position of objects which needs to be changed in gameplay
+ * This affects the .x and.y element in structure
+ * Level 2
+ * Ro
+ */
+void randomizer_objects_level_2();
+
+/**
  * Initialize the maximum number of objects with random/pseudo co-ordinate.
  * This is idially executed once as it is an initialize function.
  */
@@ -51,3 +69,5 @@ void collision_detection();
  * Determine the position of first 1 in uint64_t for determining the column position
  */
 uint8_t set_bit_position(uint64_t temp);
+
+void update_friend_location();

@@ -23,7 +23,7 @@ u_int8_t a[6] = {0x00, 0x7c, 0x44, 0x44, 0x7c, 0x44}, b[6] = {0x00, 0x7c, 0x44, 
 
 void print_char(char *input_char, uint8_t row, uint8_t column, led_matrix__color_e color) {
   int it;
-  uint64_t row_buff = 0;
+  uint64_t row_buff = 0, temp_row;
   uint8_t len, spacer = 6;
   int shifter;
   char char_finder;
@@ -78,121 +78,154 @@ void print_char(char *input_char, uint8_t row, uint8_t column, led_matrix__color
         row_buff |= g[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'h':
         row_buff |= h[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'i':
         row_buff |= i[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'j':
         row_buff |= j[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'k':
         row_buff |= k[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'l':
         row_buff |= l[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'm':
         row_buff |= m[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'n':
         row_buff |= n[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'o':
         row_buff |= o[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'p':
         row_buff |= p[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'q':
         row_buff |= q[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'r':
         row_buff |= r[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 's':
         row_buff |= s[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 't':
         row_buff |= t[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'u':
         row_buff |= u[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'v':
         row_buff |= v[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'w':
         row_buff |= w[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'x':
         row_buff |= x[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'y':
         row_buff |= y[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case 'z':
         row_buff |= z[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case '1':
         row_buff |= on[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case '2':
         row_buff |= tw[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case '3':
         row_buff |= th[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case '4':
         row_buff |= fo[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case '5':
         row_buff |= fi[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case '6':
         row_buff |= si[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case '7':
         row_buff |= se[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case '8':
         row_buff |= ei[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case '9':
         row_buff |= ni[iterator];
         row_buff = row_buff << spacer;
         break;
+
       case '0':
         row_buff |= ze[iterator];
         row_buff = row_buff << spacer;
+        break;
+
+      case ' ':
+        row_buff = row_buff << 2;
         break;
 
       default:;
@@ -210,9 +243,54 @@ void print_char(char *input_char, uint8_t row, uint8_t column, led_matrix__color
     else {
       row_buff = row_buff << shifter;
     }
-    // row_buff = row_buff >> 20;
-    // printf("%d  %d test \n", shifter, len);
-    led_matrix__set_row_data(row + iterator - 1, color, row_buff);
+
+    temp_row = row_buff;
+
+    temp_row = ~temp_row;
+
+    frame_buffer[row + iterator - 1][BLUE_PLANE] &= temp_row;
+    frame_buffer[row + iterator - 1][RED_PLANE] &= temp_row;
+    frame_buffer[row + iterator - 1][GREEN_PLANE] &= temp_row;
+
+    temp_row = ~temp_row;
+
+    switch (color) {
+    case OFF:
+      temp_row = 0;
+      frame_buffer[row + iterator - 1][BLUE_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][RED_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][GREEN_PLANE] |= temp_row;
+      break;
+    case BLUE:
+      frame_buffer[row + iterator - 1][BLUE_PLANE] |= temp_row;
+      break;
+    case GREEN:
+      frame_buffer[row + iterator - 1][GREEN_PLANE] |= temp_row;
+      break;
+    case CYAN:
+      frame_buffer[row + iterator - 1][BLUE_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][GREEN_PLANE] |= temp_row;
+      break;
+    case RED:
+      frame_buffer[row + iterator - 1][RED_PLANE] |= temp_row;
+      break;
+    case MAGENTA:
+      frame_buffer[row + iterator - 1][BLUE_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][RED_PLANE] |= temp_row;
+      break;
+    case YELLOW:
+      frame_buffer[row + iterator - 1][RED_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][GREEN_PLANE] |= temp_row;
+      break;
+    case WHITE:
+      frame_buffer[row + iterator - 1][BLUE_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][RED_PLANE] |= temp_row;
+      frame_buffer[row + iterator - 1][GREEN_PLANE] |= temp_row;
+      break;
+    default:
+      break;
+    }
+
     row_buff = 0;
   }
 }

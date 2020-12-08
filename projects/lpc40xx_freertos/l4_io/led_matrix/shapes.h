@@ -4,7 +4,8 @@
 #include <stdint.h>
 
 typedef enum { FRIEND, ENEMY, LIFE } game_object_type;
-extern const uint8_t empty[8], test[8], a1[8], a2[8], a3[8], data4[8], cursor[8];
+extern const uint8_t empty[8], test[8], enemy_1[8], enemy_2[8], enemy_3[8], friend_fill[8], friend_2[8], friend_3[8],
+    friend_w1[8], friend_w2[8], data4[8], cursor[8];
 
 /**
  * Shape update draws the shape which has been passed as parameters to the function.
@@ -28,4 +29,4 @@ void draw_friend(int x, int y);
 /**
  * Print score
  */
-void print_score(uint8_t score, int x, int y, led_matrix__color_e shape_color);
+void print_score(uint8_t score, uint8_t x, uint8_t y, led_matrix__color_e shape_color);

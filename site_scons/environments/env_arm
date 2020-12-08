@@ -4,7 +4,7 @@ import sys
 import osops
 
 CORE = "cortex-m4"
-OPTIMIZATION_LEVEL = "s"
+OPTIMIZATION_LEVEL = "1"
 
 no_float_format = GetOption("no_float_format")
 verbose = GetOption("verbose")
