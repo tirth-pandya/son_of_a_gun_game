@@ -22,27 +22,27 @@ void draw_enemy(int x, int y) {
 
 void draw_friend(int x, int y) {
 
-  // shape_update(x, y, friend_fill, FILL, FRIEND);
+  shape_update(x, y, friend_fill, FILL, FRIEND);
 
-  // static count_frame = 0, count_frame2 = 0;
-  // if (count_frame < 10) {
-  //   shape_update(x, y, friend_w2, YELLOW, FRIEND);
-  //   count_frame++;
-  //   count_frame2 = 0;
-  // }
-  // if (count_frame == 10 && count_frame2 < 10) {
-  //   shape_update(x, y, friend_w1, YELLOW, FRIEND);
-  //   count_frame2++;
-  //   if (count_frame2 == 9)
-  //     count_frame = 0;
-  // }
+  static count_frame = 0, count_frame2 = 0;
+  if (count_frame < 10) {
+    shape_update(x, y, friend_w2, YELLOW, FRIEND);
+    count_frame++;
+    count_frame2 = 0;
+  }
+  if (count_frame == 10 && count_frame2 < 10) {
+    shape_update(x, y, friend_w1, YELLOW, FRIEND);
+    count_frame2++;
+    if (count_frame2 == 9)
+      count_frame = 0;
+  }
 
-  // shape_update(x, y, friend_2, CYAN, FRIEND);
+  shape_update(x, y, friend_2, CYAN, FRIEND);
 
-  shape_update(x, y, enemy_fill, FILL, FRIEND);
-  shape_update(x, y, enemy_1, BLUE, FRIEND);
-  shape_update(x, y, enemy_2, BLUE, FRIEND);
-  shape_update(x, y, enemy_3, BLUE, FRIEND);
+  // shape_update(x, y, enemy_fill, FILL, FRIEND);
+  // shape_update(x, y, enemy_1, BLUE, FRIEND);
+  // shape_update(x, y, enemy_2, BLUE, FRIEND);
+  // shape_update(x, y, enemy_3, BLUE, FRIEND);
 }
 
 /**
@@ -116,8 +116,9 @@ void shape_update(int row, int column, const uint8_t *shape, led_matrix__color_e
         frame_buffer[row + i][GREEN_PLANE] |= temp_row;
         break;
 
-      case FILL:;
-        break;
+      case FILL: {
+        ;
+      } break;
 
       default:
         break;

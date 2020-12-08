@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define number_of_objects 16
+#define number_of_objects 2
 
 uint8_t life, enemy_score;
 

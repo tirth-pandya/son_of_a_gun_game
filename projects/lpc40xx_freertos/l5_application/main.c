@@ -156,12 +156,12 @@ void graphics_task(void *p) {
 
   while (1) {
 
-    randomizer_objects();
-    // randomizer_objects_level_1();
+    // randomizer_objects();
+    randomizer_objects_level_1();
     // randomizer_objects_level_2();
     led_matrix__clear_data_buffer();
 
-    // update_friend_location();
+    update_friend_location();
 
     draw_from_structure();
 
