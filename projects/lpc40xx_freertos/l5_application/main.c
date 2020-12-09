@@ -162,18 +162,13 @@ void graphics_task(void *p) {
 
     // Detect the collision
     collision_detection();
+    collision_detection_for_life();
 
     // Update the score
     print_score(enemy_score, 1, 32, RED);
     print_score(life, 1, 0, GREEN);
 
-<<<<<<< HEAD
     vTaskDelay(game_play_speed);
-=======
-    collision_detection();
-    collision_detection_for_life();
-    vTaskDelay(50);
->>>>>>> 3a8c73bbe0939590b339f9cc7951900a00210d35
   }
 }
 
