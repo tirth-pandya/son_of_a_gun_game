@@ -67,7 +67,7 @@ int main(void) {
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-  // xTaskCreate(gun_shot_detect_task, "gun shot detected", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  xTaskCreate(gun_shot_detect_task, "gun shot detected", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   xTaskCreate(game_play_level_monitor_task, "Update game level", 4096 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   xTaskCreate(controller_object_display_task, "gun pointer, friend object display", 4096 / sizeof(void *), NULL,
               PRIORITY_MEDIUM, NULL);
@@ -102,7 +102,8 @@ void display_task(void *p) {
 
 void controller_object_display_task(void *p) {
   while (1) {
-    shape_update(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], cursor, WHITE, NONE);
+    shape_update(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], cursor, GREEN, NONE);
+    // led_matrix__set_pixel(zigbee_gun_message[X_coord], 63 - zigbee_gun_message[Y_coord], RED);
     // shape_update(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], enemy_3, BLUE, FRIEND);
     // draw_friend(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord]);
     vTaskDelay(50);
@@ -144,7 +145,7 @@ void graphics_task(void *p) {
     case 3:
       number_of_live_enemies = 10;
       game_play_speed = 50;
-      randomizer_objects();
+      randomizer_objects_level_3();
       break;
 
     default:
@@ -224,7 +225,8 @@ void send_mp3_task(void *p) {
 void gun_shot_detect_task(void *p) {
   while (1) {
     if (xSemaphoreTake(gun_shot_detect_semaphore, portMAX_DELAY)) {
-      detect_click(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], 1);
+      // This is offset for cursor adjustment.
+      detect_click(zigbee_gun_message[X_coord] + 1, zigbee_gun_message[Y_coord] + 2, 1);
     }
   }
 }

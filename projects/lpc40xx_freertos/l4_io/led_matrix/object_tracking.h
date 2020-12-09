@@ -29,7 +29,7 @@ void draw_from_structure();
  * Randomizer changes the position of objects which needs to be changed in gameplay
  * This affects the .x and.y element in structure
  */
-void randomizer_objects();
+void randomizer_objects_level_3();
 
 /**
  * Randomizer changes the position of objects which needs to be changed in gameplay

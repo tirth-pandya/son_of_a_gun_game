@@ -21,12 +21,10 @@ void initialize_object_details() {
     if (i == 0) {
       onscreen_objects_struct[i].status = true;
       onscreen_objects_struct[i].obj_nature = FRIEND_OBJECT;
-    }
-    else if (i == 1){
+    } else if (i == 1) {
       onscreen_objects_struct[i].obj_nature = LIFE_OBJECT;
       onscreen_objects_struct[i].status = false;
-    }
-    else {
+    } else {
       onscreen_objects_struct[i].obj_nature = ENEMY_OBJECT;
       onscreen_objects_struct[i].status = false;
     }
@@ -35,7 +33,7 @@ void initialize_object_details() {
   }
 }
 
-void randomizer_objects() {
+void randomizer_objects_level_3() {
   int random;
   for (int i = first_moving_object; i < number_of_objects; i++) {
     random = rand() % 3;
@@ -120,7 +118,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
     temp = frame_buffer[x][ENEMY_PLANE];
     temp = temp >> (63 - y);
     temp = temp << 63;
-    led_matrix__set_pixel(x, 63 - y, RED);
+    // led_matrix__set_pixel(x, 63 - y, RED);
 
     if (temp != 0) {
       for (uint8_t i = 0; i < number_of_objects; i++) {
