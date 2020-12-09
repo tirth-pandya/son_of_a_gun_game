@@ -100,8 +100,8 @@ void graphics_task(void *p) {
   while (1) {
 
     // randomizer_objects();
-    // randomizer_objects_level_1();
-    randomizer_objects_level_2();
+    randomizer_objects_level_1();
+    // randomizer_objects_level_2();
     led_matrix__clear_data_buffer();
 
     update_friend_location();
@@ -114,6 +114,7 @@ void graphics_task(void *p) {
     print_score(life, 1, 0, GREEN);
 
     collision_detection();
+    collision_detection_for_life();
     vTaskDelay(50);
   }
 }
@@ -144,22 +145,27 @@ void send_mp3_task(void *p) {
     switch (mp3_details.mp3_to_play) {
     case DEFAULT_BG:
       if (change_song == 1) {
-        mp3__send_command(C_ONE_CY_PLAY_FOLD, 0x0101);
         change_song = 0;
+        mp3__send_command(C_ONE_CY_PLAY_FOLD, 0x0101);
+        fprintf(stderr, "Playing bg\n");
       }
+      vTaskDelay(10);
+      //        vTaskDelay(mp3_details.mp3_duration);
+
       break;
 
     case GUNSHOT:
       mp3__send_command(C_PLAY_FOLD_FILE, 0x0201);
-      change_song = 1;
       vTaskDelay(mp3_details.mp3_duration);
+      change_song = 1;
+      update_mp3_details(DEFAULT_BG, default_bg_duration - 100);
       break;
 
     default:
+      vTaskDelay(4000);
       break;
     }
   }
-  vTaskDelay(4000);
 }
 
 //**************************************************************************************************
@@ -181,7 +187,7 @@ void joystick_task(void *p) {
     // printf("X axis : %d,\tY axis : %d\n", joystick_val.x, joystick_val.y);
     // graphics__turn_on_all_leds(GREEN);
     joystick_comm__send();
-    vTaskDelay(30);
+    vTaskDelay(20);
   }
 }
 

@@ -19,6 +19,8 @@ void initialize_object_details() {
 
     if (i == 0)
       onscreen_objects_struct[i].obj_nature = FRIEND_OBJECT;
+    else if (i == 1)
+      onscreen_objects_struct[i].obj_nature = LIFE_OBJECT;
     else
       onscreen_objects_struct[i].obj_nature = ENEMY_OBJECT;
 
@@ -47,10 +49,12 @@ void randomizer_objects() {
 
 void randomizer_objects_level_1() {
 
+  uint8_t upper = 10, lower = 50;
+
   for (int i = 1; i < number_of_objects; i++) {
 
-    if ((onscreen_objects_struct[i].row < -8) || (onscreen_objects_struct[i].row > 71))
-      onscreen_objects_struct[i].row = rand() % 63;
+    if ((onscreen_objects_struct[i].row < upper) || (onscreen_objects_struct[i].row > lower))
+      onscreen_objects_struct[i].row = upper + (rand() % (lower - upper));
 
     onscreen_objects_struct[i].column--;
     if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71))
@@ -88,6 +92,10 @@ void draw_from_structure() {
 
       case ENEMY_OBJECT:
         draw_enemy(onscreen_objects_struct[i].row, onscreen_objects_struct[i].column);
+        break;
+
+      case LIFE_OBJECT:
+        draw_life(onscreen_objects_struct[i].row, onscreen_objects_struct[i].column);
         break;
 
       default:
@@ -166,7 +174,7 @@ void collision_detection() {
       // uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
       // fprintf(stderr, "%lu  %lu \n", temp1, temp2);
 
-      for (int i = 1; i <= (number_of_objects - 1); i++) {
+      for (int i = 2; i <= (number_of_objects - 1); i++) {
         if (((onscreen_objects_struct[i].row) <= x) && ((onscreen_objects_struct[i].row) + 7 >= x) &&
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
             ((onscreen_objects_struct[i].obj_nature) == ENEMY_OBJECT)) {
@@ -174,6 +182,7 @@ void collision_detection() {
           if (old_i != i) {
             // fprintf(stderr, "old_i %d i %d", old_i, i);
             life--;
+            // update_mp3_details(GUNSHOT, gunshot_duration);
             old_i = i;
           }
         }
@@ -188,6 +197,24 @@ void collision_detection() {
           onscreen_objects_struct[0].status = false;
         }
       }
+    }
+  }
+}
+
+void collision_detection_for_life() {
+  uint64_t temp, a, b;
+
+  for (uint8_t j = 0; j < 64; j++) {
+
+    a = frame_buffer[j][FRIEND_PLANE];
+    b = frame_buffer[j][LIFE_PLANE];
+
+    temp = a & b;
+
+    if (temp) {
+      life++;
+      onscreen_objects_struct[1].status = false;
+      break;
     }
   }
 }

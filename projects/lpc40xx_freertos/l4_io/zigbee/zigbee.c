@@ -4,6 +4,7 @@
 #include "gpio.h"
 #include "lpc40xx.h"
 #include "lpc_peripherals.h"
+#include "mp3.h"
 #include "stdio.h"
 
 enum API_data_frame_header {
@@ -271,8 +272,11 @@ void zigbee__data_parcer(uint8_t data) {
     } else {
       data_sum += data;
       zigbee_gun_message[bytes_remaining_to_receive] = data;
-      if (zigbee_gun_message[Button_press] == 1)
+      if (zigbee_gun_message[Button_press] == 1) {
         xSemaphoreGive(gun_shot_detect_semaphore);
+        update_mp3_details(GUNSHOT, gunshot_duration);
+        fprintf(stderr, "HIT!");
+      }
       checksum = calculate_checksum_receive(data_sum);
       bytes_remaining_to_receive = 1;
       receive_state = Checksum_receive_state;
