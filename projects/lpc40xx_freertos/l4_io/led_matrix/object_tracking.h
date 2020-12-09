@@ -76,3 +76,8 @@ void collision_detection_for_life();
 uint8_t set_bit_position(uint64_t temp);
 
 void update_friend_location();
+
+/**
+ * This
+ */
+void update_required_enemies_status(int number_of_enemies);

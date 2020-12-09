@@ -36,7 +36,7 @@ _____________|_____________
 
 #define C_D_NONE 0x00
 
-typedef enum { DEFAULT_BG = 0, GUNSHOT = 1, GAME_OVER = 1, NONE } MP3_SOUNDS;
+typedef enum { DEFAULT_BG = 0, GUNSHOT = 1, GAME_OVER = 1, MAX_TRACK } MP3_SOUNDS;
 
 const uint32_t default_bg_duration, gunshot_duration;
 

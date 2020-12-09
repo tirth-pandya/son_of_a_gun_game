@@ -18,16 +18,20 @@ void initialize_object_details() {
     random = rand() % 63;
     onscreen_objects_struct[i].column = random;
 
-    if (i == 0)
+    if (i == 0) {
+      onscreen_objects_struct[i].status = true;
       onscreen_objects_struct[i].obj_nature = FRIEND_OBJECT;
-    else if (i == 1)
+    }
+    else if (i == 1){
       onscreen_objects_struct[i].obj_nature = LIFE_OBJECT;
-    else
+      onscreen_objects_struct[i].status = false;
+    }
+    else {
       onscreen_objects_struct[i].obj_nature = ENEMY_OBJECT;
+      onscreen_objects_struct[i].status = false;
+    }
 
     // onscreen_objects_struct[i].obj_nature = rand() % 2;
-
-    onscreen_objects_struct[i].status = true;
   }
 }
 
@@ -261,4 +265,13 @@ void update_friend_location() {
 
   // onscreen_objects_struct[0].row = 45;
   // onscreen_objects_struct[0].column = 13;
+}
+
+void update_required_enemies_status(int number_of_enemies) {
+  for (int i = 2; i < number_of_enemies + 2; i++) {
+    if (onscreen_objects_struct[i].status == false) {
+      onscreen_objects_struct[i].status = true;
+      onscreen_objects_struct[i].column = 63;
+    }
+  }
 }

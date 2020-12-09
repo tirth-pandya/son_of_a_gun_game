@@ -35,6 +35,8 @@
 
 extern volatile uint8_t zigbee_joystick_message[Max_message_elemets];
 extern volatile uint8_t zigbee_gun_message[Max_message_elemets];
+static uint8_t game_level = 1;
+
 uint8_t change_song = 1;
 #ifdef DEF_TASK
 // 'static' to make these functions 'private' to this file
@@ -47,10 +49,12 @@ static void uart_task(void *params);
 static void graphics_task(void *p);
 static void display_task(void *p);
 static void receive_zigbee_task(void *p);
-static void gun_shot_task(void *p);
+static void gun_shot_detect_task(void *p);
 static void joystick_task(void *p);
 static void gun_send_task(void *p);
 static void send_mp3_task(void *p);
+static void controller_object_display_task(void *p);
+static void game_play_level_monitor_task(void *p);
 
 int main(void) {
   // create_blinky_tasks();
@@ -58,12 +62,15 @@ int main(void) {
 
   // LED Matrix tasks
   zigbee__comm_init(true);
-  mp3__init();
-  xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+  // mp3__init();
+  // xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
-  xTaskCreate(gun_shot_task, "gun shot detected", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  // xTaskCreate(gun_shot_detect_task, "gun shot detected", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
+  xTaskCreate(game_play_level_monitor_task, "Update game level", 4096 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+  xTaskCreate(controller_object_display_task, "gun pointer, friend object display", 4096 / sizeof(void *), NULL,
+              PRIORITY_MEDIUM, NULL);
 
   // Joystick related tasks
   // zigbee__comm_init(false);
@@ -93,29 +100,75 @@ void display_task(void *p) {
   }
 }
 
+void controller_object_display_task(void *p) {
+  while (1) {
+    shape_update(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], cursor, WHITE, NONE);
+    // shape_update(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], enemy_3, BLUE, FRIEND);
+    // draw_friend(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord]);
+    vTaskDelay(50);
+  }
+}
+
+void game_play_level_monitor_task(void *p) {
+  while (1) {
+    if (game_level < 3)
+      game_level++;
+    else
+      game_level = 1;
+
+    vTaskDelay(60 * 1000);
+  }
+}
+
 void graphics_task(void *p) {
   graphics__turn_off_all_leds();
   initialize_object_details();
+  static uint8_t number_of_live_enemies;
 
+  static uint16_t game_play_speed = 100;
   while (1) {
 
-    // randomizer_objects();
-    // randomizer_objects_level_1();
-    randomizer_objects_level_2();
-    led_matrix__clear_data_buffer();
+    switch (game_level) {
+    case 1:
+      game_play_speed = 100;
+      number_of_live_enemies = 5;
+      randomizer_objects_level_1();
+      break;
 
+    case 2:
+      game_play_speed = 70;
+      number_of_live_enemies = 8;
+      randomizer_objects_level_2();
+      break;
+
+    case 3:
+      number_of_live_enemies = 10;
+      game_play_speed = 50;
+      randomizer_objects();
+      break;
+
+    default:
+      break;
+    }
+
+    update_required_enemies_status(number_of_live_enemies);
+    // Clear previous data
+    led_matrix__clear_data_buffer();
+    // update_alive_enemies(number_of_live_enemies);
     update_friend_location();
 
+    // Draw all the live objects
     draw_from_structure();
 
-    led_matrix__set_pixel(zigbee_gun_message[X_coord], 63 - zigbee_gun_message[Y_coord], RED);
+    // Detect the collision
+    collision_detection();
+    collision_detection_for_life();
 
+    // Update the score
     print_score(enemy_score, 1, 32, RED);
     print_score(life, 1, 0, GREEN);
 
-    collision_detection();
-    collision_detection_for_life();
-    vTaskDelay(50);
+    vTaskDelay(game_play_speed);
   }
 }
 
@@ -168,6 +221,14 @@ void send_mp3_task(void *p) {
   }
 }
 
+void gun_shot_detect_task(void *p) {
+  while (1) {
+    if (xSemaphoreTake(gun_shot_detect_semaphore, portMAX_DELAY)) {
+      detect_click(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], 1);
+    }
+  }
+}
+
 //**************************************************************************************************
 // Joystick tasks **********************************************************************************
 //**************************************************************************************************
@@ -199,14 +260,6 @@ void gun_send_task(void *p) {
   while (1) {
     gun_comm__send_data();
     vTaskDelay(30);
-  }
-}
-
-void gun_shot_task(void *p) {
-  while (1) {
-    if (xSemaphoreTake(gun_shot_detect_semaphore, portMAX_DELAY)) {
-      detect_click(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], 1);
-    }
   }
 }
 
