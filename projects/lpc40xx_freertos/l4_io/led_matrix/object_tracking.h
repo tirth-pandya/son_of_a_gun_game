@@ -5,13 +5,13 @@
 #include <stdint.h>
 #include <time.h>
 
-#define number_of_objects 8
+#define number_of_objects 15
 
 uint8_t life, enemy_score;
 
 // typedef void (*void_function_t)(int x, int y);
 
-typedef enum { FRIEND_OBJECT = 0, ENEMY_OBJECT } OBJECT_NATURE;
+typedef enum { FRIEND_OBJECT = 0, ENEMY_OBJECT, LIFE_OBJECT } OBJECT_NATURE;
 
 struct object_details {
   int row, column;
@@ -61,9 +61,14 @@ void initialize_object_details();
 void detect_click(uint8_t p, uint8_t q, uint8_t hit);
 
 /**
- * Detect interseaction of two objects with different object type and take appropriate action
+ * Detect intersection of two objects with friend/enemy object type and take appropriate action
  */
 void collision_detection();
+
+/**
+ * Detect intersection of two objects with friend/life object type and take appropriate action
+ */
+void collision_detection_for_life();
 
 /**
  * Determine the position of first 1 in uint64_t for determining the column position

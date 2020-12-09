@@ -18,6 +18,11 @@ void shape_update(int row, int column, const uint8_t *shape, led_matrix__color_e
                   game_object_type object_type);
 
 /**
+ * Draw life objects as given co-ordinates.
+ */
+void draw_life(int x, int y);
+
+/**
  * Draw enemy shape for given co-ordinates.
  */
 void draw_enemy(int x, int y);
