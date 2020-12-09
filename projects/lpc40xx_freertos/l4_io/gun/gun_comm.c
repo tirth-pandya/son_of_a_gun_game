@@ -9,7 +9,7 @@ static uint8_t prev_y_value;
 
 void gun_comm__send_data(void) {
 
-  gun_param gun_coordinates = gun__get_current_param(500, 650);
+  gun_param gun_coordinates = gun__get_current_param(2000, 400);
   if (message[X_coord] != 1) {
     prev_x_value = message[Button_press];
     prev_y_value = message[Y_coord];

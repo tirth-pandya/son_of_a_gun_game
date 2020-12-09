@@ -3,7 +3,7 @@
 #include "led_matrix.h"
 #include <stdint.h>
 
-typedef enum { FRIEND, ENEMY, LIFE } game_object_type;
+typedef enum { FRIEND, ENEMY, LIFE, NONE } game_object_type;
 extern const uint8_t empty[8], test[8], enemy_1[8], enemy_2[8], enemy_3[8], data4[8], cursor[8];
 
 /**

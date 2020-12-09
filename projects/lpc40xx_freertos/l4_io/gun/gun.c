@@ -13,20 +13,20 @@
 #include "lpc_peripherals.h"
 #include "stdio.h"
 
-static const uint8_t gun_button_gpio_port = 0;
-static const uint8_t gun_button_gpio_pin = 29;
+static const uint8_t gun_button_gpio_port = 2;
+static const uint8_t gun_button_gpio_pin = 6;
 
 static void gun_shot_interrupt(void) {
-  // fprintf(stderr, "hi from gun button isr\n");
+  fprintf(stderr, "hi from gun button isr\n");
   gun_com__set_gunShotValue();
-  LPC_GPIOINT->IO0IntClr |= (1 << gun_button_gpio_pin);
+  LPC_GPIOINT->IO2IntClr |= (1 << gun_button_gpio_pin);
 }
 
 void gun__init(void) {
   gpio_s gun_shot_gpio = gpio__construct_as_input(gun_button_gpio_port, gun_button_gpio_pin);
   gpio__enable_pull_down_resistors(gun_shot_gpio);
   lpc_peripheral__enable_interrupt(LPC_PERIPHERAL__GPIO, gun_shot_interrupt, "Gun shot received");
-  LPC_GPIOINT->IO0IntEnR = (1 << gun_button_gpio_pin);
+  LPC_GPIOINT->IO2IntEnR = (1 << gun_button_gpio_pin);
 }
 
 gun_param gun__get_current_param(uint8_t samples_to_avg, uint16_t sensitivity) {
