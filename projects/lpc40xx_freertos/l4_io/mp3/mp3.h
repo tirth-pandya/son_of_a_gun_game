@@ -1,4 +1,5 @@
 #pragma once
+
 #include <stdbool.h>
 #include <stdint.h>
 /*
@@ -35,5 +36,19 @@ _____________|_____________
 
 #define C_D_NONE 0x00
 
+typedef enum { DEFAULT_BG = 0, GUNSHOT = 1, GAME_OVER = 1, MAX_TRACK } MP3_SOUNDS;
+
+const uint32_t default_bg_duration, gunshot_duration;
+
+typedef struct {
+  MP3_SOUNDS mp3_to_play;
+  uint32_t mp3_duration;
+} mp3_details_s;
+
+mp3_details_s mp3_details;
+
 bool mp3__init();
 bool mp3__send_command(uint8_t command, uint16_t data);
+void update_mp3_details(MP3_SOUNDS, uint32_t);
+
+extern uint8_t change_song;

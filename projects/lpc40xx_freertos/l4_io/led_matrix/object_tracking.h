@@ -1,10 +1,12 @@
 #pragma once
 #include "shapes.h"
+#include "zigbee.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
 
-#define number_of_objects 6
+#define number_of_objects 8
+
 uint8_t life, enemy_score;
 
 // typedef void (*void_function_t)(int x, int y);
@@ -67,3 +69,10 @@ void collision_detection();
  * Determine the position of first 1 in uint64_t for determining the column position
  */
 uint8_t set_bit_position(uint64_t temp);
+
+void update_friend_location();
+
+/**
+ * This
+ */
+void update_required_enemies_status(int number_of_enemies);

@@ -1,12 +1,14 @@
 #include "object_tracking.h"
 #include "mp3.h"
 #include "shapes.h"
+
+static uint8_t old_i = 50;
 time_t t;
 struct object_details onscreen_objects_struct[number_of_objects];
 
 void initialize_object_details() {
   int random;
-  life = 3;
+  life = 50;
   enemy_score = 0;
   // void_function_t draw_enemy_pointer = &draw_enemy;
   for (int i = 0; i < number_of_objects; i++) {
@@ -14,11 +16,17 @@ void initialize_object_details() {
     onscreen_objects_struct[i].row = random;
     random = rand() % 63;
     onscreen_objects_struct[i].column = random;
-    if (i == 0)
+
+    if (i == 0) {
+      onscreen_objects_struct[i].status = true;
       onscreen_objects_struct[i].obj_nature = FRIEND_OBJECT;
-    else
+    } else {
       onscreen_objects_struct[i].obj_nature = ENEMY_OBJECT;
-    onscreen_objects_struct[i].status = true;
+
+      onscreen_objects_struct[i].status = false;
+    }
+
+    // onscreen_objects_struct[i].obj_nature = rand() % 2;
   }
 }
 
@@ -40,7 +48,7 @@ void randomizer_objects() {
 }
 
 void randomizer_objects_level_1() {
-  int random;
+
   for (int i = 1; i < number_of_objects; i++) {
 
     if ((onscreen_objects_struct[i].row < -8) || (onscreen_objects_struct[i].row > 71))
@@ -54,6 +62,7 @@ void randomizer_objects_level_1() {
 }
 
 void randomizer_objects_level_2() {
+
   int random;
   for (int i = 1; i < number_of_objects; i++) {
     random = rand() % 3;
@@ -110,7 +119,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
           onscreen_objects_struct[i].status = false;
           enemy_score++;
           mp3__send_command(C_PLAY_FOLD_FILE, 0x0301);
-          printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
+          // printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
         }
       }
     }
@@ -130,7 +139,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
           life--;
 
           // mp3__send_command(C_PLAY_W_VOL, 0x1e01);
-          printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
+          // printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
           // print_score(enemy_score, 0, 32);
         }
       }
@@ -140,24 +149,45 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
 
 void collision_detection() {
   uint8_t x, y;
-  uint64_t temp;
+  uint64_t temp, a, b;
+
   for (uint8_t j = 0; j < 64; j++) {
-    temp = frame_buffer[j][FRIEND_PLANE] & frame_buffer[j][ENEMY_PLANE];
+    // temp = frame_buffer[j][FRIEND_PLANE] & frame_buffer[j][ENEMY_PLANE];
+    a = frame_buffer[j][FRIEND_PLANE];
+    b = frame_buffer[j][ENEMY_PLANE];
+
+    temp = a & b;
     if (temp) {
       x = j;
       y = set_bit_position(temp);
       // fprintf(stderr, "%d %d\n", x, y);
 
-      for (uint8_t i = 0; i < number_of_objects; i++) {
+      // for (uint8_t i = 0; i < number_of_objects; i++) {
+      // uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
+      // temp = temp >> 32;
+      // uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
+      // fprintf(stderr, "%lu  %lu \n", temp1, temp2);
 
+      for (int i = 1; i <= (number_of_objects - 1); i++) {
         if (((onscreen_objects_struct[i].row) <= x) && ((onscreen_objects_struct[i].row) + 7 >= x) &&
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
-            ((onscreen_objects_struct[i].obj_nature) == FRIEND_OBJECT)) {
-          onscreen_objects_struct[i].status = false;
-          life--;
-          // uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
-          // temp = temp >> 32;
-          // uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
+            ((onscreen_objects_struct[i].obj_nature) == ENEMY_OBJECT)) {
+
+          if (old_i != i) {
+            // fprintf(stderr, "old_i %d i %d", old_i, i);
+            life--;
+            old_i = i;
+          }
+        }
+      }
+
+      if (((onscreen_objects_struct[0].row) <= x) && ((onscreen_objects_struct[0].row) + 7 >= x) &&
+          ((onscreen_objects_struct[0].column) <= y) && ((onscreen_objects_struct[0].column) + 7 >= y) &&
+          ((onscreen_objects_struct[0].obj_nature) == FRIEND_OBJECT)) {
+
+        if (life == 0) {
+          // life--;
+          onscreen_objects_struct[0].status = false;
         }
       }
     }
@@ -165,14 +195,53 @@ void collision_detection() {
 }
 
 uint8_t set_bit_position(uint64_t temp) {
-  uint64_t buffer;
+
+  uint32_t buffer, a;
   uint8_t column = 0;
-  for (uint8_t i = 0; i < 64; i++) {
-    buffer = (temp & (1 << i));
+
+  uint32_t temp1 = (uint32_t)(temp & (0xFFFFFFFF));
+  temp = temp >> 32;
+  uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
+  // fprintf(stderr, "%lu  %lu \n", temp2, temp1);
+
+  for (int8_t i = 31; i >= 0; i--) {
+    a = (1 << i);
+    buffer = (temp1 & a);
+
     if (buffer) {
-      // printf("%d column", (63 - i));
+      // fprintf(stderr, "lsb %d\n", (i));
       column = 63 - i;
+      return (column);
+    }
+  }
+
+  for (int8_t i = 31; i >= 0; i--) {
+    a = (1 << i);
+    buffer = (temp2 & a);
+
+    if (buffer) {
+      // fprintf(stderr, "msb %d\n", (i));
+      column = 31 - i;
+      return (column);
     }
   }
   return (column);
+}
+
+void update_friend_location() {
+
+  onscreen_objects_struct[0].row = zigbee_joystick_message[X_coord];
+  onscreen_objects_struct[0].column = zigbee_joystick_message[Y_coord];
+
+  // onscreen_objects_struct[0].row = 45;
+  // onscreen_objects_struct[0].column = 13;
+}
+
+void update_required_enemies_status(int number_of_enemies) {
+  for (int i = 2; i < number_of_enemies + 2; i++) {
+    if (onscreen_objects_struct[i].status == false) {
+      onscreen_objects_struct[i].status = true;
+      onscreen_objects_struct[i].column = 63;
+    }
+  }
 }

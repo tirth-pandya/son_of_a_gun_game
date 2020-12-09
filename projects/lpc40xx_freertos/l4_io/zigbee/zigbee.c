@@ -98,7 +98,7 @@ static void zigbee_pin_configuration(void) {
 }
 
 static void zigbee_data_receive_interrupt(void) {
-  fprintf(stderr, "ISR\n");
+  // fprintf(stderr, "ISR\n");
   LPC_GPIOINT->IO0IntClr |= (1 << 6);
   xSemaphoreGiveFromISR(zigbee_spi_data_receive_sempahore, NULL);
 }
@@ -282,9 +282,9 @@ void zigbee__data_parcer(uint8_t data) {
   case Checksum_receive_state:
     if (data == checksum) {
       data_length = 0;
-      fprintf(stderr, "Y\n");
+      // fprintf(stderr, "Y\n");
     } else {
-      fprintf(stderr, "X %x\n", checksum);
+      // fprintf(stderr, "X %x\n", checksum);
     }
     receive_state = Start_byte_state;
     break;
