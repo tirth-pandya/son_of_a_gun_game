@@ -100,8 +100,8 @@ void graphics_task(void *p) {
   while (1) {
 
     // randomizer_objects();
-    randomizer_objects_level_1();
-    // randomizer_objects_level_2();
+    // randomizer_objects_level_1();
+    randomizer_objects_level_2();
     led_matrix__clear_data_buffer();
 
     update_friend_location();
@@ -149,7 +149,7 @@ void send_mp3_task(void *p) {
         mp3__send_command(C_ONE_CY_PLAY_FOLD, 0x0101);
         fprintf(stderr, "Playing bg\n");
       }
-      vTaskDelay(10);
+      vTaskDelay(5);
       //        vTaskDelay(mp3_details.mp3_duration);
 
       break;

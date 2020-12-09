@@ -3,6 +3,7 @@
 #include "shapes.h"
 
 static uint8_t old_i = 50;
+static uint8_t first_moving_object = 1, first_enemy_object = 2;
 time_t t;
 struct object_details onscreen_objects_struct[number_of_objects];
 
@@ -32,7 +33,7 @@ void initialize_object_details() {
 
 void randomizer_objects() {
   int random;
-  for (int i = 0; i < number_of_objects; i++) {
+  for (int i = first_moving_object; i < number_of_objects; i++) {
     random = rand() % 3;
     random = random - 1;
     onscreen_objects_struct[i].row += random;
@@ -51,7 +52,7 @@ void randomizer_objects_level_1() {
 
   uint8_t upper = 10, lower = 50;
 
-  for (int i = 1; i < number_of_objects; i++) {
+  for (int i = first_moving_object; i < number_of_objects; i++) {
 
     if ((onscreen_objects_struct[i].row < upper) || (onscreen_objects_struct[i].row > lower))
       onscreen_objects_struct[i].row = upper + (rand() % (lower - upper));
@@ -66,7 +67,7 @@ void randomizer_objects_level_1() {
 void randomizer_objects_level_2() {
 
   int random;
-  for (int i = 1; i < number_of_objects; i++) {
+  for (int i = first_moving_object; i < number_of_objects; i++) {
     random = rand() % 3;
     random = random - 1;
     onscreen_objects_struct[i].row += random;
@@ -124,7 +125,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y)) {
           onscreen_objects_struct[i].status = false;
           enemy_score++;
-          mp3__send_command(C_PLAY_FOLD_FILE, 0x0301);
+          // mp3__send_command(C_PLAY_FOLD_FILE, 0x0301);
           // printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
         }
       }
@@ -174,7 +175,7 @@ void collision_detection() {
       // uint32_t temp2 = (uint32_t)(temp & (0xFFFFFFFF));
       // fprintf(stderr, "%lu  %lu \n", temp1, temp2);
 
-      for (int i = 2; i <= (number_of_objects - 1); i++) {
+      for (int i = first_enemy_object; i <= (number_of_objects - 1); i++) {
         if (((onscreen_objects_struct[i].row) <= x) && ((onscreen_objects_struct[i].row) + 7 >= x) &&
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
             ((onscreen_objects_struct[i].obj_nature) == ENEMY_OBJECT)) {
