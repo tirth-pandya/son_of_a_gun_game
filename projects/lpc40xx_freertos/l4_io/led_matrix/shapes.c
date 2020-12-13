@@ -144,7 +144,7 @@ void print_score(uint8_t score, uint8_t x, uint8_t y, led_matrix__color_e shape_
   char temp_char[3];
 
   temp_int = score % 10;
-  temp_char[2] = temp_int + '0';
+  temp_char[2] = '0'; // temp_int + '0';
 
   temp_int = score / 10;
   temp_char[1] = temp_int + '0';
