@@ -8,6 +8,8 @@ typedef enum { FRIEND, ENEMY, LIFE, NONE } game_object_type;
 extern const uint8_t empty[8], test[8], enemy_1[8], enemy_2[8], enemy_3[8], friend_fill[8], friend_2[8], friend_3[8],
     friend_w1[8], friend_w2[8], data4[8], cursor[8];
 
+const int row_boundary_upper, row_boundary_lower;
+
 /**
  * Shape update draws the shape which has been passed as parameters to the function.
  * Parameters are self explanatory.

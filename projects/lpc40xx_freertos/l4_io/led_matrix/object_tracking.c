@@ -33,35 +33,17 @@ void initialize_object_details() {
   }
 }
 
-void randomizer_objects_level_3() {
-  int random;
-  for (int i = first_moving_object; i < number_of_objects; i++) {
-    random = rand() % 3;
-    random = random - 1;
-    onscreen_objects_struct[i].row += random;
-    if ((onscreen_objects_struct[i].row < -8) || (onscreen_objects_struct[i].row > 71))
-      onscreen_objects_struct[i].row = rand() % 63;
-    random = rand() % 3;
-    random = random - 1;
-    onscreen_objects_struct[i].column += random;
-    if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71))
-      onscreen_objects_struct[i].column = rand() % 63;
-    // printf("%d %d %d\n", onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, i);
-  }
-}
-
 void randomizer_objects_level_1() {
 
-  uint8_t upper = 10, lower = 50;
-
   for (int i = first_moving_object; i < number_of_objects; i++) {
 
-    if ((onscreen_objects_struct[i].row < upper) || (onscreen_objects_struct[i].row > lower))
-      onscreen_objects_struct[i].row = upper + (rand() % (lower - upper));
+    if ((onscreen_objects_struct[i].row < (row_boundary_upper - 8)) ||
+        (onscreen_objects_struct[i].row > (row_boundary_lower + 8)))
+      onscreen_objects_struct[i].row = row_boundary_upper + (rand() % (row_boundary_lower - row_boundary_upper));
 
     onscreen_objects_struct[i].column--;
     if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71))
-      onscreen_objects_struct[i].column = 63;
+      onscreen_objects_struct[i].column = 45 + (rand() % 18);
     // printf("%d %d %d\n", onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, i);
   }
 }
@@ -73,12 +55,31 @@ void randomizer_objects_level_2() {
     random = rand() % 3;
     random = random - 1;
     onscreen_objects_struct[i].row += random;
-    if ((onscreen_objects_struct[i].row < -8) || (onscreen_objects_struct[i].row > 71))
-      onscreen_objects_struct[i].row = rand() % 63;
+    if ((onscreen_objects_struct[i].row < (row_boundary_upper - 8)) ||
+        (onscreen_objects_struct[i].row > (row_boundary_lower + 8)))
+      onscreen_objects_struct[i].row = row_boundary_upper + (rand() % (row_boundary_lower - row_boundary_upper));
 
     onscreen_objects_struct[i].column--;
     if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71))
       onscreen_objects_struct[i].column = 63;
+    // printf("%d %d %d\n", onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, i);
+  }
+}
+
+void randomizer_objects_level_3() {
+  int random;
+  for (int i = first_moving_object; i < number_of_objects; i++) {
+    random = rand() % 3;
+    random = random - 1;
+    onscreen_objects_struct[i].row += random;
+    if ((onscreen_objects_struct[i].row < (row_boundary_upper - 8)) ||
+        (onscreen_objects_struct[i].row > (row_boundary_lower + 8)))
+      onscreen_objects_struct[i].row = row_boundary_upper + (rand() % (row_boundary_lower - row_boundary_upper));
+    random = rand() % 3;
+    random = random - 1;
+    onscreen_objects_struct[i].column += random;
+    if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71))
+      onscreen_objects_struct[i].column = rand() % 63;
     // printf("%d %d %d\n", onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, i);
   }
 }
@@ -90,7 +91,17 @@ void draw_from_structure() {
       switch (onscreen_objects_struct[i].obj_nature) {
 
       case FRIEND_OBJECT:
+
+        if ((onscreen_objects_struct[i].row < (row_boundary_upper))) {
+          onscreen_objects_struct[i].row = row_boundary_upper;
+        }
+
+        if ((onscreen_objects_struct[i].row > (row_boundary_lower - 8))) {
+          onscreen_objects_struct[i].row = row_boundary_lower;
+        }
+
         draw_friend(onscreen_objects_struct[i].row, onscreen_objects_struct[i].column);
+
         break;
 
       case ENEMY_OBJECT:
@@ -98,6 +109,12 @@ void draw_from_structure() {
         break;
 
       case LIFE_OBJECT:
+
+        if (onscreen_objects_struct[i].row < 0) {
+          onscreen_objects_struct[i].status = false;
+          break;
+        }
+
         draw_life(onscreen_objects_struct[i].row, onscreen_objects_struct[i].column);
         break;
 
