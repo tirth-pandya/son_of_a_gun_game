@@ -61,7 +61,7 @@ void randomizer_objects_level_1() {
 
     onscreen_objects_struct[i].column--;
     if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71))
-      onscreen_objects_struct[i].column = 63;
+      onscreen_objects_struct[i].column = 45 + (rand() % 18);
     // printf("%d %d %d\n", onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, i);
   }
 }
