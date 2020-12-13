@@ -16,16 +16,19 @@ typedef enum game_play_level {
 } game_play_level;
 
 /**
- *
- */
-game_play_level game_play__get_current_level(void);
-
-/**
- * This function
+ * This function manages game play current level and assigns the duration of the current game play level
+ * @return The game play duration for the current level
  */
 uint32_t game_play__level_manager(void);
 
 /**
- *
+ * This function manages the graphics activities for the current game play level. e.g., it assigns the
+ * number of enemies, the speed of the gameplay.
  */
 uint32_t game_play__graphics_manager(void);
+
+/**
+ * It is responsible for namaging life object by calculating the chance of reviving life object based
+ * on the given priority for each game play level.
+ */
+void game_play__life_object_manager(void);

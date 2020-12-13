@@ -78,8 +78,12 @@ void randomizer_objects_level_3() {
     random = rand() % 3;
     random = random - 1;
     onscreen_objects_struct[i].column += random;
-    if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71))
-      onscreen_objects_struct[i].column = rand() % 63;
+    if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71)) {
+      if (i == 1)
+        onscreen_objects_struct[i].status = false;
+      else
+        onscreen_objects_struct[i].column = rand() % 63;
+    }
     // printf("%d %d %d\n", onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, i);
   }
 }
@@ -290,3 +294,5 @@ void update_required_enemies_status(int number_of_enemies) {
     }
   }
 }
+
+void object_tracking__revive_life_object(void) { onscreen_objects_struct[1].status = true; }

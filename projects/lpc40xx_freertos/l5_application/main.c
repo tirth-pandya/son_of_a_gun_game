@@ -53,6 +53,7 @@ static void gun_send_task(void *p);
 static void send_mp3_task(void *p);
 static void controller_object_display_task(void *p);
 static void game_play_level_monitor_task(void *p);
+static void graphics_life_object_manager_task(void *p);
 
 int main(void) {
   // create_blinky_tasks();
@@ -69,6 +70,8 @@ int main(void) {
   xTaskCreate(game_play_level_monitor_task, "Update game level", 4096 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   xTaskCreate(controller_object_display_task, "gun pointer, friend object display", 4096 / sizeof(void *), NULL,
               PRIORITY_MEDIUM, NULL);
+  xTaskCreate(graphics_life_object_manager_task, "manage life object", 1024 / sizeof(void *), NULL, PRIORITY_MEDIUM,
+              NULL);
 
   // Joystick related tasks
   // zigbee__comm_init(false);
@@ -131,6 +134,13 @@ void graphics_task(void *p) {
 
     vTaskDelay(game_play_speed);
     // vTaskDelay(100);
+  }
+}
+
+void graphics_life_object_manager_task(void *p) {
+  while (1) {
+    game_play__life_object_manager();
+    vTaskDelay(15 * 1000);
   }
 }
 

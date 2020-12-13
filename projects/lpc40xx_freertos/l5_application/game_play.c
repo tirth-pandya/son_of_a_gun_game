@@ -169,13 +169,33 @@ uint32_t game_play__graphics_manager(void) {
   return game_play_speed;
 }
 
-game_play_level game_play__get_current_level(void) {
-  printf("return current level is %d", current_level);
-  return (enum game_play_level)current_level;
-}
-
 void game_play__update_game_over_level(void) {
   current_level = GAME_OVER_LEVEL;
   next_level = STARTUP;
 }
-// uint32_t game_play__graphics
+
+void game_play__life_object_manager(void) {
+  uint8_t life_object_probability = 0;
+  switch (current_level) {
+  case LEVEL_1:
+    life_object_probability = rand() % 5;
+    if (life_object_probability == 4)
+      object_tracking__revive_life_object();
+    break;
+
+  case LEVEL_2:
+    life_object_probability = rand() % 3;
+    if (life_object_probability == 2)
+      object_tracking__revive_life_object();
+    break;
+
+  case LEVEL_3:
+    life_object_probability = rand() % 2;
+    if (life_object_probability == 1)
+      object_tracking__revive_life_object();
+    break;
+
+  default:
+    break;
+  }
+}
