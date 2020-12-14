@@ -124,6 +124,8 @@ void game_play_level_monitor_task(void *p) {
 void graphics_task(void *p) {
   graphics__turn_off_all_leds();
   initialize_object_details();
+  draw_welcome(5, 9);
+  vTaskDelay(3000);
   static uint8_t number_of_live_enemies;
 
   static uint16_t game_play_speed = 100;

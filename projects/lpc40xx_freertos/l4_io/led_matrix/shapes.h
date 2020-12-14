@@ -38,3 +38,5 @@ void draw_friend(int x, int y);
  * Print score
  */
 void print_score(uint8_t score, uint8_t x, uint8_t y, led_matrix__color_e shape_color);
+
+void draw_welcome(int x, int y);
