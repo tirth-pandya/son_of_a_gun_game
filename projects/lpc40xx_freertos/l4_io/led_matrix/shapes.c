@@ -254,3 +254,10 @@ void print_score(uint8_t score, uint8_t x, uint8_t y, led_matrix__color_e shape_
 
   print_char(temp_char, x, y, shape_color);
 }
+
+void draw_road() {
+  static uint64_t solid_road = -1;
+  led_matrix__set_row_data(row_boundary_upper, WHITE, solid_road);
+  led_matrix__set_row_data(row_boundary_lower, WHITE, solid_road);
+  led_matrix__set_row_data((row_boundary_lower + row_boundary_upper) / 2, WHITE, solid_road);
+}
