@@ -23,9 +23,6 @@
 #include "joystick_comm.h"
 #include "object_tracking.h"
 #include "shapes.h"
-#include "uart.h"
-#include <stdlib.h>
-#include <string.h>
 
 #include "mp3.h"
 
@@ -33,9 +30,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "game_play.h"
+
 extern volatile uint8_t zigbee_joystick_message[Max_message_elemets];
 extern volatile uint8_t zigbee_gun_message[Max_message_elemets];
-static uint8_t game_level = 1;
 
 uint8_t change_song = 1;
 #ifdef DEF_TASK
@@ -55,6 +53,7 @@ static void gun_send_task(void *p);
 static void send_mp3_task(void *p);
 static void controller_object_display_task(void *p);
 static void game_play_level_monitor_task(void *p);
+static void graphics_life_object_manager_task(void *p);
 
 int main(void) {
   // create_blinky_tasks();
@@ -71,6 +70,8 @@ int main(void) {
   xTaskCreate(game_play_level_monitor_task, "Update game level", 4096 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   xTaskCreate(controller_object_display_task, "gun pointer, friend object display", 4096 / sizeof(void *), NULL,
               PRIORITY_MEDIUM, NULL);
+  xTaskCreate(graphics_life_object_manager_task, "manage life object", 1024 / sizeof(void *), NULL, PRIORITY_MEDIUM,
+              NULL);
 
   // Joystick related tasks
   // zigbee__comm_init(false);
@@ -111,13 +112,12 @@ void controller_object_display_task(void *p) {
 }
 
 void game_play_level_monitor_task(void *p) {
+  static uint32_t game_level_pause;
   while (1) {
-    if (game_level < 3)
-      game_level++;
-    else
-      game_level = 1;
+    game_level_pause = game_play__level_manager();
 
-    vTaskDelay(60 * 1000);
+    printf("Current level pause is %ld\n", game_level_pause);
+    vTaskDelay(game_level_pause);
   }
 }
 
@@ -131,47 +131,20 @@ void graphics_task(void *p) {
   static uint16_t game_play_speed = 100;
   while (1) {
 
-    switch (game_level) {
-    case 1:
-      game_play_speed = 100;
-      number_of_live_enemies = 5;
-      randomizer_objects_level_1();
-      break;
-
-    case 2:
-      game_play_speed = 70;
-      number_of_live_enemies = 8;
-      randomizer_objects_level_2();
-      break;
-
-    case 3:
-      number_of_live_enemies = 10;
-      game_play_speed = 50;
-      randomizer_objects_level_3();
-      break;
-
-    default:
-      break;
-    }
-
-    update_required_enemies_status(number_of_live_enemies);
-    // Clear previous data
-    led_matrix__clear_data_buffer();
-    // update_alive_enemies(number_of_live_enemies);
-    update_friend_location();
-
-    // Draw all the live objects
-    draw_from_structure();
-
-    // Detect the collision
-    collision_detection();
-    collision_detection_for_life();
-
+    game_play_speed = game_play__graphics_manager();
     // Update the score
     print_score(enemy_score, 1, 32, RED);
     print_score(life, 1, 0, GREEN);
 
     vTaskDelay(game_play_speed);
+    // vTaskDelay(100);
+  }
+}
+
+void graphics_life_object_manager_task(void *p) {
+  while (1) {
+    game_play__life_object_manager();
+    vTaskDelay(15 * 1000);
   }
 }
 

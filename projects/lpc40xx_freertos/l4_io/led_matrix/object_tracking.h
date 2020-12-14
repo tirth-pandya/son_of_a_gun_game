@@ -78,6 +78,11 @@ uint8_t set_bit_position(uint64_t temp);
 void update_friend_location();
 
 /**
- * This
+ * This function revives the given number of enemies required for the current game play level
  */
 void update_required_enemies_status(int number_of_enemies);
+
+/**
+ * This funciton revive the life object with probability assigned to each game play level
+ */
+void object_tracking__revive_life_object(void);

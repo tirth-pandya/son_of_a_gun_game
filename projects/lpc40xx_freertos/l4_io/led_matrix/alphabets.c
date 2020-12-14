@@ -33,7 +33,7 @@ void print_char(char *input_char, uint8_t row, uint8_t column, led_matrix__color
   for (it = 0; input_char[it] != 0; it++)
     ;
   len = it;
-  for (u_int8_t iterator = 0; iterator < 6; iterator++) {
+  for (uint8_t iterator = 0; iterator < 6; iterator++) {
 
     for (uint8_t char_iterator = 0; char_iterator < len; char_iterator++) {
 
