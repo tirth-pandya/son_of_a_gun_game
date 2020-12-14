@@ -43,7 +43,7 @@ void randomizer_objects_level_1() {
 
     onscreen_objects_struct[i].column--;
     if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71))
-      onscreen_objects_struct[i].column = 45 + (rand() % 18);
+      onscreen_objects_struct[i].column = 55 + (rand() % 8);
     // printf("%d %d %d\n", onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, i);
   }
 }
@@ -61,7 +61,7 @@ void randomizer_objects_level_2() {
 
     onscreen_objects_struct[i].column--;
     if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71))
-      onscreen_objects_struct[i].column = 63;
+      onscreen_objects_struct[i].column = 55 + (rand() % 8);
     // printf("%d %d %d\n", onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, i);
   }
 }
@@ -75,14 +75,11 @@ void randomizer_objects_level_3() {
     if ((onscreen_objects_struct[i].row < (row_boundary_upper - 8)) ||
         (onscreen_objects_struct[i].row > (row_boundary_lower + 8)))
       onscreen_objects_struct[i].row = row_boundary_upper + (rand() % (row_boundary_lower - row_boundary_upper));
-    random = rand() % 3;
-    random = random - 1;
+    random = rand() % 2;
+    random = random - 2;
     onscreen_objects_struct[i].column += random;
     if ((onscreen_objects_struct[i].column < -8) || (onscreen_objects_struct[i].column > 71)) {
-      if (i == 1)
-        onscreen_objects_struct[i].status = false;
-      else
-        onscreen_objects_struct[i].column = rand() % 63;
+      onscreen_objects_struct[i].column = 55 + (rand() % 8);
     }
     // printf("%d %d %d\n", onscreen_objects_struct[i].row, onscreen_objects_struct[i].column, i);
   }
@@ -114,7 +111,7 @@ void draw_from_structure() {
 
       case LIFE_OBJECT:
 
-        if (onscreen_objects_struct[i].row < 0) {
+        if (onscreen_objects_struct[i].column <= 0) {
           onscreen_objects_struct[i].status = false;
           break;
         }
@@ -290,7 +287,7 @@ void update_required_enemies_status(int number_of_enemies) {
   for (int i = 2; i < number_of_enemies + 2; i++) {
     if (onscreen_objects_struct[i].status == false) {
       onscreen_objects_struct[i].status = true;
-      onscreen_objects_struct[i].column = 63;
+      // onscreen_objects_struct[i].column = 63;
     }
   }
 }

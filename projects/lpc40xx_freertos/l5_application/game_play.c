@@ -13,12 +13,12 @@ uint32_t game_play__level_manager(void) {
   current_level = next_level;
   switch (current_level) {
   case STARTUP:
-    game_level_pause = 30 * 1000;
+    game_level_pause = 3 * 1000;
     next_level = LEVEL_1_TRANSITION;
     break;
 
   case LEVEL_1_TRANSITION:
-    game_level_pause = 10 * 1000;
+    game_level_pause = 1 * 1000;
     next_level = LEVEL_1;
     break;
 
@@ -28,22 +28,22 @@ uint32_t game_play__level_manager(void) {
     break;
 
   case LEVEL_2_TRANSITION:
-    game_level_pause = 10 * 1000;
+    game_level_pause = 1 * 1000;
     next_level = LEVEL_2;
     break;
 
   case LEVEL_2:
-    game_level_pause = 60 * 1000;
+    game_level_pause = 20 * 1000;
     next_level = LEVEL_3_TRANSITION;
     break;
 
   case LEVEL_3_TRANSITION:
-    game_level_pause = 10 * 1000;
+    game_level_pause = 1 * 1000;
     next_level = LEVEL_3;
     break;
 
   case LEVEL_3:
-    game_level_pause = 60 * 1000;
+    game_level_pause = 20 * 1000;
     next_level = GAME_WINNER;
     break;
 
@@ -53,17 +53,17 @@ uint32_t game_play__level_manager(void) {
     break;
 
   case LEVEL_4:
-    game_level_pause = 60 * 1000;
+    game_level_pause = 20 * 1000;
     next_level = GAME_WINNER;
     break;
 
   case GAME_WINNER:
-    game_level_pause = 30 * 1000;
+    game_level_pause = 3 * 1000;
     next_level = STARTUP;
     break;
 
   case GAME_OVER_LEVEL:
-    game_level_pause = 30 * 1000;
+    game_level_pause = 3 * 1000;
     next_level = STARTUP;
     break;
 
