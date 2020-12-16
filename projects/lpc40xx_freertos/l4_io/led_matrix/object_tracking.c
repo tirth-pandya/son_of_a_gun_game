@@ -328,13 +328,13 @@ void static_object_at_game_over() {
     } else if (i == 1) {
       onscreen_objects_struct[i].obj_nature = LIFE_OBJECT;
       onscreen_objects_struct[i].status = true;
-      onscreen_objects_struct[i].column = 20;
-      onscreen_objects_struct[i].row = 20;
+      onscreen_objects_struct[i].column = 28;
+      onscreen_objects_struct[i].row = 12;
     } else if (i == 2) {
       onscreen_objects_struct[i].obj_nature = ENEMY_OBJECT;
       onscreen_objects_struct[i].status = true;
-      onscreen_objects_struct[i].column = 30;
-      onscreen_objects_struct[i].row = 30;
+      onscreen_objects_struct[i].column = 40;
+      onscreen_objects_struct[i].row = 10;
     }
 
     // onscreen_objects_struct[i].obj_nature = rand() % 2;
