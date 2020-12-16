@@ -206,7 +206,7 @@ void send_mp3_task(void *p) {
 
       break;
     default:
-      vTaskDelay(4000);
+      vTaskDelay(400);
       break;
     }
   }

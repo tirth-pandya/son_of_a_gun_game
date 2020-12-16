@@ -99,7 +99,7 @@ void draw_from_structure() {
         }
 
         if ((onscreen_objects_struct[i].row > (row_boundary_lower - 8))) {
-          onscreen_objects_struct[i].row = row_boundary_lower;
+          onscreen_objects_struct[i].row = row_boundary_lower - 8;
         }
 
         draw_friend(onscreen_objects_struct[i].row, onscreen_objects_struct[i].column);
