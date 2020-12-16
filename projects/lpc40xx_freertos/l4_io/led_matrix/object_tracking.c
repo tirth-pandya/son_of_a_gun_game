@@ -3,7 +3,7 @@
 #include "mp3.h"
 #include "shapes.h"
 
-static uint8_t old_i = 20;
+static uint8_t old_i, old_j;
 static uint8_t first_moving_object = 1, first_enemy_object = 2;
 time_t t;
 struct object_details onscreen_objects_struct[number_of_objects];
@@ -120,6 +120,10 @@ void draw_from_structure() {
         draw_life(onscreen_objects_struct[i].row, onscreen_objects_struct[i].column);
         break;
 
+      case BLAST_ENEMY:
+        draw_blast(i, onscreen_objects_struct[i].row, onscreen_objects_struct[i].column);
+        break;
+
       default:
         break;
       }
@@ -146,6 +150,9 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y)) {
           onscreen_objects_struct[i].status = false;
           enemy_score++;
+          update_mp3_details(ENEMY_DEAD, enemydead_duration);
+          onscreen_objects_struct[i].obj_nature = BLAST_ENEMY;
+          draw_blast(i, onscreen_objects_struct[i].row, onscreen_objects_struct[i].column);
           // mp3__send_command(C_PLAY_FOLD_FILE, 0x0301);
           // printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
         }
@@ -201,11 +208,12 @@ void collision_detection() {
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
             ((onscreen_objects_struct[i].obj_nature) == ENEMY_OBJECT)) {
 
-          if (old_i != i) {
+          if (old_i != i && old_j != i) {
             // fprintf(stderr, "old_i %d i %d", old_i, i);
             life--;
             // update_mp3_details(GUNSHOT, gunshot_duration);
-            old_i = i;
+            old_i = old_j;
+            old_j = i;
           }
         }
       }
@@ -295,3 +303,15 @@ void update_required_enemies_status(int number_of_enemies) {
 }
 
 void object_tracking__revive_life_object(void) { onscreen_objects_struct[1].status = true; }
+
+void set_onscreen_object_details(int struct_pos, OBJECT_NATURE nature, bool status_onscreen) {
+  onscreen_objects_struct[struct_pos].obj_nature = nature;
+  onscreen_objects_struct[struct_pos].status = status_onscreen;
+}
+
+obj_details_s get_onscreen_object_details(int struct_pos) {
+  obj_details_s temp_details;
+  temp_details.obj_nat = onscreen_objects_struct[struct_pos].obj_nature;
+  temp_details.obj_stat = onscreen_objects_struct[struct_pos].status;
+  return temp_details;
+}

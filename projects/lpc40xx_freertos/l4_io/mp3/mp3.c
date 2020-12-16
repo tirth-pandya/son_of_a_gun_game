@@ -4,6 +4,7 @@
 
 const uint32_t default_bg_duration = 6000;
 const uint32_t gunshot_duration = 500;
+const uint32_t enemydead_duration = 200;
 static uint8_t mp3_uart_buffer[8];
 
 bool mp3__init() {

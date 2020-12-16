@@ -11,13 +11,18 @@ uint8_t life, enemy_score;
 
 // typedef void (*void_function_t)(int x, int y);
 
-typedef enum { FRIEND_OBJECT = 0, ENEMY_OBJECT, LIFE_OBJECT } OBJECT_NATURE;
+typedef enum { FRIEND_OBJECT = 0, ENEMY_OBJECT, LIFE_OBJECT, BLAST_ENEMY } OBJECT_NATURE;
 
 struct object_details {
   int row, column;
   OBJECT_NATURE obj_nature;
   bool status;
 };
+
+typedef struct obj_detail {
+  OBJECT_NATURE obj_nat;
+  bool obj_stat;
+} obj_details_s;
 
 /**
  *  Draw from structure accesses the structure elements to get the x,y co-ordinate
@@ -86,3 +91,7 @@ void update_required_enemies_status(int number_of_enemies);
  * This funciton revive the life object with probability assigned to each game play level
  */
 void object_tracking__revive_life_object(void);
+
+void set_onscreen_object_details(int struct_pos, OBJECT_NATURE nature, bool status_onscreen);
+
+obj_details_s get_onscreen_object_details(int struct_pos);

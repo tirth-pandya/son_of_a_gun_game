@@ -92,9 +92,29 @@ void draw_friend(int x, int y) {
   shape_update(x, y, friend_2, CYAN, FRIEND);
 }
 
-void draw_blast(int x, int y) {
-  shape_update(x, y, blast_1, RED, NONE);
-  shape_update(x, y, blast_2, YELLOW, NONE);
+// Always make status true first and false at the end and change object nature to ENEMY
+void draw_blast(int struct_pos, int x, int y) {
+  obj_details_s blast_obj_details;
+  blast_obj_details = get_onscreen_object_details(struct_pos);
+
+  if (blast_obj_details.obj_nat == BLAST_ENEMY) {
+    set_onscreen_object_details(struct_pos, blast_obj_details.obj_nat, true); // Status set to true
+    static int count_frame1 = 0, count_frame2 = 0;
+    if (count_frame1 < 3) {
+      shape_update(x, y, blast_1, RED, NONE);
+      // shape_update(x, y, blast_2, YELLOW, NONE);
+      count_frame1++;
+      count_frame2 = 0;
+    }
+    if (count_frame1 == 3 && count_frame2 < 3) {
+      shape_update(x, y, blast_2, GREEN, NONE);
+      count_frame2++;
+      if (count_frame2 == 2) {
+        count_frame1 = 0;
+        set_onscreen_object_details(struct_pos, ENEMY, false);
+      }
+    }
+  }
 }
 
 void draw_welcome(int x, int y) {
