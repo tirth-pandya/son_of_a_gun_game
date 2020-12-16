@@ -1,12 +1,19 @@
 #include "game_play.h"
+#include "FreeRTOS.h"
 #include "alphabets.h"
 #include "led_matrix.h"
 #include "object_tracking.h"
 #include "stdlib.h"
+#include "task.h"
 #include <stdbool.h>
 
 static game_play_level current_level = STARTUP;
 static game_play_level next_level = STARTUP;
+static uint8_t max_game_score = 00;
+
+static void update_max_score(uint16_t current_score) {
+  max_game_score = (max_game_score < current_score) ? current_score : max_game_score;
+}
 
 uint32_t game_play__level_manager(void) {
   uint32_t game_level_pause = 0;
@@ -23,7 +30,7 @@ uint32_t game_play__level_manager(void) {
     break;
 
   case LEVEL_1:
-    game_level_pause = 60 * 1000;
+    game_level_pause = 10 * 1000;
     next_level = LEVEL_2_TRANSITION;
     break;
 
@@ -33,7 +40,7 @@ uint32_t game_play__level_manager(void) {
     break;
 
   case LEVEL_2:
-    game_level_pause = 20 * 1000;
+    game_level_pause = 10 * 1000;
     next_level = LEVEL_3_TRANSITION;
     break;
 
@@ -82,9 +89,11 @@ uint32_t game_play__graphics_manager(void) {
   uint8_t col = 15;
   switch (current_level) {
   case STARTUP:
+    initialize_object_details();
     transition = true;
     led_matrix__clear_data_buffer();
     draw_welcome(5, 9);
+    print_score(max_game_score, 50, 31, RED);
     vTaskDelay(3000);
     break;
 
@@ -109,7 +118,7 @@ uint32_t game_play__graphics_manager(void) {
     led_matrix__clear_data_buffer();
     char level2_string[6] = "level";
     print_char(level2_string, row, col, RED);
-    char level2_number[3] = " 1";
+    char level2_number[3] = " 2";
     print_char(level2_number, row, col + 25, RED);
     break;
 
@@ -125,8 +134,9 @@ uint32_t game_play__graphics_manager(void) {
     led_matrix__clear_data_buffer();
     char level3_string[6] = "level";
     print_char(level3_string, row, col, RED);
-    char level3_number[3] = " 1";
+    char level3_number[3] = " 3";
     print_char(level3_number, row, col + 25, RED);
+    game_play__update_game_over_level();
     break;
 
   case LEVEL_3:
@@ -146,7 +156,9 @@ uint32_t game_play__graphics_manager(void) {
     break;
 
   case GAME_OVER_LEVEL:
+    transition = true;
 
+    led_matrix__clear_data_buffer();
     break;
 
   default:
@@ -170,6 +182,8 @@ uint32_t game_play__graphics_manager(void) {
     collision_detection();
     collision_detection_for_life();
   }
+  print_score(max_game_score, 58, 46, RED);
+  draw_crown(58, 36);
   return game_play_speed;
 }
 

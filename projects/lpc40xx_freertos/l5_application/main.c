@@ -67,7 +67,7 @@ int main(void) {
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(gun_shot_detect_task, "gun shot detected", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
-  xTaskCreate(game_play_level_monitor_task, "Update game level", 4096 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+  xTaskCreate(game_play_level_monitor_task, "Update_game_level", 4096 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   xTaskCreate(controller_object_display_task, "gun pointer, friend object display", 4096 / sizeof(void *), NULL,
               PRIORITY_MEDIUM, NULL);
   xTaskCreate(graphics_life_object_manager_task, "manage life object", 1024 / sizeof(void *), NULL, PRIORITY_MEDIUM,
@@ -123,7 +123,6 @@ void game_play_level_monitor_task(void *p) {
 
 void graphics_task(void *p) {
   graphics__turn_off_all_leds();
-  initialize_object_details();
 
   static uint8_t number_of_live_enemies;
 
@@ -132,8 +131,8 @@ void graphics_task(void *p) {
 
     game_play_speed = game_play__graphics_manager();
     // Update the score
-    print_score(enemy_score, 1, 32, RED);
-    print_score(life, 1, 0, GREEN);
+    print_score(enemy_score, 1, 40, RED);
+    print_score(life, 1, 8, GREEN);
 
     vTaskDelay(game_play_speed);
     // vTaskDelay(100);
