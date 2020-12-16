@@ -171,7 +171,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
 
         if (((onscreen_objects_struct[i].row) <= p) && ((onscreen_objects_struct[i].row) + 7 >= p) &&
             ((onscreen_objects_struct[i].column) <= q) && ((onscreen_objects_struct[i].column) + 7 >= q)) {
-          // onscreen_objects_struct[i].status = false;
+
           life--;
           if (life == 0) {
             // life--;
@@ -212,15 +212,14 @@ void collision_detection() {
         if (((onscreen_objects_struct[i].row) <= x) && ((onscreen_objects_struct[i].row) + 7 >= x) &&
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
             ((onscreen_objects_struct[i].obj_nature) == ENEMY_OBJECT)) {
-            life--;
+          life--;
+          onscreen_objects_struct[i].status = false;
         }
       }
 
       if (((onscreen_objects_struct[0].row) <= x) && ((onscreen_objects_struct[0].row) + 7 >= x) &&
           ((onscreen_objects_struct[0].column) <= y) && ((onscreen_objects_struct[0].column) + 7 >= y) &&
           ((onscreen_objects_struct[0].obj_nature) == FRIEND_OBJECT)) {
-
-            onscreen_objects_struct[0].status = false;
       }
     }
   }
