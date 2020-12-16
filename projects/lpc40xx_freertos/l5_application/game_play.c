@@ -30,7 +30,6 @@ uint32_t game_play__level_manager(void) {
   case LEVEL_1_TRANSITION:
     game_level_pause = 1 * 1000;
     next_level = LEVEL_1;
-    update_mp3_details(LEVEL_UP, levelup_duration);
     break;
 
   case LEVEL_1:
@@ -42,7 +41,6 @@ uint32_t game_play__level_manager(void) {
   case LEVEL_2_TRANSITION:
     game_level_pause = 1 * 1000;
     next_level = LEVEL_2;
-    update_mp3_details(LEVEL_UP, levelup_duration);
     break;
 
   case LEVEL_2:
@@ -53,7 +51,6 @@ uint32_t game_play__level_manager(void) {
   case LEVEL_3_TRANSITION:
     game_level_pause = 1 * 1000;
     next_level = LEVEL_3;
-    update_mp3_details(LEVEL_UP, levelup_duration);
     break;
 
   case LEVEL_3:
@@ -64,7 +61,6 @@ uint32_t game_play__level_manager(void) {
   case LEVEL_4_TRANSITION:
     game_level_pause = 10 * 1000;
     next_level = LEVEL_4;
-    update_mp3_details(LEVEL_UP, levelup_duration);
     break;
 
   case LEVEL_4:
@@ -80,7 +76,6 @@ uint32_t game_play__level_manager(void) {
   case GAME_OVER_LEVEL:
     game_level_pause = 3 * 1000;
     next_level = STARTUP;
-    update_mp3_details(GAME_OVER, gameover_duration);
     break;
 
   default:
@@ -108,6 +103,8 @@ uint32_t game_play__graphics_manager(void) {
   case LEVEL_1_TRANSITION:
     led_matrix__clear_data_buffer();
     transition = true;
+    update_mp3_details(LEVEL_UP, levelup_duration);
+
     char level1_string[6] = "level";
     print_char(level1_string, row, col, RED);
     char level1_number[3] = " 1";
@@ -123,6 +120,8 @@ uint32_t game_play__graphics_manager(void) {
 
   case LEVEL_2_TRANSITION:
     transition = true;
+    update_mp3_details(LEVEL_UP, levelup_duration);
+
     led_matrix__clear_data_buffer();
     char level2_string[6] = "level";
     print_char(level2_string, row, col, RED);
@@ -139,6 +138,8 @@ uint32_t game_play__graphics_manager(void) {
 
   case LEVEL_3_TRANSITION:
     transition = true;
+    update_mp3_details(LEVEL_UP, levelup_duration);
+
     led_matrix__clear_data_buffer();
     char level3_string[6] = "level";
     print_char(level3_string, row, col, RED);
@@ -161,10 +162,15 @@ uint32_t game_play__graphics_manager(void) {
 
   case GAME_OVER_LEVEL:
     transition = true;
+    update_mp3_details(GAME_OVER, gameover_duration);
+
     char level_over_string[10] = "game over";
     led_matrix__clear_data_buffer();
     print_char(level_over_string, row, 2, RED);
     update_max_score(enemy_score);
+    char your_score_string[11] = "score";
+    print_char(your_score_string, row + 8, 14, RED);
+    // print_score(enemy_score, row+8, 40, RED);
     break;
 
   default:
@@ -200,7 +206,7 @@ uint32_t game_play__graphics_manager(void) {
 
 void game_play__update_game_over_level(void) {
   current_level = GAME_OVER_LEVEL;
-  // next_level = STARTUP;
+  next_level = GAME_OVER_LEVEL;
 }
 
 void game_play__life_object_manager(void) {

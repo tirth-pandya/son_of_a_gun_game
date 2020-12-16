@@ -11,7 +11,7 @@ uint8_t life, enemy_score;
 
 void initialize_object_details() {
   int random;
-  life = 50;
+  life = 10;
   enemy_score = 0;
   // void_function_t draw_enemy_pointer = &draw_enemy;
   for (int i = 0; i < number_of_objects; i++) {
@@ -145,7 +145,7 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
     // led_matrix__set_pixel(x, 63 - y, RED);
 
     if (temp != 0) {
-      for (uint8_t i = 0; i < number_of_objects; i++) {
+      for (uint8_t i = 2; i < number_of_objects; i++) {
 
         if (((onscreen_objects_struct[i].row) <= x) && ((onscreen_objects_struct[i].row) + 7 >= x) &&
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y)) {
@@ -171,9 +171,13 @@ void detect_click(uint8_t p, uint8_t q, uint8_t hit) {
 
         if (((onscreen_objects_struct[i].row) <= p) && ((onscreen_objects_struct[i].row) + 7 >= p) &&
             ((onscreen_objects_struct[i].column) <= q) && ((onscreen_objects_struct[i].column) + 7 >= q)) {
-          onscreen_objects_struct[i].status = false;
+          // onscreen_objects_struct[i].status = false;
           life--;
-
+          if (life == 0) {
+            // life--;
+            onscreen_objects_struct[0].status = false;
+            game_play__update_game_over_level();
+          }
           // mp3__send_command(C_PLAY_W_VOL, 0x1e01);
           // printf("Friendly kill left %d Enemy Killed %d\n", life, enemy_score);
           // print_score(enemy_score, 0, 32);
@@ -212,6 +216,11 @@ void collision_detection() {
           if (old_i != i && old_j != i) {
             // fprintf(stderr, "old_i %d i %d", old_i, i);
             life--;
+            if (life == 0) {
+              // life--;
+              onscreen_objects_struct[0].status = false;
+              game_play__update_game_over_level();
+            }
             // update_mp3_details(GUNSHOT, gunshot_duration);
             old_i = old_j;
             old_j = i;
@@ -222,12 +231,6 @@ void collision_detection() {
       if (((onscreen_objects_struct[0].row) <= x) && ((onscreen_objects_struct[0].row) + 7 >= x) &&
           ((onscreen_objects_struct[0].column) <= y) && ((onscreen_objects_struct[0].column) + 7 >= y) &&
           ((onscreen_objects_struct[0].obj_nature) == FRIEND_OBJECT)) {
-
-        if (life == 0) {
-          // life--;
-          onscreen_objects_struct[0].status = false;
-          game_play__update_game_over_level();
-        }
       }
     }
   }
