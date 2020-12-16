@@ -256,8 +256,14 @@ void print_score(uint8_t score, uint8_t x, uint8_t y, led_matrix__color_e shape_
 }
 
 void draw_road() {
+  uint64_t temp;
   static uint64_t solid_road = -1;
+  static uint64_t dashed_road = 0xFF00FF00FF00FF00;
   led_matrix__set_row_data(row_boundary_upper, WHITE, solid_road);
   led_matrix__set_row_data(row_boundary_lower, WHITE, solid_road);
-  led_matrix__set_row_data((row_boundary_lower + row_boundary_upper) / 2, WHITE, solid_road);
+
+  temp = dashed_road >> 63;
+  dashed_road = dashed_road << 1;
+  dashed_road = dashed_road | temp;
+  led_matrix__set_row_data((row_boundary_lower + row_boundary_upper) / 2, WHITE, dashed_road);
 }

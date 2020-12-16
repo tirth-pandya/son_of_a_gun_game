@@ -155,9 +155,11 @@ uint32_t game_play__graphics_manager(void) {
   if (!transition) {
     update_required_enemies_status(number_of_live_enemies);
     // Clear previous data
+
     led_matrix__clear_data_buffer();
     // update_alive_enemies(number_of_live_enemies);
     update_friend_location();
+    draw_road();
 
     // Draw all the live objects
     draw_from_structure();
