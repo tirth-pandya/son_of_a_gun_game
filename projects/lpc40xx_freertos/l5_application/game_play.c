@@ -84,6 +84,8 @@ uint32_t game_play__graphics_manager(void) {
   case STARTUP:
     transition = true;
     led_matrix__clear_data_buffer();
+    draw_welcome(5, 9);
+    vTaskDelay(3000);
     break;
 
   case LEVEL_1_TRANSITION:
