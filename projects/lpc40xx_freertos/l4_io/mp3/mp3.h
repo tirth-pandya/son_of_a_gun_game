@@ -36,9 +36,9 @@ _____________|_____________
 
 #define C_D_NONE 0x00
 
-typedef enum { DEFAULT_BG = 0, GUNSHOT = 1, ENEMY_DEAD, GAME_OVER, MAX_TRACK } MP3_SOUNDS;
+typedef enum { DEFAULT_BG = 0, GUNSHOT = 1, ENEMY_DEAD, LEVEL_UP, GAME_OVER, MAX_TRACK } MP3_SOUNDS;
 
-const uint32_t default_bg_duration, gunshot_duration, enemydead_duration;
+const uint32_t default_bg_duration, gunshot_duration, enemydead_duration, levelup_duration, gameover_duration;
 
 typedef struct {
   MP3_SOUNDS mp3_to_play;

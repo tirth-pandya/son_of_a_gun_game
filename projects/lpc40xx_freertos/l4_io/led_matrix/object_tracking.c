@@ -7,6 +7,7 @@ static uint8_t old_i, old_j;
 static uint8_t first_moving_object = 1, first_enemy_object = 2;
 time_t t;
 struct object_details onscreen_objects_struct[number_of_objects];
+uint8_t life, enemy_score;
 
 void initialize_object_details() {
   int random;
@@ -295,9 +296,9 @@ void update_friend_location() {
 
 void update_required_enemies_status(int number_of_enemies) {
   for (int i = 2; i < number_of_enemies + 2; i++) {
-    if (onscreen_objects_struct[i].status == false) {
+    if ((onscreen_objects_struct[i].status == false) && (onscreen_objects_struct[i].obj_nature != BLAST_ENEMY)) {
       onscreen_objects_struct[i].status = true;
-      // onscreen_objects_struct[i].column = 63;
+      onscreen_objects_struct[i].column = 55 + (rand() % 8);
     }
   }
 }

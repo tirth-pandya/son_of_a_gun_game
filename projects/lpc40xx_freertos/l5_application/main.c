@@ -130,9 +130,6 @@ void graphics_task(void *p) {
   while (1) {
 
     game_play_speed = game_play__graphics_manager();
-    // Update the score
-    print_score(enemy_score, 1, 40, RED);
-    print_score(life, 1, 8, GREEN);
 
     vTaskDelay(game_play_speed);
     // vTaskDelay(100);
@@ -188,12 +185,24 @@ void send_mp3_task(void *p) {
       update_mp3_details(DEFAULT_BG, default_bg_duration - 100);
       break;
 
-    case ENEMY_DEAD:
-      mp3__send_command(C_PLAY_FOLD_FILE, 0x0301);
+      // case ENEMY_DEAD:
+      //   mp3__send_command(C_PLAY_FOLD_FILE, 0x0401);
+      //   vTaskDelay(mp3_details.mp3_duration);
+      //   change_song = 1;
+      //   update_mp3_details(DEFAULT_BG, default_bg_duration - 100);
+      //   break;
+    case LEVEL_UP:
+      mp3__send_command(C_PLAY_FOLD_FILE, 0x0501);
       vTaskDelay(mp3_details.mp3_duration);
       change_song = 1;
       update_mp3_details(DEFAULT_BG, default_bg_duration - 100);
+      break;
 
+    case GAME_OVER:
+      mp3__send_command(C_PLAY_FOLD_FILE, 0x0601);
+      vTaskDelay(mp3_details.mp3_duration);
+      change_song = 0;
+      break;
     default:
       vTaskDelay(4000);
       break;

@@ -7,8 +7,6 @@
 
 #define number_of_objects 15
 
-uint8_t life, enemy_score;
-
 // typedef void (*void_function_t)(int x, int y);
 
 typedef enum { FRIEND_OBJECT = 0, ENEMY_OBJECT, LIFE_OBJECT, BLAST_ENEMY } OBJECT_NATURE;

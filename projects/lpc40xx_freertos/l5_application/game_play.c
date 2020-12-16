@@ -2,10 +2,13 @@
 #include "FreeRTOS.h"
 #include "alphabets.h"
 #include "led_matrix.h"
+#include "mp3.h"
 #include "object_tracking.h"
 #include "stdlib.h"
 #include "task.h"
 #include <stdbool.h>
+
+extern uint8_t life, enemy_score;
 
 static game_play_level current_level = STARTUP;
 static game_play_level next_level = STARTUP;
@@ -20,23 +23,26 @@ uint32_t game_play__level_manager(void) {
   current_level = next_level;
   switch (current_level) {
   case STARTUP:
-    game_level_pause = 3 * 1000;
+    game_level_pause = 15 * 1000;
     next_level = LEVEL_1_TRANSITION;
     break;
 
   case LEVEL_1_TRANSITION:
     game_level_pause = 1 * 1000;
     next_level = LEVEL_1;
+    update_mp3_details(LEVEL_UP, levelup_duration);
     break;
 
   case LEVEL_1:
     game_level_pause = 10 * 1000;
     next_level = LEVEL_2_TRANSITION;
+
     break;
 
   case LEVEL_2_TRANSITION:
     game_level_pause = 1 * 1000;
     next_level = LEVEL_2;
+    update_mp3_details(LEVEL_UP, levelup_duration);
     break;
 
   case LEVEL_2:
@@ -47,6 +53,7 @@ uint32_t game_play__level_manager(void) {
   case LEVEL_3_TRANSITION:
     game_level_pause = 1 * 1000;
     next_level = LEVEL_3;
+    update_mp3_details(LEVEL_UP, levelup_duration);
     break;
 
   case LEVEL_3:
@@ -57,6 +64,7 @@ uint32_t game_play__level_manager(void) {
   case LEVEL_4_TRANSITION:
     game_level_pause = 10 * 1000;
     next_level = LEVEL_4;
+    update_mp3_details(LEVEL_UP, levelup_duration);
     break;
 
   case LEVEL_4:
@@ -72,6 +80,7 @@ uint32_t game_play__level_manager(void) {
   case GAME_OVER_LEVEL:
     game_level_pause = 3 * 1000;
     next_level = STARTUP;
+    update_mp3_details(GAME_OVER, gameover_duration);
     break;
 
   default:
@@ -83,7 +92,7 @@ uint32_t game_play__level_manager(void) {
 uint32_t game_play__graphics_manager(void) {
 
   static uint8_t number_of_live_enemies;
-  static uint16_t game_play_speed = 100;
+  static uint16_t game_play_speed = 50;
   bool transition = false;
   uint8_t row = 28;
   uint8_t col = 15;
@@ -94,7 +103,6 @@ uint32_t game_play__graphics_manager(void) {
     led_matrix__clear_data_buffer();
     draw_welcome(5, 9);
     print_score(max_game_score, 50, 31, RED);
-    vTaskDelay(3000);
     break;
 
   case LEVEL_1_TRANSITION:
@@ -136,7 +144,6 @@ uint32_t game_play__graphics_manager(void) {
     print_char(level3_string, row, col, RED);
     char level3_number[3] = " 3";
     print_char(level3_number, row, col + 25, RED);
-    game_play__update_game_over_level();
     break;
 
   case LEVEL_3:
@@ -149,16 +156,15 @@ uint32_t game_play__graphics_manager(void) {
   case GAME_WINNER:
     transition = true;
     led_matrix__clear_data_buffer();
-    // char level1_string[6] = "level";
-    // print_char(level1_string, row, col, RED);
-    // char level_number[3] = " 1";
-    // print_char(level_number, row, col + 25, RED);
+    update_max_score(enemy_score);
     break;
 
   case GAME_OVER_LEVEL:
     transition = true;
-
+    char level_over_string[10] = "game over";
     led_matrix__clear_data_buffer();
+    print_char(level_over_string, row, 2, RED);
+    update_max_score(enemy_score);
     break;
 
   default:
@@ -181,15 +187,20 @@ uint32_t game_play__graphics_manager(void) {
     // Detect the collision
     collision_detection();
     collision_detection_for_life();
+
+    print_score(max_game_score, 58, 46, RED);
+    draw_crown(58, 36);
+
+    // Update the score
+    print_score(enemy_score, 1, 40, RED);
+    print_score(life, 1, 8, GREEN);
   }
-  print_score(max_game_score, 58, 46, RED);
-  draw_crown(58, 36);
   return game_play_speed;
 }
 
 void game_play__update_game_over_level(void) {
   current_level = GAME_OVER_LEVEL;
-  next_level = STARTUP;
+  // next_level = STARTUP;
 }
 
 void game_play__life_object_manager(void) {
