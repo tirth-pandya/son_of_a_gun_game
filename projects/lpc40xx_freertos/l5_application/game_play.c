@@ -89,6 +89,7 @@ uint32_t game_play__graphics_manager(void) {
   static uint8_t number_of_live_enemies;
   static uint16_t game_play_speed = 50;
   bool transition = false;
+  bool game_over_music_once = false;
   uint8_t row = 28;
   uint8_t col = 15;
   switch (current_level) {
@@ -98,6 +99,7 @@ uint32_t game_play__graphics_manager(void) {
     led_matrix__clear_data_buffer();
     draw_welcome(5, 9);
     print_score(max_game_score, 50, 31, RED);
+    game_over_music_once = false;
     break;
 
   case LEVEL_1_TRANSITION:
@@ -162,7 +164,11 @@ uint32_t game_play__graphics_manager(void) {
 
   case GAME_OVER_LEVEL:
     transition = true;
-    update_mp3_details(GAME_OVER, gameover_duration);
+    if (!game_over_music_once) {
+      update_mp3_details(GAME_OVER, gameover_duration);
+      game_over_music_once = true;
+    } else
+      update_mp3_details(MAX_TRACK, gameover_duration);
 
     char level_over_string[10] = "game over";
     led_matrix__clear_data_buffer();
@@ -171,6 +177,7 @@ uint32_t game_play__graphics_manager(void) {
     char your_score_string[11] = "score";
     print_char(your_score_string, row + 8, 14, RED);
     // print_score(enemy_score, row+8, 40, RED);
+    game_play_speed = 400;
     break;
 
   default:
@@ -206,7 +213,7 @@ uint32_t game_play__graphics_manager(void) {
 
 void game_play__update_game_over_level(void) {
   current_level = GAME_OVER_LEVEL;
-  next_level = GAME_OVER_LEVEL;
+  next_level = STARTUP;
 }
 
 void game_play__life_object_manager(void) {
