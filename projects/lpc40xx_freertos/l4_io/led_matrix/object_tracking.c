@@ -3,7 +3,6 @@
 #include "mp3.h"
 #include "shapes.h"
 
-static uint8_t old_i, old_j;
 static uint8_t first_moving_object = 1, first_enemy_object = 2;
 time_t t;
 struct object_details onscreen_objects_struct[number_of_objects];
@@ -215,6 +214,11 @@ void collision_detection() {
           life--;
           friend_got_hurt = true;
           onscreen_objects_struct[i].status = false;
+          if (life == 0) {
+            // life--;
+            onscreen_objects_struct[0].status = false;
+            game_play__update_game_over_level();
+          }
         }
       }
 
