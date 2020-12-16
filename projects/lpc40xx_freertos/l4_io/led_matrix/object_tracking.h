@@ -3,7 +3,7 @@
 #include "zigbee.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include <time.h>
+//#include <time.h>
 
 #define number_of_objects 15
 
@@ -55,6 +55,11 @@ void randomizer_objects_level_2();
  * This is idially executed once as it is an initialize function.
  */
 void initialize_object_details();
+
+/**
+ * Static objects when game is over
+ */
+void static_object_at_game_over();
 
 /**
  * Detect the click from the gun.

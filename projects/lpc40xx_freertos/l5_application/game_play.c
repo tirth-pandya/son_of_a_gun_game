@@ -170,6 +170,8 @@ uint32_t game_play__graphics_manager(void) {
     led_matrix__clear_data_buffer();
     print_char(level_over_string, row, 2, RED);
     update_max_score(enemy_score);
+    static_object_at_game_over();
+    draw_from_structure();
     char your_score_string[11] = "score";
     print_char(your_score_string, row + 8, 14, BLUE);
     print_score(enemy_score, row + 8, 44, BLUE);

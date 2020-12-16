@@ -8,6 +8,7 @@ time_t t;
 struct object_details onscreen_objects_struct[number_of_objects];
 uint8_t life, enemy_score;
 bool friend_got_hurt = false;
+
 void initialize_object_details() {
   int random;
   life = 10;
@@ -312,4 +313,30 @@ obj_details_s get_onscreen_object_details(int struct_pos) {
   temp_details.obj_nat = onscreen_objects_struct[struct_pos].obj_nature;
   temp_details.obj_stat = onscreen_objects_struct[struct_pos].status;
   return temp_details;
+}
+
+void static_object_at_game_over() {
+
+  for (int i = 0; i < number_of_objects; i++) {
+
+    onscreen_objects_struct[i].status = false;
+    if (i == 0) {
+      onscreen_objects_struct[i].status = true;
+      onscreen_objects_struct[i].obj_nature = FRIEND_OBJECT;
+      onscreen_objects_struct[i].column = 10;
+      onscreen_objects_struct[i].row = 10;
+    } else if (i == 1) {
+      onscreen_objects_struct[i].obj_nature = LIFE_OBJECT;
+      onscreen_objects_struct[i].status = true;
+      onscreen_objects_struct[i].column = 28;
+      onscreen_objects_struct[i].row = 12;
+    } else if (i == 2) {
+      onscreen_objects_struct[i].obj_nature = ENEMY_OBJECT;
+      onscreen_objects_struct[i].status = true;
+      onscreen_objects_struct[i].column = 40;
+      onscreen_objects_struct[i].row = 10;
+    }
+
+    // onscreen_objects_struct[i].obj_nature = rand() % 2;
+  }
 }
