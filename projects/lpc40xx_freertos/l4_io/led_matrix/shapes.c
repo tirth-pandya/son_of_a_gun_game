@@ -59,6 +59,9 @@ const uint8_t S_1[8] = {0x00, 0x00, 0x03, 0x07, 0x0c, 0x0c, 0x0c, 0x07},
 // sO_3[8] = {0x3e, 0x1c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 // sO_4[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 
+const uint8_t crown_1[8] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+              crown_2[8] = {0x11, 0x92, 0xd6, 0xfe, 0x00, 0xfe, 0x00, 0x00};
+
 const int row_boundary_upper = 20, row_boundary_lower = 50;
 
 void draw_life(int x, int y) { shape_update(x, y, heart, RED, LIFE); }
@@ -141,10 +144,17 @@ void draw_welcome(int x, int y) {
   shape_update(x + 48, y - 5, gl3, WHITE, NONE);
   shape_update(x + 48, y + 3, gl4, WHITE, NONE);
 
+  draw_crown(x + 45, y + 12);
+
   shape_update(x + 40, y + 33, gr1, WHITE, NONE);
   shape_update(x + 40, y + 41, gr2, WHITE, NONE);
   shape_update(x + 48, y + 33, gr3, WHITE, NONE);
   shape_update(x + 48, y + 41, gr4, WHITE, NONE);
+}
+
+void draw_crown(int x, int y) {
+  shape_update(x, y - 8, crown_1, YELLOW, NONE);
+  shape_update(x, y, crown_2, YELLOW, NONE);
 }
 /**
  * This function first cleares the RGB plane where the object is to be placed.
@@ -244,13 +254,13 @@ void shape_update(int row, int column, const uint8_t *shape, led_matrix__color_e
 
 void print_score(uint8_t score, uint8_t x, uint8_t y, led_matrix__color_e shape_color) {
   int temp_int = 0;
-  char temp_char[3];
+  char temp_char[2];
 
   temp_int = score % 10;
-  temp_char[2] = temp_int + '0'; // temp_int + '0';
+  temp_char[1] = temp_int + '0';
 
   temp_int = score / 10;
-  temp_char[1] = temp_int + '0';
+  temp_char[0] = temp_int + '0';
 
   print_char(temp_char, x, y, shape_color);
 }

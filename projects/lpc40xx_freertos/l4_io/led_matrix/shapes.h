@@ -45,3 +45,8 @@ void draw_welcome(int x, int y);
  *Draw the road static object on screen
  **/
 void draw_road();
+
+/**
+ *
+ */
+void draw_crown(int x, int y);
