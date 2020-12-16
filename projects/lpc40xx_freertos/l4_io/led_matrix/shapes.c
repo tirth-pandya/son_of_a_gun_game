@@ -92,6 +92,11 @@ void draw_friend(int x, int y) {
   shape_update(x, y, friend_2, CYAN, FRIEND);
 }
 
+void draw_blast(int x, int y) {
+  shape_update(x, y, blast_1, RED, NONE);
+  shape_update(x, y, blast_2, YELLOW, NONE);
+}
+
 void draw_welcome(int x, int y) {
   shape_update(x, y, S_1, RED, NONE);
   shape_update(x, y + 8, S_2, RED, NONE);
