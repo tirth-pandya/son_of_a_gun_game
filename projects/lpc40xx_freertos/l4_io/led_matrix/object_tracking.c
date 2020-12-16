@@ -94,8 +94,8 @@ void draw_from_structure() {
 
       case FRIEND_OBJECT:
 
-        if ((onscreen_objects_struct[i].row < (row_boundary_upper))) {
-          onscreen_objects_struct[i].row = row_boundary_upper;
+        if ((onscreen_objects_struct[i].row < (row_boundary_upper - 6))) {
+          onscreen_objects_struct[i].row = row_boundary_upper - 6;
         }
 
         if ((onscreen_objects_struct[i].row > (row_boundary_lower - 8))) {
