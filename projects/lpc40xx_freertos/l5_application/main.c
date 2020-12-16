@@ -61,8 +61,8 @@ int main(void) {
 
   // LED Matrix tasks
   zigbee__comm_init(true);
-  // mp3__init();
-  // xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
+  mp3__init();
+  xTaskCreate(send_mp3_task, "uart", 2048 / sizeof(void *), NULL, PRIORITY_MEDIUM, NULL);
   xTaskCreate(display_task, "display", 1024 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
   xTaskCreate(graphics_task, "graphics", 1024 / sizeof(void *), NULL, PRIORITY_LOW, NULL);
   xTaskCreate(receive_zigbee_task, "zigbee_receive", 2048 / sizeof(void *), NULL, PRIORITY_HIGH, NULL);
@@ -124,8 +124,7 @@ void game_play_level_monitor_task(void *p) {
 void graphics_task(void *p) {
   graphics__turn_off_all_leds();
   initialize_object_details();
-  draw_welcome(5, 9);
-  vTaskDelay(3000);
+
   static uint8_t number_of_live_enemies;
 
   static uint16_t game_play_speed = 100;

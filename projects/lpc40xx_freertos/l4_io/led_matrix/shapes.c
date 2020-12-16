@@ -53,7 +53,7 @@ const uint8_t S_1[8] = {0x00, 0x00, 0x03, 0x07, 0x0c, 0x0c, 0x0c, 0x07},
               gr1[8] = {0x0c, 0x12, 0x11, 0x08, 0x04, 0x02, 0x01, 0x01},
               gr2[8] = {0x00, 0x00, 0x00, 0x80, 0x40, 0x20, 0x10, 0x88},
               gr3[8] = {0x02, 0x01, 0x00, 000, 0x01, 0x02, 0x01, 0x00},
-              gr4[8] = {0x44, 0x42, 0xc2, 0x8c, 0x18, 030, 0x60, 0xc0};
+              gr4[8] = {0x44, 0x42, 0xc2, 0x8c, 0x18, 0x30, 0x60, 0xc0};
 // sO_1[8] = {0x1c, 0x3e, 0x41, 0xc1, 0xc1, 0xc1, 0xc1, 0x41},
 // sO_2[8] = {0x00, 0x00, 0x00, 0x80, 0x80, 0x80, 0x80, 0x00},
 // sO_3[8] = {0x3e, 0x1c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
@@ -106,20 +106,20 @@ void draw_welcome(int x, int y) {
   shape_update(x + 8, y + 24, N_3, YELLOW, NONE);
   shape_update(x + 8, y + 32, N_4, YELLOW, NONE);
 
-  shape_update(x + 17, y + 5, sO_1, MAGENTA, NONE);
-  shape_update(x + 17, y + 13, sO_2, MAGENTA, NONE);
-  shape_update(x + 25, y + 5, sO_3, CYAN, NONE);
-  shape_update(x + 25, y + 13, sO_4, CYAN, NONE);
+  shape_update(x + 16, y + 5, sO_1, MAGENTA, NONE);
+  shape_update(x + 16, y + 13, sO_2, MAGENTA, NONE);
+  shape_update(x + 24, y + 5, sO_3, CYAN, NONE);
+  shape_update(x + 24, y + 13, sO_4, CYAN, NONE);
 
-  shape_update(x + 17, y + 15, sF_1, MAGENTA, NONE);
-  shape_update(x + 17, y + 23, sF_2, MAGENTA, NONE);
-  shape_update(x + 25, y + 15, sF_3, CYAN, NONE);
-  shape_update(x + 25, y + 23, sF_4, CYAN, NONE);
+  shape_update(x + 16, y + 15, sF_1, MAGENTA, NONE);
+  shape_update(x + 16, y + 23, sF_2, MAGENTA, NONE);
+  shape_update(x + 24, y + 15, sF_3, CYAN, NONE);
+  shape_update(x + 24, y + 23, sF_4, CYAN, NONE);
 
-  shape_update(x + 17, y + 29, sA_1, MAGENTA, NONE);
-  shape_update(x + 17, y + 37, sA_2, MAGENTA, NONE);
-  shape_update(x + 25, y + 29, sA_3, CYAN, NONE);
-  shape_update(x + 25, y + 37, sA_4, CYAN, NONE);
+  shape_update(x + 16, y + 29, sA_1, MAGENTA, NONE);
+  shape_update(x + 16, y + 37, sA_2, MAGENTA, NONE);
+  shape_update(x + 24, y + 29, sA_3, CYAN, NONE);
+  shape_update(x + 24, y + 37, sA_4, CYAN, NONE);
 
   shape_update(x + 26, y, G_1, RED, NONE);
   shape_update(x + 26, y + 8, G_2, RED, NONE);
