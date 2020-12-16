@@ -1,8 +1,9 @@
 #include "object_tracking.h"
+#include "game_play.h"
 #include "mp3.h"
 #include "shapes.h"
 
-static uint8_t old_i = 50;
+static uint8_t old_i = 20;
 static uint8_t first_moving_object = 1, first_enemy_object = 2;
 time_t t;
 struct object_details onscreen_objects_struct[number_of_objects];
@@ -216,6 +217,7 @@ void collision_detection() {
         if (life == 0) {
           // life--;
           onscreen_objects_struct[0].status = false;
+          game_play__update_game_over_level();
         }
       }
     }

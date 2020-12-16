@@ -32,3 +32,5 @@ uint32_t game_play__graphics_manager(void);
  * on the given priority for each game play level.
  */
 void game_play__life_object_manager(void);
+
+void game_play__update_game_over_level(void);

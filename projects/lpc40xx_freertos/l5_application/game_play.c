@@ -135,7 +135,7 @@ uint32_t game_play__graphics_manager(void) {
     break;
 
   case GAME_WINNER:
-    transition = false;
+    transition = true;
     led_matrix__clear_data_buffer();
     // char level1_string[6] = "level";
     // print_char(level1_string, row, col, RED);

@@ -1,7 +1,7 @@
 #include "graphics.h"
 #include <stdint.h>
 
-const data_size ALL_LEDS_ON = 0xFFFFFFFFFFFFFFFF;
+const data_size ALL_LEDS_ON = -1;
 const data_size ALL_LEDS_OFF = 0x00;
 
 void graphics__turn_on_all_leds(led_matrix__color_e color) { led_matrix__fill_data_buffer(ALL_LEDS_ON, color); }
