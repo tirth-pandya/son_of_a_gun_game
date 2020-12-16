@@ -212,19 +212,8 @@ void collision_detection() {
         if (((onscreen_objects_struct[i].row) <= x) && ((onscreen_objects_struct[i].row) + 7 >= x) &&
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
             ((onscreen_objects_struct[i].obj_nature) == ENEMY_OBJECT)) {
-
-          if (old_i != i && old_j != i) {
-            // fprintf(stderr, "old_i %d i %d", old_i, i);
             life--;
-            if (life == 0) {
-              // life--;
-              onscreen_objects_struct[0].status = false;
-              game_play__update_game_over_level();
-            }
-            // update_mp3_details(GUNSHOT, gunshot_duration);
-            old_i = old_j;
-            old_j = i;
-          }
+            onscreen_objects_struct[0].status = false;
         }
       }
 
