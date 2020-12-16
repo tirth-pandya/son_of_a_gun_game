@@ -201,7 +201,9 @@ void send_mp3_task(void *p) {
     case GAME_OVER:
       mp3__send_command(C_PLAY_FOLD_FILE, 0x0601);
       vTaskDelay(mp3_details.mp3_duration);
-      change_song = 0;
+      change_song = 1;
+      update_mp3_details(DEFAULT_BG, default_bg_duration - 100);
+
       break;
     default:
       vTaskDelay(4000);
