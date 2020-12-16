@@ -93,3 +93,5 @@ void object_tracking__revive_life_object(void);
 void set_onscreen_object_details(int struct_pos, OBJECT_NATURE nature, bool status_onscreen);
 
 obj_details_s get_onscreen_object_details(int struct_pos);
+
+extern bool friend_got_hurt;

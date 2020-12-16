@@ -8,7 +8,7 @@ static uint8_t first_moving_object = 1, first_enemy_object = 2;
 time_t t;
 struct object_details onscreen_objects_struct[number_of_objects];
 uint8_t life, enemy_score;
-
+bool friend_got_hurt = false;
 void initialize_object_details() {
   int random;
   life = 10;
@@ -213,6 +213,7 @@ void collision_detection() {
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
             ((onscreen_objects_struct[i].obj_nature) == ENEMY_OBJECT)) {
           life--;
+          friend_got_hurt = true;
           onscreen_objects_struct[i].status = false;
         }
       }

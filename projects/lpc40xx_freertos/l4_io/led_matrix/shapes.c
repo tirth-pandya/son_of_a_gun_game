@@ -81,15 +81,29 @@ void draw_friend(int x, int y) {
 
   static int count_frame = 0, count_frame2 = 0;
   if (count_frame < 10) {
-    shape_update(x, y, friend_w2, YELLOW, FRIEND);
+    if (friend_got_hurt == false) {
+      shape_update(x, y, friend_w2, YELLOW, FRIEND);
+    } else {
+      shape_update(x, y, friend_w2, MAGENTA, FRIEND);
+    }
+
     count_frame++;
     count_frame2 = 0;
   }
   if (count_frame == 10 && count_frame2 < 10) {
-    shape_update(x, y, friend_w1, YELLOW, FRIEND);
+
+    if (friend_got_hurt == false) {
+      shape_update(x, y, friend_w1, YELLOW, FRIEND);
+    } else {
+      shape_update(x, y, friend_w1, MAGENTA, FRIEND);
+    }
+
     count_frame2++;
     if (count_frame2 == 9)
       count_frame = 0;
+    if (friend_got_hurt == true) {
+      friend_got_hurt = false;
+    }
   }
   // shape_update(10, 10, heart, RED, FRIEND);
   shape_update(x, y, friend_2, CYAN, FRIEND);
