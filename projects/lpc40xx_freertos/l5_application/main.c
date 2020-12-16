@@ -56,6 +56,8 @@ static void game_play_level_monitor_task(void *p);
 static void graphics_life_object_manager_task(void *p);
 
 int main(void) {
+  srand(time(0));
+
   // create_blinky_tasks();
   // create_uart_task();
 
