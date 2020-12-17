@@ -306,6 +306,9 @@ void object_tracking__revive_life_object(void) { onscreen_objects_struct[1].stat
 void set_onscreen_object_details(int struct_pos, OBJECT_NATURE nature, bool status_onscreen) {
   onscreen_objects_struct[struct_pos].obj_nature = nature;
   onscreen_objects_struct[struct_pos].status = status_onscreen;
+  if (nature == LIFE_OBJECT) {
+    onscreen_objects_struct[struct_pos].column = 63;
+  }
 }
 
 obj_details_s get_onscreen_object_details(int struct_pos) {

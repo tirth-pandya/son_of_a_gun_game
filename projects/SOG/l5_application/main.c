@@ -58,9 +58,6 @@ static void graphics_life_object_manager_task(void *p);
 int main(void) {
   srand(time(0));
 
-  // create_blinky_tasks();
-  // create_uart_task();
-
   // LED Matrix tasks
   zigbee__comm_init(true);
   mp3__init();
@@ -105,7 +102,7 @@ void display_task(void *p) {
 
 void controller_object_display_task(void *p) {
   while (1) {
-    shape_update(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], cursor, GREEN, NONE);
+    shape_update(zigbee_gun_message[X_coord], zigbee_gun_message[Y_coord], cursor, WHITE, NONE);
     // led_matrix__set_pixel(zigbee_gun_message[X_coord], 63 - zigbee_gun_message[Y_coord], RED);
     // shape_update(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord], enemy_3, BLUE, FRIEND);
     // draw_friend(zigbee_joystick_message[X_coord], zigbee_joystick_message[Y_coord]);
@@ -134,14 +131,13 @@ void graphics_task(void *p) {
     game_play_speed = game_play__graphics_manager();
 
     vTaskDelay(game_play_speed);
-    // vTaskDelay(100);
   }
 }
 
 void graphics_life_object_manager_task(void *p) {
   while (1) {
     game_play__life_object_manager();
-    vTaskDelay(15 * 1000);
+    vTaskDelay(10 * 1000);
   }
 }
 
@@ -177,8 +173,6 @@ void send_mp3_task(void *p) {
         fprintf(stderr, "Playing bg\n");
       }
       vTaskDelay(5);
-      //        vTaskDelay(mp3_details.mp3_duration);
-
       break;
 
     case GUNSHOT:
@@ -188,12 +182,6 @@ void send_mp3_task(void *p) {
       update_mp3_details(DEFAULT_BG, default_bg_duration - 100);
       break;
 
-      // case ENEMY_DEAD:
-      //   mp3__send_command(C_PLAY_FOLD_FILE, 0x0401);
-      //   vTaskDelay(mp3_details.mp3_duration);
-      //   change_song = 1;
-      //   update_mp3_details(DEFAULT_BG, default_bg_duration - 100);
-      //   break;
     case LEVEL_UP:
       play_once = true;
       mp3__send_command(C_PLAY_FOLD_FILE, 0x0501);
@@ -239,14 +227,6 @@ void joystick_task(void *p) {
   joystick__initialize(x, y, s_k);
   zigbee__cs();
   while (1) {
-
-    // joystick_val = joystick__get_value();
-    // led_matrix__clear_data_buffer();
-    // led_matrix__set_pixel(joystick_val.y, joystick_val.x, RED);
-    // char my_ch[2] = {"x"};
-    // print_char(my_ch, joystick_val.y, 63 - joystick_val.x, 7);
-    // printf("X axis : %d,\tY axis : %d\n", joystick_val.x, joystick_val.y);
-    // graphics__turn_on_all_leds(GREEN);
     joystick_comm__send();
     vTaskDelay(20);
   }

@@ -28,7 +28,7 @@ uint32_t game_play__level_manager(void) {
     break;
 
   case LEVEL_1_TRANSITION:
-    game_level_pause = 3 * 1000;
+    game_level_pause = 1 * 1000;
     next_level = LEVEL_1;
     break;
 
@@ -39,7 +39,7 @@ uint32_t game_play__level_manager(void) {
     break;
 
   case LEVEL_2_TRANSITION:
-    game_level_pause = 3 * 1000;
+    game_level_pause = 1 * 1000;
     next_level = LEVEL_2;
     break;
 
@@ -49,7 +49,7 @@ uint32_t game_play__level_manager(void) {
     break;
 
   case LEVEL_3_TRANSITION:
-    game_level_pause = 3 * 1000;
+    game_level_pause = 1 * 1000;
     next_level = LEVEL_3;
     break;
 
@@ -87,7 +87,7 @@ uint32_t game_play__level_manager(void) {
 uint32_t game_play__graphics_manager(void) {
 
   static uint8_t number_of_live_enemies;
-  static uint16_t game_play_speed = 50;
+  static uint16_t game_play_speed = 35;
   bool transition = false;
   static bool game_over_music_once = false;
   uint8_t row = 28;
@@ -220,24 +220,28 @@ void game_play__life_object_manager(void) {
   uint8_t life_object_probability = 0;
   switch (current_level) {
   case LEVEL_1:
-    life_object_probability = rand() % 5;
-    if (life_object_probability == 4)
-      object_tracking__revive_life_object();
-    break;
-
-  case LEVEL_2:
-    life_object_probability = rand() % 3;
-    if (life_object_probability == 2)
-      object_tracking__revive_life_object();
-    break;
-
-  case LEVEL_3:
     life_object_probability = rand() % 2;
-    if (life_object_probability == 1)
+    if (life_object_probability == 1) {
       object_tracking__revive_life_object();
-    break;
+      set_onscreen_object_details(1, LIFE_OBJECT, true);
+      break;
 
-  default:
-    break;
+    case LEVEL_2:
+      life_object_probability = rand() % 2;
+      if (life_object_probability == 1)
+        object_tracking__revive_life_object();
+      set_onscreen_object_details(1, LIFE_OBJECT, true);
+      break;
+
+    case LEVEL_3:
+      life_object_probability = rand() % 1;
+      if (life_object_probability == 0)
+        object_tracking__revive_life_object();
+      set_onscreen_object_details(1, LIFE_OBJECT, true);
+      break;
+
+    default:
+      break;
+    }
   }
 }
