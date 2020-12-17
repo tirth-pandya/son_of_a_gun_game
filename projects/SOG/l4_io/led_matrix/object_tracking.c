@@ -219,20 +219,19 @@ void collision_detection() {
         if (((onscreen_objects_struct[i].row) <= x) && ((onscreen_objects_struct[i].row) + 7 >= x) &&
             ((onscreen_objects_struct[i].column) <= y) && ((onscreen_objects_struct[i].column) + 7 >= y) &&
             ((onscreen_objects_struct[i].obj_nature) == ENEMY_OBJECT)) {
+
+          onscreen_objects_struct[i].status = false;
           life--;
           friend_got_hurt = true;
-          onscreen_objects_struct[i].status = false;
           if (life == 0) {
             // life--;
             onscreen_objects_struct[0].status = false;
             game_play__update_game_over_level();
           }
+          // i and j has been changed to its limit to avoid detecting same enemy multiple times
+          i = (number_of_objects - 1);
+          j = 63;
         }
-      }
-
-      if (((onscreen_objects_struct[0].row) <= x) && ((onscreen_objects_struct[0].row) + 7 >= x) &&
-          ((onscreen_objects_struct[0].column) <= y) && ((onscreen_objects_struct[0].column) + 7 >= y) &&
-          ((onscreen_objects_struct[0].obj_nature) == FRIEND_OBJECT)) {
       }
     }
   }
