@@ -198,7 +198,7 @@ void send_mp3_task(void *p) {
 
       vTaskDelay(mp3_details.mp3_duration);
       change_song = 1;
-      update_mp3_details(DEFAULT_BG, default_bg_duration - 100);
+      // update_mp3_details(DEFAULT_BG, default_bg_duration - 100);
 
       break;
     default:

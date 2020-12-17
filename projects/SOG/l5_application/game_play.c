@@ -23,7 +23,7 @@ uint32_t game_play__level_manager(void) {
   current_level = next_level;
   switch (current_level) {
   case STARTUP:
-    game_level_pause = 10 * 1000;
+    game_level_pause = 7 * 1000;
     next_level = LEVEL_1_TRANSITION;
     break;
 
@@ -54,7 +54,7 @@ uint32_t game_play__level_manager(void) {
     break;
 
   case LEVEL_3:
-    game_level_pause = 60 * 1000;
+    game_level_pause = 45 * 1000;
     next_level = GAME_WINNER;
     break;
 
@@ -98,6 +98,8 @@ uint32_t game_play__graphics_manager(void) {
     transition = true;
     led_matrix__clear_data_buffer();
     draw_welcome(5, 9);
+    update_mp3_details(DEFAULT_BG, default_bg_duration);
+
     print_score(max_game_score, 50, 31, RED);
     game_over_music_once = false;
     break;
@@ -214,6 +216,7 @@ uint32_t game_play__graphics_manager(void) {
 void game_play__update_game_over_level(void) {
   current_level = GAME_OVER_LEVEL;
   next_level = STARTUP;
+  printf("updating game over\n");
 }
 
 void game_play__life_object_manager(void) {
