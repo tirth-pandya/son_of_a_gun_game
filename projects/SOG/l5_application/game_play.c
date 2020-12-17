@@ -23,7 +23,7 @@ uint32_t game_play__level_manager(void) {
   current_level = next_level;
   switch (current_level) {
   case STARTUP:
-    game_level_pause = 7 * 1000;
+    game_level_pause = 4 * 1000;
     next_level = LEVEL_1_TRANSITION;
     break;
 
