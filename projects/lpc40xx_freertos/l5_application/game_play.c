@@ -23,38 +23,38 @@ uint32_t game_play__level_manager(void) {
   current_level = next_level;
   switch (current_level) {
   case STARTUP:
-    game_level_pause = 15 * 1000;
+    game_level_pause = 10 * 1000;
     next_level = LEVEL_1_TRANSITION;
     break;
 
   case LEVEL_1_TRANSITION:
-    game_level_pause = 1 * 1000;
+    game_level_pause = 3 * 1000;
     next_level = LEVEL_1;
     break;
 
   case LEVEL_1:
-    game_level_pause = 10 * 1000;
+    game_level_pause = 45 * 1000;
     next_level = LEVEL_2_TRANSITION;
 
     break;
 
   case LEVEL_2_TRANSITION:
-    game_level_pause = 1 * 1000;
+    game_level_pause = 3 * 1000;
     next_level = LEVEL_2;
     break;
 
   case LEVEL_2:
-    game_level_pause = 10 * 1000;
+    game_level_pause = 45 * 1000;
     next_level = LEVEL_3_TRANSITION;
     break;
 
   case LEVEL_3_TRANSITION:
-    game_level_pause = 1 * 1000;
+    game_level_pause = 3 * 1000;
     next_level = LEVEL_3;
     break;
 
   case LEVEL_3:
-    game_level_pause = 20 * 1000;
+    game_level_pause = 60 * 1000;
     next_level = GAME_WINNER;
     break;
 
@@ -89,7 +89,7 @@ uint32_t game_play__graphics_manager(void) {
   static uint8_t number_of_live_enemies;
   static uint16_t game_play_speed = 50;
   bool transition = false;
-  bool game_over_music_once = false;
+  static bool game_over_music_once = false;
   uint8_t row = 28;
   uint8_t col = 15;
   switch (current_level) {
@@ -164,11 +164,7 @@ uint32_t game_play__graphics_manager(void) {
 
   case GAME_OVER_LEVEL:
     transition = true;
-    if (!game_over_music_once) {
-      update_mp3_details(GAME_OVER, gameover_duration);
-      game_over_music_once = true;
-    } else
-      update_mp3_details(MAX_TRACK, gameover_duration);
+    update_mp3_details(GAME_OVER, gameover_duration);
 
     char level_over_string[10] = "game over";
     led_matrix__clear_data_buffer();
@@ -177,8 +173,10 @@ uint32_t game_play__graphics_manager(void) {
     static_object_at_game_over();
     draw_from_structure();
     char your_score_string[11] = "score";
-    print_char(your_score_string, row + 8, 14, RED);
-    // print_score(enemy_score, row+8, 40, RED);
+    print_char(your_score_string, row + 8, 9, BLUE);
+    print_score(enemy_score, row + 8, 42, BLUE);
+    draw_crown(50, 21);
+    print_score(max_game_score, 50, 31, RED);
     game_play_speed = 400;
     break;
 

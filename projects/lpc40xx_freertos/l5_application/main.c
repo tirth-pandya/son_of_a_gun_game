@@ -166,6 +166,7 @@ void receive_zigbee_task(void *p) {
 void send_mp3_task(void *p) {
   mp3__send_command(C_SEL_DEV, D_TF_CARD);
   change_song = 1;
+  bool play_once = true;
   update_mp3_details(DEFAULT_BG, default_bg_duration);
   while (1) {
     switch (mp3_details.mp3_to_play) {
@@ -194,6 +195,7 @@ void send_mp3_task(void *p) {
       //   update_mp3_details(DEFAULT_BG, default_bg_duration - 100);
       //   break;
     case LEVEL_UP:
+      play_once = true;
       mp3__send_command(C_PLAY_FOLD_FILE, 0x0501);
       vTaskDelay(mp3_details.mp3_duration);
       change_song = 1;
@@ -201,7 +203,11 @@ void send_mp3_task(void *p) {
       break;
 
     case GAME_OVER:
-      mp3__send_command(C_PLAY_FOLD_FILE, 0x0601);
+      if (play_once) {
+        mp3__send_command(C_PLAY_FOLD_FILE, 0x0601);
+        play_once = false;
+      }
+
       vTaskDelay(mp3_details.mp3_duration);
       change_song = 1;
       update_mp3_details(DEFAULT_BG, default_bg_duration - 100);
