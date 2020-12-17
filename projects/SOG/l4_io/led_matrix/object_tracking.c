@@ -6,29 +6,32 @@
 static uint8_t first_moving_object = 1, first_enemy_object = 2;
 time_t t;
 struct object_details onscreen_objects_struct[number_of_objects];
-uint8_t life, enemy_score;
+uint8_t life = 15, enemy_score;
 bool friend_got_hurt = false;
 
 void initialize_object_details() {
   int random;
-  life = 10;
+  life = 15;
   enemy_score = 0;
   // void_function_t draw_enemy_pointer = &draw_enemy;
   for (int i = 0; i < number_of_objects; i++) {
     random = rand() % 63;
     onscreen_objects_struct[i].row = random;
     random = rand() % 63;
-    onscreen_objects_struct[i].column = random;
 
     if (i == 0) {
       onscreen_objects_struct[i].status = true;
       onscreen_objects_struct[i].obj_nature = FRIEND_OBJECT;
+      onscreen_objects_struct[i].column = 0;
     } else if (i == 1) {
       onscreen_objects_struct[i].obj_nature = LIFE_OBJECT;
       onscreen_objects_struct[i].status = false;
+      onscreen_objects_struct[i].column = random;
+
     } else {
       onscreen_objects_struct[i].obj_nature = ENEMY_OBJECT;
       onscreen_objects_struct[i].status = false;
+      onscreen_objects_struct[i].column = random;
     }
 
     // onscreen_objects_struct[i].obj_nature = rand() % 2;
@@ -101,6 +104,10 @@ void draw_from_structure() {
 
         if ((onscreen_objects_struct[i].row > (row_boundary_lower - 8))) {
           onscreen_objects_struct[i].row = row_boundary_lower - 8;
+        }
+
+        if ((onscreen_objects_struct[i].column > 55)) {
+          onscreen_objects_struct[i].column = 55;
         }
 
         draw_friend(onscreen_objects_struct[i].row, onscreen_objects_struct[i].column);
@@ -326,8 +333,7 @@ void static_object_at_game_over() {
     if (i == 0) {
       onscreen_objects_struct[i].status = true;
       onscreen_objects_struct[i].obj_nature = FRIEND_OBJECT;
-      onscreen_objects_struct[i].column = 10;
-      onscreen_objects_struct[i].row = 10;
+      update_friend_location();
     } else if (i == 1) {
       onscreen_objects_struct[i].obj_nature = LIFE_OBJECT;
       onscreen_objects_struct[i].status = true;
